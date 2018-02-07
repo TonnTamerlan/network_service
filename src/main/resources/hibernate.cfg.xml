@@ -20,6 +20,9 @@
         <property name="show_sql">true</property>
 		
 		<mapping class="dbService.dataSets.User" />
-		<mapping class="dbService.dataSets.Role" />		
+		<mapping class="dbService.dataSets.Role" />
+		<mapping class="dbService.dataSets.Division" />	
+		<mapping class="dbService.dataSets.Unit" />	
+		<mapping class="dbService.dataSets.Equipment" />	
     </session-factory>
 </hibernate-configuration>
