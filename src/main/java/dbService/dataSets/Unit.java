@@ -5,26 +5,23 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 /**
  * Class contains information about unit
  * 
  * @author Alexey Kopylov
  *
- *@version 1.0
+ * @version 1.0
  */
 
 @Entity
 @Table(name = "units")
-public class Unit implements Serializable {
+public class Unit extends Model implements Serializable {
 
 	private static final long serialVersionUID = 6066299839648490881L;
 
-	@Id
-	@Column(name = "unit_id")
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long unit_id;
-
+	@NotNull
 	@Column(name = "name", nullable = false)
 	private String name;
 
@@ -33,23 +30,20 @@ public class Unit implements Serializable {
 
 	@Column(name = "sources")
 	private String sources;
-	
-	@ManyToOne
+
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinColumn(name = "division_id")
 	private Division division;
-	
-	@OneToMany(mappedBy = "unit", fetch = FetchType.LAZY)
+
+	@OneToMany(mappedBy = "unit", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private Set<Equipment> equipments = new HashSet<>();
 
 	public Unit() {
+		super();
 	}
 
-	public long getUnit_id() {
-		return unit_id;
-	}
-
-	public void setUnit_id(long unit_id) {
-		this.unit_id = unit_id;
+	public Unit(long id) {
+		super(id);
 	}
 
 	public String getName() {
@@ -97,7 +91,7 @@ public class Unit implements Serializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + (int) (unit_id ^ (unit_id >>> 32));
+		result = prime * result + (int) (this.getId() ^ (this.getId() >>> 32));
 		return result;
 	}
 
@@ -115,9 +109,9 @@ public class Unit implements Serializable {
 				return false;
 		} else if (!name.equals(other.name))
 			return false;
-		if (unit_id != other.unit_id)
+		if (this.getId() != other.getId())
 			return false;
 		return true;
 	}
-	
+
 }

@@ -5,38 +5,34 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 /**
  * Class contains information about role of user
  * 
  * @author Alexey Kopylov
  *
- *@version 1.0
+ * @version 1.0
  */
 
 @Entity
 @Table(name = "roles")
-public class Role implements Serializable {
+public class Role extends Model implements Serializable {
 
 	private static final long serialVersionUID = 1531665300196850154L;
 
-	@Id
-	@Column(name = "role_id")
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long roleId;
-
+	@NotNull
 	@Column(name = "name", nullable = false, unique = true, updatable = false)
 	private String name;
 
-	@OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "role", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private Set<User> users = new HashSet<>();
 
-	public long getRoleId() {
-		return roleId;
+	public Role() {
 	}
 
-	public void setRoleId(long roleId) {
-		this.roleId = roleId;
+	public Role(long id) {
+		super(id);
 	}
 
 	public String getName() {
@@ -60,7 +56,7 @@ public class Role implements Serializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + (int) (roleId ^ (roleId >>> 32));
+		result = prime * result + (int) (this.getId() ^ (this.getId() >>> 32));
 		return result;
 	}
 
@@ -78,7 +74,7 @@ public class Role implements Serializable {
 				return false;
 		} else if (!name.equals(other.name))
 			return false;
-		if (roleId != other.roleId)
+		if (this.getId() != other.getId())
 			return false;
 		return true;
 	}

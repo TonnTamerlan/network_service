@@ -4,69 +4,80 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
+
 
 /**
  * Class contains information about user
  * 
  * @author Alexey Kopylov
  *
- *@version 1.0
+ * @version 1.0
  */
 
 @Entity
 @Table(name = "users")
-public class User implements Serializable {
+public class User extends Model implements Serializable {
 
 	private static final long serialVersionUID = -541666259107919334L;
 
-	@Id
-	@Column(name = "user_id")
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long userId;
-
+	@NotNull
 	@Column(name = "login", unique = true, updatable = true, nullable = false)
 	private String login;
 
+	@NotNull
 	@Column(name = "password", unique = false, updatable = true, nullable = false)
 	private String password;
 
+	@NotNull
 	@Column(name = "first_name", updatable = true, nullable = false)
 	private String firstName;
 
+	@NotNull
 	@Column(name = "last_name", updatable = true, nullable = false)
 	private String lastName;
 
 	@Column(name = "middle_name", updatable = true, nullable = true)
 	private String middleName;
 
+	@Email
+	@NotNull
 	@Column(name = "email", updatable = true, nullable = false)
 	private String email;
 
+	@NotNull
 	@Column(name = "phone", updatable = true, nullable = false)
 	private String phone;
 
+	@NotNull
 	@Column(name = "title", updatable = true, nullable = false)
 	private String title;
 
-	@ManyToMany(fetch = FetchType.LAZY)
+	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinTable(name = "user_division", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "division_id") })
 	private Set<Division> divisions = new HashSet<>();
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinColumn(name = "role_id")
 	private Role role;
 
-	protected User() {
+	public User() {
+		super();
 	}
 
-	public long getUserId() {
-		return userId;
-	}
-
-	public void setUserId(long userId) {
-		this.userId = userId;
+	public User(long id) {
+		super(id);
 	}
 
 	public String getLogin() {
@@ -154,7 +165,7 @@ public class User implements Serializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((login == null) ? 0 : login.hashCode());
-		result = prime * result + (int) (userId ^ (userId >>> 32));
+		result = prime * result + (int) (this.getId() ^ (this.getId() >>> 32));
 		return result;
 	}
 
@@ -172,7 +183,7 @@ public class User implements Serializable {
 				return false;
 		} else if (!login.equals(other.login))
 			return false;
-		if (userId != other.userId)
+		if (this.getId() != other.getId())
 			return false;
 		return true;
 	}

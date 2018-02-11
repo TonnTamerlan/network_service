@@ -3,48 +3,43 @@ package dbService.dataSets;
 import java.io.Serializable;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 /**
  * Class contains information about equipment
  * 
  * @author Alexey Kopylov
  *
- *@version 1.0
+ * @version 1.0
  */
 
 @Entity
 @Table(name = "equipments")
-public class Equipment implements Serializable {
+public class Equipment extends Model implements Serializable {
 
 	private static final long serialVersionUID = -1870858169605152340L;
 
-	@Id
-	@Column(name = "equipment_id")
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long equipment_id;
-
+	@NotNull
 	@Column(name = "name", nullable = false)
 	private String name;
 
+	@NotNull
 	@Column(name = "ip", nullable = false)
 	private String ip;
 
 	@Column(name = "discription", length = 1000)
 	private String discription;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinColumn(name = "unit_id")
 	private Unit unit;
-	
+
 	public Equipment() {
+		super();
 	}
 
-	public long getEquipment_id() {
-		return equipment_id;
-	}
-
-	public void setEquipment_id(long equipment_id) {
-		this.equipment_id = equipment_id;
+	public Equipment(long id) {
+		super(id);
 	}
 
 	public String getName() {
@@ -83,7 +78,7 @@ public class Equipment implements Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + (int) (equipment_id ^ (equipment_id >>> 32));
+		result = prime * result + (int) (this.getId() ^ (this.getId() >>> 32));
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		return result;
 	}
@@ -97,7 +92,7 @@ public class Equipment implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		Equipment other = (Equipment) obj;
-		if (equipment_id != other.equipment_id)
+		if (this.getId() != other.getId())
 			return false;
 		if (name == null) {
 			if (other.name != null)
@@ -107,5 +102,4 @@ public class Equipment implements Serializable {
 		return true;
 	}
 
-	
 }

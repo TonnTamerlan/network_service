@@ -5,50 +5,44 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.*;
-
+import javax.validation.constraints.NotNull;
 /**
  * Class contains information about devision of company
  * 
  * @author Alexey Kopylov
  *
- *@version 1.0
+ * @version 1.0
  */
 
 @Entity
 @Table(name = "divisions")
-public class Division implements Serializable {
+public class Division extends Model implements Serializable {
 
 	private static final long serialVersionUID = -2263018369978708510L;
-	
-	@Id
-	@Column(name = "division_id")
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long division_id;
-	
+
+	@NotNull
 	@Column(name = "name", nullable = false, unique = true)
 	private String name;
-	
+
+	@NotNull
 	@Column(name = "adress", nullable = false)
 	private String adress;
-	
+
 	@Column(name = "phone")
 	private String phone;
-	
-	@ManyToMany(mappedBy = "divisions")
+
+	@ManyToMany(mappedBy = "divisions", cascade = CascadeType.ALL)
 	private Set<User> users = new HashSet<>();
-	
-	@OneToMany(mappedBy = "division", fetch = FetchType.LAZY)
+
+	@OneToMany(mappedBy = "division", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private Set<Unit> units = new HashSet<>();
-	
+
 	public Division() {
+		super();
 	}
 
-	public long getDivision_id() {
-		return division_id;
-	}
-
-	public void setDivision_id(long division_id) {
-		this.division_id = division_id;
+	public Division(long id) {
+		super(id);
 	}
 
 	public String getName() {
@@ -96,7 +90,7 @@ public class Division implements Serializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((adress == null) ? 0 : adress.hashCode());
-		result = prime * result + (int) (division_id ^ (division_id >>> 32));
+		result = prime * result + (int) (this.getId() ^ (this.getId() >>> 32));
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		return result;
 	}
@@ -115,7 +109,7 @@ public class Division implements Serializable {
 				return false;
 		} else if (!adress.equals(other.adress))
 			return false;
-		if (division_id != other.division_id)
+		if (this.getId() != other.getId())
 			return false;
 		if (name == null) {
 			if (other.name != null)
