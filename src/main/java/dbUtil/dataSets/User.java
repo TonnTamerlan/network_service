@@ -18,9 +18,15 @@ import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "users")
-public class User extends Model implements Serializable {
+public class User implements Serializable {
 
 	private static final long serialVersionUID = -541666259107919334L;
+	
+	@NotNull
+	@Id
+	@Column(name = "id")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private long id;
 
 	@NotNull
 	@Column(name = "login", unique = true, updatable = true, nullable = false)
@@ -64,11 +70,18 @@ public class User extends Model implements Serializable {
 	private Role role;
 
 	public User() {
-		super();
 	}
 
 	public User(long id) {
-		super(id);
+		this.id = id;
+	}
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
 	}
 
 	public String getLogin() {

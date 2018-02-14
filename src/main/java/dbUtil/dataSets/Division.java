@@ -17,10 +17,16 @@ import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "divisions")
-public class Division extends Model implements Serializable {
+public class Division implements Serializable {
 
 	private static final long serialVersionUID = -2263018369978708510L;
 
+	@NotNull
+	@Id
+	@Column(name = "id")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private long id;
+	
 	@NotNull
 	@Column(name = "name", nullable = false, unique = true)
 	private String name;
@@ -39,11 +45,18 @@ public class Division extends Model implements Serializable {
 	private Set<Unit> units = new HashSet<>();
 
 	public Division() {
-		super();
 	}
 
 	public Division(long id) {
-		super(id);
+		this.id = id;
+	}
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
 	}
 
 	public String getName() {
@@ -126,17 +139,18 @@ public class Division extends Model implements Serializable {
 	@Override
 	public String toString() {
 		StringBuilder str = new StringBuilder();
-		str.append("Division =\n").append("{\n").append("\t\"id\": ").append(this.getId()).append("\",\n")
-				.append("\t\"name\": \"").append(name).append("\",\n").append("\t\"adress\": \"").append(adress)
-				.append("\",\n").append("\t\"phone\": \"").append(phone).append("\"\n").append("\t\"users\":\n\t{\n");
-		;
-
+		str.append("Division =\n")
+				.append("{\n")
+				.append("\t\"id\": ").append(this.getId()).append("\",\n")
+				.append("\t\"name\": \"").append(name).append("\",\n")
+				.append("\t\"adress\": \"").append(adress).append("\",\n")
+				.append("\t\"phone\": \"").append(phone).append("\"\n")
+				.append("\t\"users\":\n\t{\n");
 		if (users != null && !users.isEmpty()) {
 			for (User user : users) {
 				str.append("\t\t\"").append(user.getLogin()).append("\"\n");
 			}
 		}
-
 		str.append("\t}\n").append("}");
 		return str.toString();
 	}

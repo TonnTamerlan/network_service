@@ -17,13 +17,23 @@ import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "units")
-public class Unit extends Model implements Serializable {
+public class Unit implements Serializable {
 
 	private static final long serialVersionUID = 6066299839648490881L;
 
 	@NotNull
+	@Id
+	@Column(name = "id")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private long id;
+	
+	@NotNull
 	@Column(name = "name", nullable = false)
 	private String name;
+	
+	@NotNull
+	@Column(name = "adress", nullable = false)
+	private String adress;
 
 	@Column(name = "photos")
 	private String photos;
@@ -39,11 +49,18 @@ public class Unit extends Model implements Serializable {
 	private Set<Equipment> equipments = new HashSet<>();
 
 	public Unit() {
-		super();
+	}
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
 	}
 
 	public Unit(long id) {
-		super(id);
+		this.id = id;
 	}
 
 	public String getName() {
@@ -52,6 +69,14 @@ public class Unit extends Model implements Serializable {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getAdress() {
+		return adress;
+	}
+
+	public void setAdress(String adress) {
+		this.adress = adress;
 	}
 
 	public String getPhotos() {
@@ -76,10 +101,23 @@ public class Unit extends Model implements Serializable {
 
 	public void setDivision(Division division) {
 		this.division = division;
+		if (division != null) {
+			division.getUnits().add(this);
+		}
 	}
 
 	public Set<Equipment> getEquipments() {
 		return equipments;
+	}
+	
+	public void addEquipment(Equipment equip) {
+		if (equip == null) {
+			return;
+		}
+		if (!this.equipments.contains(equip)) {
+			equipments.add(equip);
+		}
+		equip.setUnit(this);
 	}
 
 	public void setEquipments(Set<Equipment> equipments) {
@@ -90,8 +128,8 @@ public class Unit extends Model implements Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((adress == null) ? 0 : adress.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + (int) (this.getId() ^ (this.getId() >>> 32));
 		return result;
 	}
 
@@ -104,14 +142,36 @@ public class Unit extends Model implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		Unit other = (Unit) obj;
+		if (adress == null) {
+			if (other.adress != null)
+				return false;
+		} else if (!adress.equals(other.adress))
+			return false;
 		if (name == null) {
 			if (other.name != null)
 				return false;
 		} else if (!name.equals(other.name))
 			return false;
-		if (this.getId() != other.getId())
-			return false;
 		return true;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder str = new StringBuilder();
+		str.append("Unit =\n")
+				.append("{\n")
+				.append("\t\"id\": ").append(this.getId()).append("\",\n")
+				.append("\t\"name\": \"").append(name).append("\",\n")
+				.append("\t\"adress\": \"").append(adress).append("\",\n")
+				.append("\t\"division\": \"").append(division).append("\"\n")
+				.append("\t\"equipments\":\n\t{\n");
+		if (equipments != null && !equipments.isEmpty()) {
+			for (Equipment equip : equipments) {
+				str.append("\t\t\"").append(equip.getName()).append("\"\n");
+			}
+		}
+		str.append("\t}\n").append("}");
+		return str.toString();
 	}
 
 }

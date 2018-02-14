@@ -15,10 +15,16 @@ import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "equipments")
-public class Equipment extends Model implements Serializable {
+public class Equipment implements Serializable {
 
 	private static final long serialVersionUID = -1870858169605152340L;
 
+	@NotNull
+	@Id
+	@Column(name = "id")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private long id;
+	
 	@NotNull
 	@Column(name = "name", nullable = false)
 	private String name;
@@ -35,11 +41,18 @@ public class Equipment extends Model implements Serializable {
 	private Unit unit;
 
 	public Equipment() {
-		super();
 	}
 
 	public Equipment(long id) {
-		super(id);
+		this.id = id;
+	}
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
 	}
 
 	public String getName() {
@@ -72,6 +85,9 @@ public class Equipment extends Model implements Serializable {
 
 	public void setUnit(Unit unit) {
 		this.unit = unit;
+		if (unit != null) {
+			unit.addEquipment(this);
+		}
 	}
 
 	@Override
@@ -100,6 +116,19 @@ public class Equipment extends Model implements Serializable {
 		} else if (!name.equals(other.name))
 			return false;
 		return true;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder str = new StringBuilder();
+		str.append("Division =\n")
+				.append("{\n")
+				.append("\t\"id\": ").append(this.getId()).append("\",\n")
+				.append("\t\"name\": \"").append(name).append("\",\n")
+				.append("\t\"ip\": \"").append(ip).append("\",\n")
+				.append("\t\"unit\": \"").append(unit).append("\"\n")
+				.append("}");
+		return str.toString();
 	}
 
 }
