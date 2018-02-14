@@ -1,4 +1,4 @@
-package dbService;
+package dbUtil;
 
 /**
  * Interface for working with Data Base
@@ -8,6 +8,10 @@ package dbService;
  *
  */
 public interface DBService {
-	
-	
+
+	public void stop();
+
+	public boolean isWorked();
+
+	public void start();
 }

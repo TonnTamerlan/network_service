@@ -1,21 +1,12 @@
-package dbService.dataSets;
+package dbUtil.dataSets;
 
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
-
 
 /**
  * Class contains information about user
@@ -68,8 +59,8 @@ public class User extends Model implements Serializable {
 			@JoinColumn(name = "division_id") })
 	private Set<Division> divisions = new HashSet<>();
 
-	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	@JoinColumn(name = "role_id")
+	@NotNull
+	@Column(name = "role", nullable = false)
 	private Role role;
 
 	public User() {
@@ -152,6 +143,19 @@ public class User extends Model implements Serializable {
 		this.divisions = divisions;
 	}
 
+	public void addDivision(Division div) {
+		if (div == null) {
+			return;
+		}
+		if (!this.divisions.contains(div)) {
+			this.divisions.add(div);
+		}
+		if (!div.getUsers().contains(this)) {
+			div.addUser(this);
+		}
+	}
+
+	@Enumerated(EnumType.STRING)
 	public Role getRole() {
 		return role;
 	}
@@ -165,9 +169,9 @@ public class User extends Model implements Serializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((login == null) ? 0 : login.hashCode());
-		result = prime * result + (int) (this.getId() ^ (this.getId() >>> 32));
 		return result;
 	}
+
 
 	@Override
 	public boolean equals(Object obj) {
@@ -183,9 +187,29 @@ public class User extends Model implements Serializable {
 				return false;
 		} else if (!login.equals(other.login))
 			return false;
-		if (this.getId() != other.getId())
-			return false;
 		return true;
+	}
+
+	@Override
+	public String toString() {
+
+		StringBuilder str = new StringBuilder();
+		str.append("User =\n").append("{\n").append("\t\"id\": ").append(this.getId()).append("\",\n")
+				.append("\t\"login\": \"").append(login).append("\",\n").append("\t\"password\": \"").append(password)
+				.append("\"\n").append("\t\"firstName\": \"").append(firstName).append("\"\n")
+				.append("\t\"lastName\": \"").append(lastName).append("\"\n").append("\t\"title\": \"").append(title)
+				.append("\"\n").append("\t\"phone\": \"").append(phone).append("\"\n").append("\t\"role\": \"")
+				.append(role).append("\"\n").append("\t\"divisions\":\n\t{\n");
+
+		if (divisions != null && !divisions.isEmpty()) {
+			for (Division div : divisions) {
+				str.append("\t\t\"").append(div.getName()).append("\"\n");
+			}
+		}
+
+		str.append("\t}\n").append("}");
+
+		return str.toString();
 	}
 
 }

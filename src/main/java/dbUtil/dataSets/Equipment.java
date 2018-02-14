@@ -1,4 +1,4 @@
-package dbService.dataSets;
+package dbUtil.dataSets;
 
 import java.io.Serializable;
 
