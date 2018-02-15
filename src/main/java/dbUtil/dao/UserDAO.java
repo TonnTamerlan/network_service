@@ -70,7 +70,7 @@ public interface UserDAO {
 	public void deleteUser(User user);
 	
 	/**
-	 * Update information user's information
+	 * Update user's information
 	 * 
 	 * @param user
 	 */
