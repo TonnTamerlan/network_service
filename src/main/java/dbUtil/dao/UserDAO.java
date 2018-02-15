@@ -42,6 +42,13 @@ public interface UserDAO {
 	public User getUserByLogin(String login);
 	
 	/**
+	 * Return all of users from repository
+	 * 
+	 * @return Set of all of users
+	 */
+	public Set<User> getAllUsers();
+	
+	/**
 	 * Find and delete user by id
 	 * 
 	 * @param id is primary key
