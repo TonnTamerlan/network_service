@@ -19,7 +19,7 @@ public interface UnitDAO {
 	 * 
 	 * @param user
 	 */
-	public void addUnit(Unit unit);
+	public void add(Unit unit);
 	
 	
 	/**
@@ -28,7 +28,7 @@ public interface UnitDAO {
 	 * @param id is the primary key
 	 * @return unit
 	 */
-	public Unit getUnitByID(long id);
+	public Unit getByID(long id);
 	
 	/**
 	 * Find and read unit by unit's name and a division
@@ -37,7 +37,7 @@ public interface UnitDAO {
 	 * @param is division which the unit belongs
 	 * @return unit
 	 */
-	public Unit getUnitByNameAndDevision(String nameUnit, Division division);
+	public Unit getByNameAndDevision(String nameUnit, Division division);
 	
 	/**
 	 * Find and read unit by unit's name and a division
@@ -46,14 +46,14 @@ public interface UnitDAO {
 	 * @param nameDivision is name of division which the unit belongs
 	 * @return unit
 	 */
-	public Unit getUnitByNameAndDevision(String nameUnit, String nameDivision);
+	public Unit getByNameAndDevision(String nameUnit, String nameDivision);
 	
 	/**
 	 * Return all of units from repository
 	 * 
 	 * @return Set of all units
 	 */
-	public Set<Unit> getAllUnits();
+	public Set<Unit> getAll();
 	
 	/**
 	 * Get all equipments of the Unit which name is nameUnit and belongs division
@@ -78,14 +78,14 @@ public interface UnitDAO {
 	 * 
 	 * @param unit
 	 */
-	public void updateUnit(Unit unit);
+	public void update(Unit unit);
 	
 	/**
 	 * Find and delete user
 	 * 
 	 * @param unit
 	 */
-	public void deleteUnit(Unit unit);
+	public void delete(Unit unit);
 	
 	/**
 	 * Find and delete user which name is nameUnit and belongs the division
@@ -93,7 +93,7 @@ public interface UnitDAO {
 	 * @param nameUnit is unit's name
 	 * @param division is division which the unit belongs
 	 */
-	public void deleteUnit(String nameUnit, Division division);
+	public void delete(String nameUnit, Division division);
 	
 	/**
 	 * Find and delete user which name is nameUnit and belongs division which name is nameDevision
@@ -101,6 +101,6 @@ public interface UnitDAO {
 	 * @param nameUnit is unit's name
 	 * @param nameDivision is name of division which the unit belongs
 	 */
-	public void deleteUnit(String nameUnit, String nameDivision);
+	public void delete(String nameUnit, String nameDivision);
 	
 }
