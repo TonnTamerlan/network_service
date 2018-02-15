@@ -10,16 +10,16 @@ import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 
-public class DBServiceImpl implements DBService {
+public class DBService {
 	private SessionFactory sessionFactory = null;
 	private String CFG_RESOURCE_NAME = "hibernate.cfg.xml";
 	
 	
 	//TODO add and configure normal logging
-	private static Logger logger = Logger.getLogger(DBServiceImpl.class.getName());
+	private static Logger logger = Logger.getLogger(DBService.class.getName());
 	
 	
-	public DBServiceImpl() {
+	public DBService() {
 		this.start();
 	}
 
@@ -33,7 +33,6 @@ public class DBServiceImpl implements DBService {
 		return metaData.getSessionFactoryBuilder().build();
 	}
 
-	@Override
 	public void stop() {
 		if(this.isWorked()) {
 			sessionFactory.close();
@@ -41,12 +40,10 @@ public class DBServiceImpl implements DBService {
 		logger.log(Level.INFO, "Data base service is closed");
 	}
 
-	@Override
 	public boolean isWorked() {
 		return sessionFactory != null && sessionFactory.isOpen();
 	}
 
-	@Override
 	public void start() {
 		if(sessionFactory == null || sessionFactory.isClosed()) {
 			Configuration cfg = new Configuration().configure(CFG_RESOURCE_NAME);
