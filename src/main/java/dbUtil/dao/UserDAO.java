@@ -49,6 +49,14 @@ public interface UserDAO {
 	public Set<User> getAll();
 	
 	/**
+	 * Get list of users which belong devision
+	 * 
+	 * @param devisionName - the unique name of the devision
+	 * @return list of users
+	 */
+	public Set<User> getUsersFromDevision(String devisionName);
+	
+	/**
 	 * Find and delete user by id
 	 * 
 	 * @param id is primary key
@@ -75,14 +83,6 @@ public interface UserDAO {
 	 * @param user
 	 */
 	public void update(User user);
-	
-	/**
-	 * Get list of divisions which belong user
-	 * 
-	 * @param login - the unique name of the user
-	 * @return list of divisions
-	 */
-	public Set<Division> getDivisions(String login);
 	
 	/**
 	 * Add division in user's information
