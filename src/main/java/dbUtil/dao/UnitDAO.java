@@ -56,24 +56,6 @@ public interface UnitDAO {
 	public Set<Unit> getAll();
 	
 	/**
-	 * Get all equipments of the Unit which name is nameUnit and belongs division
-	 * 
-	 * @param nameUnit is unit's name
-	 * @param division is division which the unit belongs
-	 * @return all the unit's equipments
-	 */
-	public Set<Equipment> getEquipments(String nameUnit, Division division);
-	
-	/**
-	 * Get all equipments of the Unit which name is nameUnit and belongs division which name is nameDevision
-	 * 
-	 * @param nameUnit is unit's name
-	 * @param nameDivision is name of division which the unit belongs
-	 * @return all the unit's equipments
-	 */
-	public Set<Equipment> getEquipments(String nameUnit, String nameDivision);
-	
-	/**
 	 * Update unit's information
 	 * 
 	 * @param unit
