@@ -2,6 +2,7 @@ package dbUtil.dao;
 
 import java.util.Set;
 
+import dbUtil.DBException;
 import dbUtil.dataSets.Division;
 import dbUtil.dataSets.User;
 
@@ -21,8 +22,9 @@ public interface UserDAO {
 	 * add user to repository
 	 * 
 	 * @param user
+	 * @throws DBException 
 	 */
-	public void add(User user);
+	public void add(User user) throws DBException;
 	
 	/**
 	 * Find and read user from repository by id
@@ -31,7 +33,7 @@ public interface UserDAO {
 	 * 
 	 * @return user
 	 */
-	public User getByID(long id);
+	public User getByID(long id) throws DBException;
 	
 	/**
 	 * Find and read user from repository by login
@@ -39,14 +41,14 @@ public interface UserDAO {
 	 * @param login - the unique name of the user
 	 * @return user
 	 */
-	public User getByLogin(String login);
+	public User getByLogin(String login) throws DBException;
 	
 	/**
 	 * Return all of users from repository
 	 * 
 	 * @return Set of all of users
 	 */
-	public Set<User> getAll();
+	public Set<User> getAll() throws DBException;
 	
 	/**
 	 * Get list of users which belong devision
@@ -54,35 +56,35 @@ public interface UserDAO {
 	 * @param devisionName - the unique name of the devision
 	 * @return list of users
 	 */
-	public Set<User> getUsersFromDevision(String devisionName);
+	public Set<User> getUsersFromDevision(String devisionName) throws DBException;
 	
 	/**
 	 * Find and delete user by id
 	 * 
 	 * @param id is primary key
 	 */
-	public void deleteByID(long id);
+	public void deleteByID(long id) throws DBException;
 	
 	/**
 	 * Find and delete user by login
 	 * 
 	 * @param login - the unique name of the user
 	 */
-	public void deleteByLogin(String login);
+	public void deleteByLogin(String login) throws DBException;
 	
 	/**
 	 * Find and delete user
 	 * 
 	 * @param user
 	 */
-	public void delete(User user);
+	public void delete(User user) throws DBException;
 	
 	/**
 	 * Update user's information
 	 * 
 	 * @param user
 	 */
-	public void update(User user);
+	public void update(User user) throws DBException;
 	
 	/**
 	 * Add division in user's information
@@ -90,6 +92,6 @@ public interface UserDAO {
 	 * @param login - the unique name of the user
 	 * @param division - the division which needs to add
 	 */
-	public void addDivision(String login, Division division);
+	public void addDivision(String login, Division division) throws DBException;
 	
 }
