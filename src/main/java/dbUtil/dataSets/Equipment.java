@@ -36,7 +36,7 @@ public class Equipment implements Serializable {
 	@Column(name = "discription", length = 1000)
 	private String discription;
 
-	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	@JoinColumn(name = "unit_id")
 	private Unit unit;
 

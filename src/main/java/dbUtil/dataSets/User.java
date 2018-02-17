@@ -66,6 +66,7 @@ public class User implements Serializable {
 	private Set<Division> divisions = new HashSet<>();
 
 	@NotNull
+	@Enumerated(EnumType.STRING)
 	@Column(name = "role", nullable = false)
 	private Role role;
 
@@ -207,14 +208,14 @@ public class User implements Serializable {
 	public String toString() {
 
 		StringBuilder str = new StringBuilder();
-		str.append("User =\n").append("{\n").append("\t\"id\": ").append(this.getId()).append("\",\n")
+		str.append("User =\n").append("{\n").append("\t\"id\": ").append(id).append("\",\n")
 				.append("\t\"login\": \"").append(login).append("\",\n").append("\t\"password\": \"").append(password)
 				.append("\"\n").append("\t\"firstName\": \"").append(firstName).append("\"\n")
 				.append("\t\"lastName\": \"").append(lastName).append("\"\n").append("\t\"title\": \"").append(title)
 				.append("\"\n").append("\t\"phone\": \"").append(phone).append("\"\n").append("\t\"role\": \"")
 				.append(role).append("\"\n").append("\t\"divisions\":\n\t{\n");
 
-		if (divisions != null && !divisions.isEmpty()) {
+		if (this.getDivisions() != null && !this.getDivisions().isEmpty()) {
 			for (Division div : divisions) {
 				str.append("\t\t\"").append(div.getName()).append("\"\n");
 			}

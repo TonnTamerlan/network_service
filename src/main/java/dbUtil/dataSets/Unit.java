@@ -41,7 +41,7 @@ public class Unit implements Serializable {
 	@Column(name = "sources")
 	private String sources;
 
-	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	@JoinColumn(name = "division_id")
 	private Division division;
 
