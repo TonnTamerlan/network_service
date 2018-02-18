@@ -1,5 +1,6 @@
 package dbUtil.dao;
 
+import java.util.List;
 import java.util.Set;
 
 import dbUtil.DBException;
@@ -47,9 +48,9 @@ public interface UserDAO {
 	/**
 	 * Return logins of all users from repository
 	 * 
-	 * @return Set of all of users
+	 * @return List of all of users
 	 */
-	public Set<String> getAllLogins() throws DBException;
+	public List<String> getAllLogins() throws DBException;
 	
 	/**
 	 * Find and get users by the specific role
