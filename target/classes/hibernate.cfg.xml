@@ -8,9 +8,9 @@
         <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/network-service?useSSL=false&amp;useUnicode=true&amp;useJDBCCompliantTimezoneShift=true&amp;useLegacyDatetimeCode=false&amp;serverTimezone=UTC</property>
         <property name="hibernate.connection.username">root</property>
         <property name="hibernate.connection.password">root</property>
-        <!-- 
+        
         <property name="hibernate.hbm2ddl.auto">create</property>
-         -->
+        
     	<!-- <property name="hibernate.c3p0.minPoolSize">5</property>
     	<property name="hibernate.c3p0.maxPoolSize">20</property>
 		<property name="hibernate.c3p0.timeout">1800</property>
@@ -20,10 +20,10 @@
        <!--  <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property> -->
         <property name="show_sql">true</property>
 		
-		<mapping class="dbService.dataSets.User" />
+		<mapping class="dbUtil.dataSets.User" />
 	<!-- 	<mapping class="dbService.dataSets.Role" />  -->
-		<mapping class="dbService.dataSets.Division" />	
-		<mapping class="dbService.dataSets.Unit" />	
-		<mapping class="dbService.dataSets.Equipment" />	
+		<mapping class="dbUtil.dataSets.Division" />	
+		<mapping class="dbUtil.dataSets.Unit" />	
+		<mapping class="dbUtil.dataSets.Equipment" />	
     </session-factory>
 </hibernate-configuration>

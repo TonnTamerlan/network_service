@@ -1,63 +1,47 @@
 package main;
 
-import org.hibernate.Session;
-
+import dbUtil.DBException;
 import dbUtil.DBService;
+import dbUtil.dao.UserDAO;
 import dbUtil.dataSets.Division;
+import dbUtil.dataSets.Role;
 import dbUtil.dataSets.User;
+import dbUtil.service.UserService;
 
 public class Main {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws DBException {
 		DBService db = new DBService();
-		Session ses = db.getSessionFactory().openSession();
+		UserDAO userDAO = new UserService(db.getSessionFactory());
 		
-		/*Division kmem = getDivision("KMEM");
+		Division kmem = getDivision("KMEM");
 		Division dmem = getDivision("DMEM");
 		Division svem = getDivision("SVEM");
 		
-		ses.beginTransaction();
-		System.out.println(divisionDAO.create(kmem));
-		System.out.println(divisionDAO.create(dmem));
-		System.out.println(divisionDAO.create(svem));
-		ses.getTransaction().commit();
+		User admin = getUser("admin", Role.ADMIN);
+		User user = getUser("user", Role.USER);
 		
-		System.out.println("-------------------Divisions added----------------------------");
+		user.addDivision(kmem);
+		user.addDivision(svem);
+		admin.addDivision(dmem);
 		
-		ses.beginTransaction();
-		User admin = getUser("admin", divisionDAO.read(1), divisionDAO.read(2), divisionDAO.read(3));
-		User user = getUser("user", divisionDAO.read(2), divisionDAO.read(3));
-		ses.getTransaction().commit();
+		System.out.println("-------------------Add users----------------------------");
+		userDAO.add(admin);
+		//userDAO.add(admin);
+		userDAO.add(user);
+		
+		System.out.println("-------------------Read users----------------------------");
+		
+		System.out.println(userDAO.getByRole(Role.ADMIN));
+		//System.out.println(userDAO.getAllLogins());
+		
+		/*System.out.println("-------------------Users added----------------------------");
 	
-		ses.beginTransaction();
-		System.out.println(userDAO.create(admin));
-		System.out.println(userDAO.create(user));
-		ses.getTransaction().commit();
-		
-		System.out.println("-------------------Users added----------------------------");
 	
-		ses.beginTransaction();
-		System.out.println(userDAO.read(1));
-		System.out.println(userDAO.read(2));
-		ses.getTransaction().commit();
-	
-		System.out.println("-------------------Users readed----------------------------");
-		ses.beginTransaction();
-		Division tempDiv = divisionDAO.read(1);
-		System.out.println(tempDiv);
-		User tempUser = userDAO.read(1);
-		System.out.println(tempUser.equals(tempDiv.getUsers().toArray(new User[0])[0]));
-		tempDiv.addUser(tempUser);
-		divisionDAO.update(tempDiv);
-		ses.getTransaction().commit();*/
-		
-		ses.beginTransaction();
-		ses.getTransaction().commit();
 		
 		
 		System.out.println("-------------------Divisions readed----------------------------");
-		
-		
+		*/
 		// TODO Auto-generated method stub
 
 	}
@@ -80,6 +64,20 @@ public class Main {
 		return user;
 	}
 
+	private static User getUser(String name, Role role) {
+		User user = new User();
+		user.setEmail(name + "@gmail.com");
+		user.setRole(role);
+		user.setFirstName("name_" +name);
+		user.setLastName("lastName_" + name);
+		user.setLogin("login_"+ name);
+		user.setPassword("password_" + name);
+		user.setPhone("phone_" + name);
+		user.setTitle("title_" +name);
+		
+		return user;
+	}
+	
 	private static Division getDivision(String name) {
 		Division div = new Division();
 		
