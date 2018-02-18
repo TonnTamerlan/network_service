@@ -45,11 +45,11 @@ public interface UserDAO {
 	public User getByLogin(String login) throws DBException;
 	
 	/**
-	 * Return all of users from repository
+	 * Return logins of all users from repository
 	 * 
 	 * @return Set of all of users
 	 */
-	public Set<User> getAll() throws DBException;
+	public Set<String> getAllLogins() throws DBException;
 	
 	/**
 	 * Find and get users by the specific role
