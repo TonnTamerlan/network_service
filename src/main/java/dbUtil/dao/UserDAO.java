@@ -57,8 +57,9 @@ public interface UserDAO {
 	 * 
 	 * @param role is the specific role
 	 * @return set of users which have the specific role
+	 * @throws DBException 
 	 */
-	public Set<User> getByRole(Role role);
+	public List<User> getByRole(Role role) throws DBException;
 	
 	/**
 	 * Get list of users which belong devision
@@ -66,7 +67,7 @@ public interface UserDAO {
 	 * @param devisionName - the unique name of the devision
 	 * @return list of users
 	 */
-	public Set<User> getUsersFromDevision(String devisionName) throws DBException;
+	public List<User> getUsersFromDevision(String devisionName) throws DBException;
 	
 	/**
 	 * Find and delete user by id
