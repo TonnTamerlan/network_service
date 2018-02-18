@@ -4,6 +4,7 @@ import java.util.Set;
 
 import dbUtil.DBException;
 import dbUtil.dataSets.Division;
+import dbUtil.dataSets.Role;
 import dbUtil.dataSets.User;
 
 /**
@@ -49,6 +50,14 @@ public interface UserDAO {
 	 * @return Set of all of users
 	 */
 	public Set<User> getAll() throws DBException;
+	
+	/**
+	 * Find and get users by the specific role
+	 * 
+	 * @param role is the specific role
+	 * @return set of users which have the specific role
+	 */
+	public Set<User> getByRole(Role role);
 	
 	/**
 	 * Get list of users which belong devision
