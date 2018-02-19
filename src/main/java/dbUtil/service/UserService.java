@@ -98,6 +98,7 @@ public class UserService implements UserDAO {
 			Root<User> userRoot = criteriaQuery.from(User.class);
 			criteriaQuery.select(userRoot.get(User_.login));
 			userList = session.createQuery(criteriaQuery).getResultList();
+			// TODO: Change to set
 			session.getTransaction().commit();
 		}catch (Exception e) {
 			// TODO: add logging in UserService.getAllLogins()
@@ -118,6 +119,7 @@ public class UserService implements UserDAO {
 			Predicate predicate = builder.equal(userRoot.get(User_.role), role);
 			criteriaQuery.where(predicate);
 			userList = session.createQuery(criteriaQuery).getResultList();
+			// TODO: Change to set
 			session.getTransaction().commit();
 		} catch (Exception e) {
 			// TODO: add logging in UserService.getByRole()
@@ -129,6 +131,7 @@ public class UserService implements UserDAO {
 	@Override
 	public List<String> getByDevision(String devisionName) throws DBException{
 		// TODO Auto-generated method stub
+		// TODO: Change to set
 		return null;
 	}
 
