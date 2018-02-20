@@ -60,7 +60,7 @@ public class User implements Serializable {
 	@Column(name = "title", updatable = true, nullable = false)
 	private String title;
 
-	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "user_division", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "division_id") })
 	private Set<Division> divisions = new HashSet<>();
