@@ -29,35 +29,17 @@ public class DivisionService implements DivisionDAO {
 			result = true;
 		} catch (PersistenceException e) {
 			// TODO: add logging
-			throw e;
+			throw new DBException("The division with name " + div.getName() + " is already exists", e);
 		} catch (Exception e) {
 			// TODO: add logging
-			// TODO: add processing case when the user already exists
-			throw new DBException("Cannot add User with login: " + div.getName(), e);
+			// TODO: add processing case when the division already exists
+			throw new DBException("Cannot add the devision with name: " + div.getName(), e);
 		}
 		return result;
 	}
 
 	@Override
-	public Division getById(long id) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Division getByName(String name) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Set<Division> getAll() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Set<Division> getByEquipmentName(String equipName) {
+	public Division getById(long id) throws DBException {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -75,13 +57,31 @@ public class DivisionService implements DivisionDAO {
 	}
 
 	@Override
-	public boolean deleteByName(String name) throws DBException {
+	public boolean update(Division div) throws DBException {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public boolean update(Division div) throws DBException {
+	public Set<Division> getAll() throws DBException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Division getByName(String name) throws DBException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Set<Division> getByEquipmentName(String equipName) throws DBException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean deleteByName(String name) throws DBException {
 		// TODO Auto-generated method stub
 		return false;
 	}
