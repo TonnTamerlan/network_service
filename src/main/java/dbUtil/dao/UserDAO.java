@@ -17,24 +17,7 @@ import dbUtil.dataSets.User;
  */
 
 
-public interface UserDAO {
-	
-	/**
-	 * add user to repository
-	 * 
-	 * @param user
-	 * @throws DBException 
-	 */
-	public boolean add(User user) throws DBException;
-	
-	/**
-	 * Find and read user from repository by id
-	 * 
-	 * @param id is primary key
-	 * 
-	 * @return user
-	 */
-	public User getByID(long id) throws DBException;
+public interface UserDAO extends DAO<User>{
 	
 	/**
 	 * Find and read user from repository by login
@@ -69,32 +52,11 @@ public interface UserDAO {
 	public Set<String> getByDivision(String divisionName) throws DBException;
 	
 	/**
-	 * Find and delete user by id
-	 * 
-	 * @param id is primary key
-	 */
-	public boolean deleteByID(long id) throws DBException;
-	
-	/**
 	 * Find and delete user by login
 	 * 
 	 * @param login - the unique name of the user
 	 */
 	public boolean deleteByLogin(String login) throws DBException;
-	
-	/**
-	 * Find and delete user
-	 * 
-	 * @param user
-	 */
-	public boolean delete(User user) throws DBException;
-	
-	/**
-	 * Update user's information
-	 * 
-	 * @param user
-	 */
-	public boolean update(User user) throws DBException;
 	
 	/**
 	 * Add division in user's information

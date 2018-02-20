@@ -12,23 +12,14 @@ import dbUtil.dataSets.Unit;
  * @author Alexey Kopylov
  *
  */
-public interface UnitDAO {
+public interface UnitDAO extends DAO<Unit>{
 	
 	/**
-	 * add unit to repository
+	 * Return all of entities from the repository
 	 * 
-	 * @param user
+	 * @return set of all of divisions
 	 */
-	public boolean add(Unit unit)  throws DBException;
-	
-	
-	/**
-	 * Find and read unit from repository by id
-	 * 
-	 * @param id is the primary key
-	 * @return unit
-	 */
-	public Unit getByID(long id)  throws DBException;
+	Set<Unit> getAll() throws DBException;
 	
 	/**
 	 * Find and read unit by unit's name and a division
@@ -48,27 +39,6 @@ public interface UnitDAO {
 	 */
 	public Unit getByNameAndDevision(String nameUnit, String nameDivision)  throws DBException;
 	
-	/**
-	 * Return all of units from repository
-	 * 
-	 * @return Set of all units
-	 */
-	public Set<Unit> getAll()  throws DBException;
-	
-	/**
-	 * Update unit's information
-	 * 
-	 * @param unit
-	 */
-	public boolean update(Unit unit)  throws DBException;
-	
-	/**
-	 * Find and delete user
-	 * 
-	 * @param unit
-	 */
-	public boolean delete(Unit unit)  throws DBException;
-	 
 	/**
 	 * Find and delete user which name is nameUnit and belongs the division
 	 * 

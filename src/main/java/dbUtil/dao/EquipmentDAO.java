@@ -13,22 +13,14 @@ import dbUtil.dataSets.Unit;
  * @author Alexy kopylov
  *
  */
-public interface EquipmentDAO {
+public interface EquipmentDAO extends DAO<Equipment> {
 
 	/**
-	 * Add equipment to repository
+	 * Return all of entities from the repository
 	 * 
-	 * @param equip
+	 * @return set of all of divisions
 	 */
-	public boolean add(Equipment equip)  throws DBException;
-	
-	/**
-	 * Find and read equipment by id
-	 * 
-	 * @param id is the primary key
-	 * @return equipment
-	 */
-	public Equipment getById(long id)  throws DBException;
+	Set<Equipment> getAll() throws DBException;
 	
 	/**
 	 * Find and get all equipments which belong the unit and which name is equipName
@@ -73,26 +65,5 @@ public interface EquipmentDAO {
 	 * @return set of equipments 
 	 */
 	public Set<Equipment> getAllByName(String equipName)  throws DBException;
-	
-	/**
-	 * Get all of equipments from repository
-	 * 
-	 * @return set of all equipments
-	 */
-	public Set<Equipment> getAll()  throws DBException;
-	
-	/**
-	 * Update equipments information
-	 * 
-	 * @param equip
-	 */
-	public boolean update(Equipment equip)  throws DBException;
-	
-	/**
-	 * Delete the equipment
-	 * 
-	 * @param equip
-	 */
-	public boolean delete(Equipment equip)  throws DBException;
 	
 }
