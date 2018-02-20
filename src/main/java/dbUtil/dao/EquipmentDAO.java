@@ -20,7 +20,7 @@ public interface EquipmentDAO {
 	 * 
 	 * @param equip
 	 */
-	public void add(Equipment equip)  throws DBException;
+	public boolean add(Equipment equip)  throws DBException;
 	
 	/**
 	 * Find and read equipment by id
@@ -86,13 +86,13 @@ public interface EquipmentDAO {
 	 * 
 	 * @param equip
 	 */
-	public void update(Equipment equip)  throws DBException;
+	public boolean update(Equipment equip)  throws DBException;
 	
 	/**
 	 * Delete the equipment
 	 * 
 	 * @param equip
 	 */
-	public void delete(Equipment equip)  throws DBException;
+	public boolean delete(Equipment equip)  throws DBException;
 	
 }

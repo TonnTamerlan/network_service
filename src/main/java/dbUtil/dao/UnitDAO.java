@@ -19,7 +19,7 @@ public interface UnitDAO {
 	 * 
 	 * @param user
 	 */
-	public void add(Unit unit)  throws DBException;
+	public boolean add(Unit unit)  throws DBException;
 	
 	
 	/**
@@ -60,14 +60,14 @@ public interface UnitDAO {
 	 * 
 	 * @param unit
 	 */
-	public void update(Unit unit)  throws DBException;
+	public boolean update(Unit unit)  throws DBException;
 	
 	/**
 	 * Find and delete user
 	 * 
 	 * @param unit
 	 */
-	public void delete(Unit unit)  throws DBException;
+	public boolean delete(Unit unit)  throws DBException;
 	 
 	/**
 	 * Find and delete user which name is nameUnit and belongs the division
@@ -75,7 +75,7 @@ public interface UnitDAO {
 	 * @param nameUnit is unit's name
 	 * @param division is division which the unit belongs
 	 */
-	public void delete(String nameUnit, Division division)  throws DBException;
+	public boolean delete(String nameUnit, Division division)  throws DBException;
 	
 	/**
 	 * Find and delete user which name is nameUnit and belongs division which name is nameDevision
@@ -83,6 +83,6 @@ public interface UnitDAO {
 	 * @param nameUnit is unit's name
 	 * @param nameDivision is name of division which the unit belongs
 	 */
-	public void delete(String nameUnit, String nameDivision)  throws DBException;
+	public boolean delete(String nameUnit, String nameDivision)  throws DBException;
 	
 }

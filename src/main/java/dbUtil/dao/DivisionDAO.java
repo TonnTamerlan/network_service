@@ -19,7 +19,7 @@ public interface DivisionDAO {
 	 * @param div is the division
 	 * @throws DBException 
 	 */
-	public void add(Division div) throws DBException;
+	public boolean add(Division div) throws DBException;
 	
 	/**
 	 * Find and get a division from repository by id
@@ -60,27 +60,27 @@ public interface DivisionDAO {
 	 * 
 	 * @param div
 	 */
-	public void delete(Division div)  throws DBException;
+	public boolean delete(Division div)  throws DBException;
 	
 	/**
 	 * Delete a division by id
 	 * 
 	 * @param id is the primary key
 	 */
-	public void deleteById(long id)  throws DBException;
+	public boolean deleteById(long id)  throws DBException;
 	
 	/**
 	 * Delete a division by name
 	 * 
 	 * @param name is specific unique name
 	 */
-	public void deleteByName(String name)  throws DBException;
+	public boolean deleteByName(String name)  throws DBException;
 	
 	/**
 	 * Update division
 	 * 
 	 * @param div
 	 */
-	public void update(Division div)  throws DBException;
+	public boolean update(Division div)  throws DBException;
 	
 }

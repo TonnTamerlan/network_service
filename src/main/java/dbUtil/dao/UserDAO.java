@@ -25,7 +25,7 @@ public interface UserDAO {
 	 * @param user
 	 * @throws DBException 
 	 */
-	public void add(User user) throws DBException;
+	public boolean add(User user) throws DBException;
 	
 	/**
 	 * Find and read user from repository by id
@@ -73,28 +73,28 @@ public interface UserDAO {
 	 * 
 	 * @param id is primary key
 	 */
-	public void deleteByID(long id) throws DBException;
+	public boolean deleteByID(long id) throws DBException;
 	
 	/**
 	 * Find and delete user by login
 	 * 
 	 * @param login - the unique name of the user
 	 */
-	public void deleteByLogin(String login) throws DBException;
+	public boolean deleteByLogin(String login) throws DBException;
 	
 	/**
 	 * Find and delete user
 	 * 
 	 * @param user
 	 */
-	public void delete(User user) throws DBException;
+	public boolean delete(User user) throws DBException;
 	
 	/**
 	 * Update user's information
 	 * 
 	 * @param user
 	 */
-	public void update(User user) throws DBException;
+	public boolean update(User user) throws DBException;
 	
 	/**
 	 * Add division in user's information
@@ -102,6 +102,6 @@ public interface UserDAO {
 	 * @param login - the unique name of the user
 	 * @param division - the division which needs to add
 	 */
-	public void addDivision(String login, Division division) throws DBException;
+	public boolean addDivision(String login, Division division) throws DBException;
 	
 }
