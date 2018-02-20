@@ -51,14 +51,13 @@ public class UserService implements UserDAO {
 			throw new DBException("The user with login: " + user.getLogin() + " is already exists!", e);
 		} catch (Exception e) {
 			// TODO: add logging
-			// TODO: add processing case when the user already exists
 			throw new DBException("Cannot add User with login: " + user.getLogin(), e);
 		}
 		return result;
 	}
 
 	@Override
-	public User getByID(long id) throws DBException{
+	public User getById(long id) throws DBException {
 		User user = null;
 		try(Session session = SESSION_FACTORY.openSession()){
 			session.beginTransaction();
@@ -162,7 +161,7 @@ public class UserService implements UserDAO {
 	}
 
 	@Override
-	public boolean deleteByID(long id) throws DBException {
+	public boolean deleteById(long id) throws DBException {
 		boolean result = false;
 		Transaction transaction = null;
 		try (Session session = SESSION_FACTORY.openSession()) {
@@ -174,7 +173,7 @@ public class UserService implements UserDAO {
 			transaction.commit();
 			result = true;
 		} catch (Exception e) {
-			// TODO Add logging
+			// TODO Add logging in UserService.deleteByID()
 			if (transaction != null && transaction.isActive()) {
 				transaction.rollback();
 			}
@@ -191,29 +190,19 @@ public class UserService implements UserDAO {
 			transaction = session.beginTransaction();
 			CriteriaBuilder builder = session.getCriteriaBuilder();
 			CriteriaDelete<User> deleteQuery = builder.createCriteriaDelete(User.class);
-			/*
-			 * 
-			 * 
-			 * 
-			 * 
-			 * 
-			 * 
-			 */
-			
-			
-			
 			Root<User> userRoot = deleteQuery.from(User.class);
-			deleteQuery.from(User.class);
 			deleteQuery.where(builder.equal(userRoot.get(User_.login), login));
-			session.createQuery(deleteQuery);
+			int numberDelettedRows = session.createQuery(deleteQuery).executeUpdate();
 			transaction.commit();
-			result = true;
+			if(numberDelettedRows != 0) {
+				result = true;
+			}
 		} catch (Exception e) {
 			if (transaction != null && transaction.isActive()) {
 				transaction.rollback();
 			}
 			
-			// TODO: add logging in UserService.getByDivision()
+			// TODO: add logging in UserService.deleteByLogin()
 			throw new DBException("Cannot delete user with login: " + login, e);
 		}
 		return result;
@@ -221,20 +210,68 @@ public class UserService implements UserDAO {
 
 	@Override
 	public boolean delete(User user) throws DBException {
-		// TODO Auto-generated method stub
-		return false;
+		boolean result = false;
+		Transaction transaction = null;
+		try (Session session = SESSION_FACTORY.openSession()) {
+			transaction = session.beginTransaction();
+			if (session.get(User.class, user.getId()) != null) {
+				session.clear();
+				session.remove(user);
+				result = true;
+			}
+			transaction.commit();
+		} catch (Exception e) {
+			if (transaction != null && transaction.isActive()) {
+				transaction.rollback();
+			}
+			// TODO: add logging in UserService.delete()
+			throw new DBException("Cannot delete user with login: " + user.getLogin(), e);
+		}
+		return result;
 	}
 
 	@Override
 	public boolean update(User user) throws DBException {
-		// TODO Auto-generated method stub
-		return false;
+		boolean result = false;
+		Transaction transaction = null;
+		try (Session session = SESSION_FACTORY.openSession()) {
+			transaction = session.beginTransaction();
+			session.saveOrUpdate(user);
+			transaction.commit();
+			result= true;
+		} catch (Exception e) {
+			// TODO: add logging in UserService.update()
+			throw new DBException("Cannot update an user with login: " + user.getLogin(), e);
+		}
+		return result;
 	}
 
 	@Override
 	public boolean addDivision(String login, Division division) throws DBException {
-		// TODO Auto-generated method stub
-		return false;
+		boolean result = false;
+		Transaction transanction = null;
+		try (Session session = SESSION_FACTORY.openSession()) {
+			transanction = session.beginTransaction();
+			CriteriaBuilder builder = session.getCriteriaBuilder();
+			CriteriaQuery<User> criteriaQuery = builder.createQuery(User.class);
+			Root<User> userRoot = criteriaQuery.from(User.class);
+			criteriaQuery.select(userRoot);
+			Predicate predicate = builder.equal(userRoot.get(User_.login), login);
+			criteriaQuery.where(predicate);
+			User user = session.createQuery(criteriaQuery).getSingleResult();
+			user.addDivision(division);
+			session.update(user);
+			transanction.commit();
+			result = true;
+		} catch (NoResultException e) {
+			// TODO: add logging in UserService.addDivision()
+		} catch (Exception e) {
+			// TODO: add logging to UserService.addDevision
+			if (transanction != null && transanction.isActive()) {
+				transanction.rollback();
+			}
+		}
+		return result;
 	}
 
 }
