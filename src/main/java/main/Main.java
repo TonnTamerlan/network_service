@@ -2,6 +2,7 @@ package main;
 
 import dbUtil.DBException;
 import dbUtil.DBService;
+import dbUtil.dao.DAO;
 import dbUtil.dao.DivisionDAO;
 import dbUtil.dao.UserDAO;
 import dbUtil.dataSets.Division;
@@ -50,8 +51,12 @@ public class Main {
 		
 		System.out.println("-------------------Read users----------------------------");
 		
-		System.out.println(userDAO.getByDivision(empty.getName()));
-		System.out.println(userDAO.deleteByLogin(userTwo.getLogin()));
+		System.out.println(userDAO.getById(admin.getId()));
+		admin.getDivisions().remove(kmem);
+		System.out.println(userDAO.update(admin));
+		System.out.println(userDAO.getById(admin.getId()));
+		System.out.println(userDAO.addDivision("dsd", kmem));
+		System.out.println(userDAO.getById(admin.getId()));
 
 	}
 
