@@ -28,6 +28,8 @@ import dbUtil.dataSets.User_;
  * Implementation interface UserDAO for working with table "users" in database
  * 
  * @author Alexey Kopylov
+ * 
+ * @version 1.0-alfa
  *
  */
 public class UserService implements UserDAO {
