@@ -1,6 +1,5 @@
 package dbUtil.dao;
 
-import java.util.List;
 import java.util.Set;
 
 import dbUtil.DBException;
@@ -50,7 +49,7 @@ public interface UserDAO {
 	 * 
 	 * @return List of all of users
 	 */
-	public List<String> getAllLogins() throws DBException;
+	public Set<String> getAllLogins() throws DBException;
 	
 	/**
 	 * Find and get users by the specific role
@@ -59,7 +58,7 @@ public interface UserDAO {
 	 * @return set of users which have the specific role
 	 * @throws DBException 
 	 */
-	public List<String> getByRole(Role role) throws DBException;
+	public Set<String> getByRole(Role role) throws DBException;
 	
 	/**
 	 * Get list of users which belong devision
@@ -67,7 +66,7 @@ public interface UserDAO {
 	 * @param devisionName - the unique name of the devision
 	 * @return list of users
 	 */
-	public List<String> getByDevision(String devisionName) throws DBException;
+	public Set<String> getByDivision(String divisionName) throws DBException;
 	
 	/**
 	 * Find and delete user by id
