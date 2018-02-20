@@ -2,10 +2,12 @@ package main;
 
 import dbUtil.DBException;
 import dbUtil.DBService;
+import dbUtil.dao.DivisionDAO;
 import dbUtil.dao.UserDAO;
 import dbUtil.dataSets.Division;
 import dbUtil.dataSets.Role;
 import dbUtil.dataSets.User;
+import dbUtil.service.DivisionService;
 import dbUtil.service.UserService;
 
 public class Main {
@@ -13,36 +15,43 @@ public class Main {
 	public static void main(String[] args) throws DBException {
 		DBService db = new DBService();
 		UserDAO userDAO = new UserService(db.getSessionFactory());
+		DivisionDAO divDAO = new DivisionService(db.getSessionFactory());
 		
 		Division kmem = getDivision("KMEM");
 		Division dmem = getDivision("DMEM");
 		Division svem = getDivision("SVEM");
+		Division empty = getDivision("EMPTY");
+		
+		
+		System.out.println("-------------------Add divisions----------------------------");
+		divDAO.add(kmem);
+		divDAO.add(dmem);
+		divDAO.add(svem);
+		divDAO.add(empty);
+		
 		
 		User admin = getUser("admin", Role.ADMIN);
-		User user = getUser("user", Role.USER);
+		User userOne = getUser("userOne", Role.USER);
+		User userTwo = getUser("userTwo", Role.USER);
 		
-		user.addDivision(kmem);
-		user.addDivision(svem);
+		userOne.addDivision(kmem);
+		userOne.addDivision(svem);
+		userOne.addDivision(dmem);
+		userTwo.addDivision(svem);
 		admin.addDivision(dmem);
+		admin.addDivision(kmem);
+		userTwo.addDivision(empty);
+		
 		
 		System.out.println("-------------------Add users----------------------------");
 		userDAO.add(admin);
-		//userDAO.add(admin);
-		userDAO.add(user);
+		userDAO.add(userOne);
+		userDAO.add(userTwo);
 		
 		System.out.println("-------------------Read users----------------------------");
 		
-		System.out.println(userDAO.getByRole(Role.ADMIN));
-		//System.out.println(userDAO.getAllLogins());
-		
-		/*System.out.println("-------------------Users added----------------------------");
-	
-	
-		
-		
-		System.out.println("-------------------Divisions readed----------------------------");
-		*/
-		// TODO Auto-generated method stub
+		System.out.println(userDAO.getByDivision(empty.getName()));
+		System.out.println(userDAO.deleteByLogin(userTwo.getLogin()));
 
 	}
 
