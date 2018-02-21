@@ -6,11 +6,11 @@ import javax.persistence.PersistenceException;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 
 import dbUtil.DBException;
 import dbUtil.dao.DivisionDAO;
 import dbUtil.dataSets.Division;
-import dbUtil.dataSets.User;
 
 public class DivisionService implements DivisionDAO {
 
@@ -59,14 +59,50 @@ public class DivisionService implements DivisionDAO {
 
 	@Override
 	public boolean delete(Division div) throws DBException {
-		// TODO Auto-generated method stub
-		return false;
+		boolean result = false;
+		Transaction transaction = null;
+		try (Session session = SESSION_FACTORY.openSession()) {
+			transaction = session.beginTransaction();
+			if (session.get(Division.class, div.getId()) != null) {
+				session.clear();
+				div.getUsers().forEach(user->user.getDivisions().remove(div));
+				div.getUsers().forEach(user->session.update(user));
+				session.remove(div);
+				result = true;
+			}
+			transaction.commit();
+		} catch (Exception e) {
+			if (transaction != null && transaction.isActive()) {
+				transaction.rollback();
+			}
+			// TODO: add logging in DivisionService.delete()
+			throw new DBException("Cannot delete the division with name: " + div.getName(), e);
+		}
+		return result;
 	}
 
 	@Override
 	public boolean deleteById(long id) throws DBException {
-		// TODO Auto-generated method stub
-		return false;
+		boolean result = false;
+		Transaction transaction = null;
+		try (Session session = SESSION_FACTORY.openSession()) {
+			transaction = session.beginTransaction();
+			Division division = session.byId(Division.class).load(id);
+			if(division != null) {
+				division.getUsers().forEach(act->act.getDivisions().remove(division));
+				division.getUsers().forEach(act->session.update(act));
+				session.remove(division);
+			}
+			transaction.commit();
+			result = true;
+		} catch (Exception e) {
+			// TODO Add logging in UserService.deleteByID()
+			if (transaction != null && transaction.isActive()) {
+				transaction.rollback();
+			}
+			throw new DBException("Cannot delet the division with id=" + id, e);
+		}
+		return result;
 	}
 
 	@Override
