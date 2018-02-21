@@ -17,7 +17,7 @@ public interface DAO<T> {
 	 * 
 	 * @param id is the primary key
 	 * 
-	 * @return division
+	 * @return division or null
 	 */
 	T getById(long id) throws DBException;
 
