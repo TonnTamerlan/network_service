@@ -38,7 +38,7 @@ public class Division implements Serializable {
 	@Column(name = "phone")
 	private String phone;
 
-	@ManyToMany(mappedBy = "divisions", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@ManyToMany(mappedBy = "divisions", fetch = FetchType.LAZY)
 	private Set<User> users = new HashSet<>();
 
 	@OneToMany(mappedBy = "division", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
