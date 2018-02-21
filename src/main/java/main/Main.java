@@ -55,8 +55,10 @@ public class Main {
 		admin.getDivisions().remove(kmem);
 		System.out.println(userDAO.update(admin));
 		System.out.println(userDAO.getById(admin.getId()));
-		System.out.println(userDAO.addDivision("dsd", kmem));
+		System.out.println(userDAO.addDivision(admin.getLogin(), kmem));
 		System.out.println(userDAO.getById(admin.getId()));
+		System.out.println(divDAO.delete(kmem));
+		System.out.println(userDAO.deleteById(2));
 
 	}
 
