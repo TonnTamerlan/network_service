@@ -170,7 +170,7 @@ public class UserService implements UserDAO {
 			transaction = session.beginTransaction();
 			User user = session.byId(User.class).load(id);
 			if(user != null) {
-				session.delete(user);
+				session.remove(user);
 			}
 			transaction.commit();
 			result = true;
