@@ -10,6 +10,7 @@ import org.hibernate.SessionFactory;
 import dbUtil.DBException;
 import dbUtil.dao.DivisionDAO;
 import dbUtil.dataSets.Division;
+import dbUtil.dataSets.User;
 
 public class DivisionService implements DivisionDAO {
 
@@ -40,8 +41,20 @@ public class DivisionService implements DivisionDAO {
 
 	@Override
 	public Division getById(long id) throws DBException {
-		// TODO Auto-generated method stub
-		return null;
+		Division division = null;
+		try(Session session = SESSION_FACTORY.openSession()){
+			session.beginTransaction();
+			division = session.get(Division.class, id);
+			if (division != null) {
+				division.getUsers().size(); //for attaching the set of users
+				division.getUnits().size(); //for attaching the set of units
+			}
+			session.getTransaction().commit();
+		} catch (Exception e) {
+			// TODO: add logging
+			throw new DBException("Cannot read the devision with id: " + id, e);
+		}
+		return division;
 	}
 
 	@Override
