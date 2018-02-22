@@ -160,13 +160,9 @@ public class User implements Serializable {
 	public void addDivision(Division div) {
 		if (div == null) {
 			return;
-		}
-		if (!this.divisions.contains(div)) {
-			this.divisions.add(div);
-		}
-		if (!div.getUsers().contains(this)) {
-			div.addUser(this);
-		}
+		} 
+		this.divisions.add(div);
+		div.getUsers().add(this);
 	}
 
 	@Enumerated(EnumType.STRING)

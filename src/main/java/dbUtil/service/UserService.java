@@ -238,7 +238,8 @@ public class UserService implements UserDAO {
 		Transaction transaction = null;
 		try (Session session = SESSION_FACTORY.openSession()) {
 			transaction = session.beginTransaction();
-			session.saveOrUpdate(user);
+			session.update(user);
+			//session.saveOrUpdate(user);
 			transaction.commit();
 			result= true;
 		} catch (Exception e) {
