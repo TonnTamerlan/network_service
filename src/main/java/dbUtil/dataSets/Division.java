@@ -200,17 +200,11 @@ public class Division implements Serializable {
 		StringBuilder str = new StringBuilder();
 		str.append("Division =\n")
 				.append("{\n")
-				.append("\t\"id\": ").append(this.getId()).append("\",\n")
-				.append("\t\"name\": \"").append(name).append("\",\n")
-				.append("\t\"adress\": \"").append(adress).append("\",\n")
-				.append("\t\"phone\": \"").append(phone).append("\"\n")
-				.append("\t\"users\":\n\t{\n");
-		if (users != null && !users.isEmpty()) {
-			for (User user : users) {
-				str.append("\t\t\"").append(user.getLogin()).append("\"\n");
-			}
-		}
-		str.append("\t}\n").append("}");
+				.append("id: ").append(this.getId()).append("\n")
+				.append("name: ").append(name).append("\n")
+				.append("adress: ").append(adress).append("\n")
+				.append("phone: ").append(phone).append("\n")
+				.append("masterDivision: ").append(masterDivision == null ? "null" : masterDivision.name).append("\n").append("}");
 		return str.toString();
 	}
 
