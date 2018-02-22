@@ -204,20 +204,16 @@ public class User implements Serializable {
 	public String toString() {
 
 		StringBuilder str = new StringBuilder();
-		str.append("User =\n").append("{\n").append("\t\"id\": ").append(id).append("\",\n")
-				.append("\t\"login\": \"").append(login).append("\",\n").append("\t\"password\": \"").append(password)
-				.append("\"\n").append("\t\"firstName\": \"").append(firstName).append("\"\n")
-				.append("\t\"lastName\": \"").append(lastName).append("\"\n").append("\t\"title\": \"").append(title)
-				.append("\"\n").append("\t\"phone\": \"").append(phone).append("\"\n").append("\t\"role\": \"")
-				.append(role).append("\"\n").append("\t\"divisions\":\n\t{\n");
-
-		if (this.getDivisions() != null && !this.getDivisions().isEmpty()) {
-			for (Division div : divisions) {
-				str.append("\t\t\"").append(div.getName()).append("\"\n");
-			}
-		}
-
-		str.append("\t}\n").append("}");
+		str.append("User =\n").append("{\n")
+				.append("id: ").append(id).append("\n")
+				.append("login: ").append(login).append("\n")
+				.append("password: ").append(password).append("\n")
+				.append("firstName: ").append(firstName).append("\n")
+				.append("lastName\": ").append(lastName).append("\n")
+				.append("title: ").append(title).append("\n")
+				.append("phone: ").append(phone).append("\n")
+				.append("role: ").append(role).append("\n")
+				.append("}");
 
 		return str.toString();
 	}
