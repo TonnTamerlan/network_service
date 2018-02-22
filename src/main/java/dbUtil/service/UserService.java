@@ -52,7 +52,7 @@ public class UserService implements UserDAO {
 			// TODO: add logging "The user with login: " + user.getLogin() + " is already exists!"
 			throw new DBException("The user with login: " + user.getLogin() + " is already exists!", e);
 		} catch (Exception e) {
-			// TODO: add logging
+			// TODO: add logging in UserService.add()
 			throw new DBException("Cannot add User with login: " + user.getLogin(), e);
 		}
 		return result;
@@ -69,7 +69,7 @@ public class UserService implements UserDAO {
 			}
 			session.getTransaction().commit();
 		} catch (Exception e) {
-			// TODO: add logging
+			// TODO: add logging in UserService.getById()
 			throw new DBException("Cannot read the user with id: " + id, e);
 		}
 		return user;
@@ -153,7 +153,7 @@ public class UserService implements UserDAO {
 			}
 			session.getTransaction().commit();
 		} catch (NoResultException e) {
-			// TODO: add logging
+			// TODO: add logging in UserService.getByDivision()
 			userSet = new HashSet<String>();
 		} catch (Exception e) {
 			// TODO: add logging in UserService.getByDivision()
