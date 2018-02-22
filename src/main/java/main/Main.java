@@ -35,6 +35,10 @@ public class Main {
 		divDAO.add(kmemRES_2);
 		divDAO.add(kmemRES_3);
 		
+		System.out.println(divDAO.getAllNames());
+		System.out.println(divDAO.deleteByName(kmem.getName()));
+		System.out.println(divDAO.getAllNames());
+		
 		
 		kmemRES_1.setMasterDivision(kmem);
 		kmemRES_2.setMasterDivision(kmem);

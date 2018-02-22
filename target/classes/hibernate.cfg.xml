@@ -23,7 +23,7 @@
 		<mapping class="dbUtil.dataSets.User" />
 	<!-- 	<mapping class="dbService.dataSets.Role" />  -->
 		<mapping class="dbUtil.dataSets.Division" />	
-		<mapping class="dbUtil.dataSets.Unit" />	
+		<!-- <mapping class="dbUtil.dataSets.Unit" /> -->	
 		<mapping class="dbUtil.dataSets.Equipment" />	
     </session-factory>
 </hibernate-configuration>
