@@ -1,8 +1,13 @@
 package dbUtil.service;
 
+import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceException;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -11,7 +16,16 @@ import org.hibernate.Transaction;
 import dbUtil.DBException;
 import dbUtil.dao.DivisionDAO;
 import dbUtil.dataSets.Division;
+import dbUtil.dataSets.Division_;
 
+/**
+ * Implementation interface DivisionDAO for working with table "divisions"
+ * 
+ * @author Alexey Kopylov
+ * 
+ * @version 1.0.-alfa
+ *
+ */
 public class DivisionService implements DivisionDAO {
 
 	final private SessionFactory SESSION_FACTORY;
@@ -29,11 +43,10 @@ public class DivisionService implements DivisionDAO {
 			session.getTransaction().commit();
 			result = true;
 		} catch (PersistenceException e) {
-			// TODO: add logging
+			// TODO: add logging in DivisionService.add()
 			throw new DBException("The division with name " + div.getName() + " is already exists", e);
 		} catch (Exception e) {
-			// TODO: add logging
-			// TODO: add processing case when the division already exists
+			// TODO: add logging in DivisionService.add()
 			throw new DBException("Cannot add the devision with name: " + div.getName(), e);
 		}
 		return result;
@@ -52,7 +65,7 @@ public class DivisionService implements DivisionDAO {
 			}
 			session.getTransaction().commit();
 		} catch (Exception e) {
-			// TODO: add logging
+			// TODO: add logging in DivisionService.getById()
 			throw new DBException("Cannot read the devision with id: " + id, e);
 		}
 		return division;
@@ -124,28 +137,72 @@ public class DivisionService implements DivisionDAO {
 	}
 
 	@Override
-	public Set<String> getAll() throws DBException {
-		// TODO Auto-generated method stub
-		return null;
+	public Set<String> getAllNames() throws DBException {
+		Set<String> divisionSet = null;
+		try (Session session = SESSION_FACTORY.openSession()) {
+			session.beginTransaction();
+			CriteriaBuilder builder = session.getCriteriaBuilder();
+			CriteriaQuery<String> criteriaQuery = builder.createQuery(String.class);
+			Root<Division> divisionRoot = criteriaQuery.from(Division.class);
+			criteriaQuery.select(divisionRoot.get(Division_.name));
+			divisionSet = new HashSet<String>(session.createQuery(criteriaQuery).getResultList());
+			session.getTransaction().commit();
+		} catch (Exception e) {
+			// TODO: add logging in DivisionService.getAll()
+			throw new DBException("Cannot read names of all divisions", e);
+		}
+		return divisionSet;
 	}
 
 	@Override
 	public Division getByName(String name) throws DBException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Set<Division> getByEquipmentName(String equipName) throws DBException {
-		// TODO Auto-generated method stub
-		return null;
+		Division division = null;
+		try (Session session = SESSION_FACTORY.openSession()) {
+			session.beginTransaction();
+			CriteriaBuilder builder = session.getCriteriaBuilder();
+			CriteriaQuery<Division> criteriaQuery = builder.createQuery(Division.class);
+			Root<Division> divisionRoot = criteriaQuery.from(Division.class);
+			criteriaQuery.select(divisionRoot);
+			division = session.createQuery(criteriaQuery.where(builder.equal(divisionRoot.get(Division_.name), name))).getSingleResult();
+			division.getEquipment().size(); //for attaching the set of equipments
+			division.getUsers().size(); //for attaching the set of users
+			division.getSlaveDivisions(); //for attaching the set of slaveDevisions
+			session.getTransaction().commit(); 
+		} catch (Exception e) {
+			// TODO: add logging in DevisionService.getByName()
+			throw new DBException("Cannot read a division with name: " + name, e);
+		}
+		return division;
 	}
 
 	@Override
 	public boolean deleteByName(String name) throws DBException {
-		// TODO Auto-generated method stub
-		return false;
+		boolean result = false;
+		Transaction transaction = null;
+		try (Session session = SESSION_FACTORY.openSession()) {
+			transaction = session.beginTransaction();
+			CriteriaBuilder builder = session.getCriteriaBuilder();
+			CriteriaQuery<Division> criteriaQuery = builder.createQuery(Division.class);
+			Root<Division> divisionRoot = criteriaQuery.from(Division.class);
+			criteriaQuery.select(divisionRoot);
+			Division division = session.createQuery(criteriaQuery.where(builder.equal(divisionRoot.get(Division_.name), name))).getSingleResult();
+			if (division != null) {
+				division.getUsers().forEach(act->act.getDivisions().remove(division));
+				division.getUsers().forEach(act->session.update(act));
+				session.remove(division);
+			}
+			transaction.commit();
+			result = true;
+		} catch (NoResultException e) {
+			throw new DBException("Cannot delete a devision with name: " + name + ", because the division doesn't exist", e);
+		} catch (Exception e) {
+			if (transaction != null && transaction.isActive()) {
+				transaction.rollback();
+			}
+			// TODO: add logging to DivisionService.deleteByName
+			throw new DBException("Cannot delete a devision with name: " + name, e);
+		}
+		return result;
 	}
-
 
 }
