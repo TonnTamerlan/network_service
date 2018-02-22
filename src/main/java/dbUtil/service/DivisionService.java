@@ -81,7 +81,8 @@ public class DivisionService implements DivisionDAO {
 				session.clear();
 				div.getUsers().forEach(user->user.getDivisions().remove(div));
 				div.getUsers().forEach(user->session.update(user));
-				session.remove(div);
+				div.getEquipment().forEach(equip->session.delete(equip));
+				session.delete(div);
 				result = true;
 			}
 			transaction.commit();
@@ -105,6 +106,7 @@ public class DivisionService implements DivisionDAO {
 			if(division != null) {
 				division.getUsers().forEach(act->act.getDivisions().remove(division));
 				division.getUsers().forEach(act->session.update(act));
+				division.getEquipment().forEach(equip->session.delete(equip));
 				session.remove(division);
 			}
 			transaction.commit();
@@ -189,7 +191,8 @@ public class DivisionService implements DivisionDAO {
 			if (division != null) {
 				division.getUsers().forEach(act->act.getDivisions().remove(division));
 				division.getUsers().forEach(act->session.update(act));
-				session.remove(division);
+				division.getEquipment().forEach(equip->session.delete(equip));
+				session.delete(division);
 			}
 			transaction.commit();
 			result = true;
