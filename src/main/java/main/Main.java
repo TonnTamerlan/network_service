@@ -1,8 +1,9 @@
 package main;
 
+import java.util.Set;
+
 import dbUtil.DBException;
 import dbUtil.DBService;
-import dbUtil.dao.DAO;
 import dbUtil.dao.DivisionDAO;
 import dbUtil.dao.UserDAO;
 import dbUtil.dataSets.Division;
@@ -21,14 +22,32 @@ public class Main {
 		Division kmem = getDivision("KMEM");
 		Division dmem = getDivision("DMEM");
 		Division svem = getDivision("SVEM");
-		Division empty = getDivision("EMPTY");
+		Division kmemRES_1 = getDivision("KMEM_RES_1");
+		Division kmemRES_2 = getDivision("KMEM_RES_2");
+		Division kmemRES_3 = getDivision("KMEM_RES_3");
 		
 		
 		System.out.println("-------------------Add divisions----------------------------");
 		divDAO.add(kmem);
 		divDAO.add(dmem);
 		divDAO.add(svem);
-		divDAO.add(empty);
+		divDAO.add(kmemRES_1);
+		divDAO.add(kmemRES_2);
+		divDAO.add(kmemRES_3);
+		
+		
+		kmemRES_1.setMasterDivision(kmem);
+		kmemRES_2.setMasterDivision(kmem);
+		kmemRES_3.setMasterDivision(kmem);
+		
+		divDAO.update(kmemRES_1);
+		divDAO.update(kmemRES_2);
+		divDAO.update(kmemRES_3);
+		
+		Set<Division> set = divDAO.getById(kmem.getId()).getSlaveDivisions();
+		
+		set.forEach(div->System.out.println(div.getName()));
+		
 		
 		
 		User admin = getUser("admin", Role.ADMIN);
@@ -41,7 +60,7 @@ public class Main {
 		userTwo.addDivision(svem);
 		admin.addDivision(dmem);
 		admin.addDivision(kmem);
-		userTwo.addDivision(empty);
+		userTwo.addDivision(kmemRES_1);
 		
 		
 		System.out.println("-------------------Add users----------------------------");
