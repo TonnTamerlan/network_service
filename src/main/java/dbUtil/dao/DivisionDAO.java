@@ -14,11 +14,11 @@ import dbUtil.dataSets.Division;
 public interface DivisionDAO extends DAO<Division> {
 	
 	/**
-	 * Return all of entities from the repository
+	 * Return names of all divisions from the repository
 	 * 
-	 * @return set of all of divisions
+	 * @return set of names of all divisions
 	 */
-	Set<Division> getAll() throws DBException;
+	Set<String> getAll() throws DBException;
 	
 	/**
 	 * Find and get a division from repository by name

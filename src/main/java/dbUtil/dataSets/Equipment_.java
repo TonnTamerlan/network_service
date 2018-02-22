@@ -20,6 +20,6 @@ public class Equipment_ {
 
 	public static volatile SingularAttribute<Equipment, String> discription;
 
-	public static volatile SingularAttribute<Equipment, Unit> unit;
+	public static volatile SingularAttribute<Equipment, Division> division;
 	
 }

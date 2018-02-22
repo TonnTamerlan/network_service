@@ -47,7 +47,8 @@ public class DivisionService implements DivisionDAO {
 			division = session.get(Division.class, id);
 			if (division != null) {
 				division.getUsers().size(); //for attaching the set of users
-				division.getUnits().size(); //for attaching the set of units
+				division.getEquipment().size(); //for attaching the set of equipments
+				division.getSlaveDivisions().size(); //for attaching the set of slaveDivision
 			}
 			session.getTransaction().commit();
 		} catch (Exception e) {
@@ -107,12 +108,23 @@ public class DivisionService implements DivisionDAO {
 
 	@Override
 	public boolean update(Division div) throws DBException {
-		// TODO Auto-generated method stub
-		return false;
+		boolean result = false;
+		Transaction transaction = null;
+		try (Session session = SESSION_FACTORY.openSession()) {
+			transaction = session.beginTransaction();
+			session.update(div);
+			//session.saveOrUpdate(div);
+			transaction.commit();
+			result= true;
+		} catch (Exception e) {
+			// TODO: add logging in DivisionService.update()
+			throw new DBException("Cannot update a division with name: " + div.getName(), e);
+		}
+		return result;
 	}
 
 	@Override
-	public Set<Division> getAll() throws DBException {
+	public Set<String> getAll() throws DBException {
 		// TODO Auto-generated method stub
 		return null;
 	}

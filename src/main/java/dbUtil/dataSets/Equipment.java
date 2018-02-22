@@ -33,12 +33,12 @@ public class Equipment implements Serializable {
 	@Column(name = "ip", nullable = false)
 	private String ip;
 
-	@Column(name = "discription", length = 1000)
+	@Column(name = "discription", length = 2000)
 	private String discription;
 
-	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	@JoinColumn(name = "unit_id")
-	private Unit unit;
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "division_id")
+	private Division division;
 
 	public Equipment() {
 	}
@@ -79,14 +79,14 @@ public class Equipment implements Serializable {
 		this.discription = discription;
 	}
 
-	public Unit getUnit() {
-		return unit;
+	public Division getDivision() {
+		return division;
 	}
 
-	public void setUnit(Unit unit) {
-		this.unit = unit;
-		if (unit != null) {
-			unit.addEquipment(this);
+	public void setDivision(Division division) {
+		this.division = division;
+		if (division != null) {
+			division.getEquipment().add(this);
 		}
 	}
 
@@ -126,7 +126,7 @@ public class Equipment implements Serializable {
 				.append("\t\"id\": ").append(this.getId()).append("\",\n")
 				.append("\t\"name\": \"").append(name).append("\",\n")
 				.append("\t\"ip\": \"").append(ip).append("\",\n")
-				.append("\t\"unit\": \"").append(unit).append("\"\n")
+				.append("\t\"unit\": \"").append(division).append("\"\n")
 				.append("}");
 		return str.toString();
 	}
