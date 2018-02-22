@@ -18,7 +18,7 @@ public interface DivisionDAO extends DAO<Division> {
 	 * 
 	 * @return set of names of all divisions
 	 */
-	Set<String> getAll() throws DBException;
+	Set<String> getAllNames() throws DBException;
 	
 	/**
 	 * Find and get a division from repository by name
@@ -28,15 +28,6 @@ public interface DivisionDAO extends DAO<Division> {
 	 * @return division
 	 */
 	public Division getByName(String name)  throws DBException;
-	
-	/**
-	 * Get all of divisions with specific name
-	 * 
-	 * @param equipName is specific name
-	 * 
-	 * @return set of division
-	 */
-	public Set<Division> getByEquipmentName(String equipName)  throws DBException;
 	
 	/**
 	 * Delete a division by name
