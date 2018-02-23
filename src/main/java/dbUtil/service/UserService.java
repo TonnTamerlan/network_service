@@ -203,7 +203,6 @@ public class UserService implements UserDAO {
 			if (transaction != null && transaction.isActive()) {
 				transaction.rollback();
 			}
-			
 			// TODO: add logging in UserService.deleteByLogin()
 			throw new DBException("Cannot delete user with login: " + login, e);
 		}

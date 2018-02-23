@@ -2,6 +2,7 @@ package dbUtil.service;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceException;
@@ -28,6 +29,7 @@ import dbUtil.dataSets.Division_;
  */
 public class DivisionService implements DivisionDAO {
 
+	
 	final private SessionFactory SESSION_FACTORY;
 	
 	public DivisionService(final SessionFactory sessionFactory) {

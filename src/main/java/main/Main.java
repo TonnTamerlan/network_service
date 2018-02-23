@@ -2,6 +2,9 @@ package main;
 
 import java.util.Set;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import dbUtil.DBException;
 import dbUtil.DBService;
 import dbUtil.dao.DivisionDAO;
@@ -14,7 +17,14 @@ import dbUtil.service.UserService;
 
 public class Main {
 
+	private static final Logger logger = LogManager.getLogger(Main.class);
+	
+	
 	public static void main(String[] args) throws DBException {
+		//DOMConfigurator.configure("src\\main\\resources\\log4j2.xml");//d:\Git\network_service\src\main\resources\hibernate.cfg.xml
+		//BasicConfigurator.configure();
+		logger.error("Application is started");
+		
 		DBService db = new DBService();
 		UserDAO userDAO = new UserService(db.getSessionFactory());
 		DivisionDAO divDAO = new DivisionService(db.getSessionFactory());
@@ -85,6 +95,7 @@ public class Main {
 
 	}
 
+	@SuppressWarnings("unused")
 	private static User getUser(String name, Division ... divisions) {
 		User user = new User();
 		user.setEmail(name + "@gmail.com");
