@@ -2,7 +2,6 @@ package dbUtil.service;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceException;
@@ -10,6 +9,8 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -29,6 +30,7 @@ import dbUtil.dataSets.Division_;
  */
 public class DivisionService implements DivisionDAO {
 
+	private static final Logger logger = LogManager.getLogger(DivisionService.class);
 	
 	final private SessionFactory SESSION_FACTORY;
 	
@@ -38,26 +40,31 @@ public class DivisionService implements DivisionDAO {
 	
 	@Override
 	public boolean add(Division div) throws DBException {
+		logger.debug("Start to add the division \"{}\" to repository", div.getName());
 		boolean result = false;
 		try (Session session = SESSION_FACTORY.openSession()){
+			logger.debug("Session opened");
 			session.beginTransaction();
 			session.persist(div);
 			session.getTransaction().commit();
+			logger.debug("The division \"{}\" has added", div.getName());
 			result = true;
 		} catch (PersistenceException e) {
-			// TODO: add logging in DivisionService.add()
+			logger.info("The division \"{}\" is already exists", div.getName());
 			throw new DBException("The division with name " + div.getName() + " is already exists", e);
 		} catch (Exception e) {
-			// TODO: add logging in DivisionService.add()
-			throw new DBException("Cannot add the devision with name: " + div.getName(), e);
+			logger.warn("Cannot add the devision \"" + div.getName() + "\"", e);
+			throw new DBException("Cannot add the devision \"" + div.getName() + "\"", e);
 		}
 		return result;
 	}
 
 	@Override
 	public Division getById(long id) throws DBException {
+		logger.debug("Try to get the division with id={}", id);
 		Division division = null;
 		try(Session session = SESSION_FACTORY.openSession()){
+			logger.debug("Session opened");
 			session.beginTransaction();
 			division = session.get(Division.class, id);
 			if (division != null) {
@@ -66,8 +73,9 @@ public class DivisionService implements DivisionDAO {
 				division.getSlaveDivisions().size(); //for attaching the set of slaveDivision
 			}
 			session.getTransaction().commit();
+			logger.debug("The division with id={} has got and has name \"{}\"", division.getId(), division.getName());
 		} catch (Exception e) {
-			// TODO: add logging in DivisionService.getById()
+			logger.warn("Cannot read the devision with id: " + id, e);
 			throw new DBException("Cannot read the devision with id: " + id, e);
 		}
 		return division;
@@ -75,25 +83,28 @@ public class DivisionService implements DivisionDAO {
 
 	@Override
 	public boolean delete(Division div) throws DBException {
+		logger.debug("Try to delete the division \"{}\"", div.getName());
 		boolean result = false;
 		Transaction transaction = null;
 		try (Session session = SESSION_FACTORY.openSession()) {
+			logger.debug("Session opened");
 			transaction = session.beginTransaction();
 			if (session.get(Division.class, div.getId()) != null) {
 				session.clear();
 				div.getUsers().forEach(user->user.getDivisions().remove(div));
-				div.getUsers().forEach(user->session.update(user));
-				div.getEquipment().forEach(equip->session.delete(equip));
+				div.getUsers().stream().peek(user->logger.debug("Delete the division from user\"{}\"", user.getLogin())).forEach(user->session.update(user));
+				div.getEquipment().stream().peek(equip->logger.debug("Delete an equipment \"{}\" which was installed in the division", equip.getName())).forEach(equip->session.delete(equip));
 				session.delete(div);
+				transaction.commit();
+				logger.debug("The division \"{}\" has deleted", div.getName());
 				result = true;
 			}
-			transaction.commit();
 		} catch (Exception e) {
 			if (transaction != null && transaction.isActive()) {
 				transaction.rollback();
 			}
-			// TODO: add logging in DivisionService.delete()
-			throw new DBException("Cannot delete the division with name: " + div.getName(), e);
+			logger.warn("Cannot delete the division \"" + div.getName() + "\"", e);
+			throw new DBException("Cannot delete the division \"" + div.getName() + "\"", e);
 		}
 		return result;
 	}
