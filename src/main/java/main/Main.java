@@ -46,7 +46,7 @@ public class Main {
 		divDAO.add(kmemRES_3);
 		
 		System.out.println(divDAO.getAllNames());
-		System.out.println(divDAO.deleteByName(kmem.getName()));
+		//System.out.println(divDAO.deleteByName(kmem.getName()));
 		System.out.println(divDAO.getAllNames());
 		
 		
@@ -91,7 +91,10 @@ public class Main {
 		System.out.println(userDAO.addDivision(admin.getLogin(), kmem));
 		System.out.println(userDAO.getById(admin.getId()));
 		System.out.println(divDAO.delete(kmem));
-		System.out.println(userDAO.deleteById(2));
+		System.out.println(userDAO.delete(userOne));
+		System.out.println(userDAO.delete(getUser("UserNew", Role.USER)));
+		
+		db.stop();
 
 	}
 
