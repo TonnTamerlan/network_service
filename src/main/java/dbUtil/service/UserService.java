@@ -12,6 +12,8 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -34,51 +36,68 @@ import dbUtil.dataSets.User_;
  */
 public class UserService implements UserDAO {
 
+	private static final Logger LOGGER = LogManager.getLogger(UserService.class);
+
 	final private SessionFactory SESSION_FACTORY;
-	
+
 	public UserService(final SessionFactory sessionFactory) {
 		this.SESSION_FACTORY = sessionFactory;
 	}
-	
+
 	@Override
 	public boolean add(User user) throws DBException {
+		LOGGER.debug("Try to add the user \"{}\" with login \"{}\" in repository", user.getLastName(), user.getLogin());
 		boolean result = false;
-		try (Session session = SESSION_FACTORY.openSession()){
+		try (Session session = SESSION_FACTORY.openSession()) {
 			session.beginTransaction();
 			session.persist(user);
 			session.getTransaction().commit();
+			LOGGER.debug("The user \"{}\" with login \"{}\" and id={} has added", user.getLastName(), user.getLogin(),
+					user.getId());
 			result = true;
 		} catch (PersistenceException e) {
-			// TODO: add logging "The user with login: " + user.getLogin() + " is already exists!"
-			throw new DBException("The user with login: " + user.getLogin() + " is already exists!", e);
+			LOGGER.warn("The user \"{}\" with login \"{}\" already exists");
+			throw new DBException(
+					"The user \"" + user.getLastName() + "\" with login \"" + user.getLogin() + "\" already exists!",
+					e);
 		} catch (Exception e) {
-			// TODO: add logging in UserService.add()
-			throw new DBException("Cannot add User with login: " + user.getLogin(), e);
+			LOGGER.error("Cannot add the user \"" + user.getLastName() + "\" with login \"" + user.getLogin() + "\"",
+					e);
+			throw new DBException(
+					"Cannot add the user \"" + user.getLastName() + "\" with login \"" + user.getLogin() + "\"", e);
 		}
 		return result;
 	}
 
 	@Override
 	public User getById(long id) throws DBException {
+		LOGGER.debug("Try to get a user by id={}", id);
 		User user = null;
-		try(Session session = SESSION_FACTORY.openSession()){
+		try (Session session = SESSION_FACTORY.openSession()) {
 			session.beginTransaction();
 			user = session.get(User.class, id);
 			if (user != null) {
-				user.getDivisions().size(); //for attaching the set of divisions
+				user.getDivisions().size(); // for attaching the set of divisions
+				session.getTransaction().commit();
+				LOGGER.debug("The user \"{}\" with login \"{}\" and id={} has got", user.getLastName(), user.getLogin(),
+						user.getId());
+			} else {
+				session.getTransaction().commit();
+				LOGGER.debug("The user with id={} didn't find", id);
 			}
-			session.getTransaction().commit();
+
 		} catch (Exception e) {
-			// TODO: add logging in UserService.getById()
-			throw new DBException("Cannot read the user with id: " + id, e);
+			LOGGER.error("Cannot read the user with id=" + id, e);
+			throw new DBException("Cannot read the user with id=" + id, e);
 		}
 		return user;
 	}
 
 	@Override
-	public User getByLogin(String login) throws DBException{
+	public User getByLogin(String login) throws DBException {
+		LOGGER.debug("Try to get the user with login=\"{}\"", login);
 		User user = null;
-		try(Session session = SESSION_FACTORY.openSession()){
+		try (Session session = SESSION_FACTORY.openSession()) {
 			session.beginTransaction();
 			CriteriaBuilder builder = session.getCriteriaBuilder();
 			CriteriaQuery<User> criteriaQuery = builder.createQuery(User.class);
@@ -87,22 +106,25 @@ public class UserService implements UserDAO {
 			Predicate predicate = builder.equal(userRoot.get(User_.login), login);
 			criteriaQuery.where(predicate);
 			user = session.createQuery(criteriaQuery).getSingleResult();
-			user.getDivisions().size(); //for attaching the set of divisions
+			user.getDivisions().size(); // for attaching the set of divisions
 			session.getTransaction().commit();
+			LOGGER.debug("The user \"{}\" with login \"{}\" and id={} has got", user.getLastName(), user.getLogin(),
+					user.getId());
 		} catch (NoResultException e) {
-			// TODO: add logging in UserService.getByLogin()
-			user = null;
+			LOGGER.debug("Cannot get the user \"{}\" by login, because it does not exist", login);
+			LOGGER.catching(e);
 		} catch (Exception e) {
-			// TODO: add logging in UserService.getByLogin()
-			throw new DBException("Cannot read the user with login: " + login, e);
+			LOGGER.error("Cannot get the user with login \"" + login + "\" by login", e);
+			throw new DBException("Cannot get the user with login \"" + login + "\" by login", e);
 		}
 		return user;
 	}
 
 	@Override
-	public Set<String> getAllLogins() throws DBException{
+	public Set<String> getAllLogins() throws DBException {
+		LOGGER.debug("Try to get all the user logins");
 		Set<String> userSet = null;
-		try (Session session = SESSION_FACTORY.openSession()){
+		try (Session session = SESSION_FACTORY.openSession()) {
 			session.beginTransaction();
 			CriteriaBuilder builder = session.getCriteriaBuilder();
 			CriteriaQuery<String> criteriaQuery = builder.createQuery(String.class);
@@ -110,17 +132,19 @@ public class UserService implements UserDAO {
 			criteriaQuery.select(userRoot.get(User_.login));
 			userSet = new HashSet<String>(session.createQuery(criteriaQuery).getResultList());
 			session.getTransaction().commit();
-		}catch (Exception e) {
-			// TODO: add logging in UserService.getAllLogins()
+			LOGGER.debug("Was got next user logins: {}", userSet.toString());
+		} catch (Exception e) {
+			LOGGER.error("Cannot read logins of all users", e);
 			throw new DBException("Cannot read logins of all users", e);
 		}
 		return userSet;
 	}
-	
+
 	@Override
 	public Set<String> getByRole(Role role) throws DBException {
+		LOGGER.debug("Try to get user names by role \"{}\"", role);
 		Set<String> userSet = null;
-		try (Session session = SESSION_FACTORY.openSession()){
+		try (Session session = SESSION_FACTORY.openSession()) {
 			session.beginTransaction();
 			CriteriaBuilder builder = session.getCriteriaBuilder();
 			CriteriaQuery<String> criteriaQuery = builder.createQuery(String.class);
@@ -130,17 +154,19 @@ public class UserService implements UserDAO {
 			criteriaQuery.where(predicate);
 			userSet = new HashSet<String>(session.createQuery(criteriaQuery).getResultList());
 			session.getTransaction().commit();
+			LOGGER.debug("Was got next users which have role \"{}\": {}", role, userSet.toString());
 		} catch (Exception e) {
-			// TODO: add logging in UserService.getByRole()
-			throw new DBException("Cannot read users with role: " + role.name(), e);
+			LOGGER.error("Cannot get user logins by role: " + role.name(), e);
+			throw new DBException("Cannot get user logins by role: " + role.name(), e);
 		}
 		return userSet;
 	}
 
 	@Override
-	public Set<String> getByDivision(String divisionName) throws DBException{
+	public Set<String> getByDivision(String divisionName) throws DBException {
+		LOGGER.debug("Try to get user logins by the division name \"{}\"", divisionName);
 		Set<String> userSet = null;
-		try (Session session = SESSION_FACTORY.openSession()){
+		try (Session session = SESSION_FACTORY.openSession()) {
 			session.beginTransaction();
 			CriteriaBuilder builder = session.getCriteriaBuilder();
 			CriteriaQuery<Division> criteriaQuery = builder.createQuery(Division.class);
@@ -148,44 +174,52 @@ public class UserService implements UserDAO {
 			criteriaQuery.select(divisionRoot);
 			criteriaQuery.where(builder.equal(divisionRoot.get(Division_.name), divisionName));
 			Division division = session.createQuery(criteriaQuery).getSingleResult();
-			if (division != null) {
-				userSet = division.getUsers().stream().map(User::getLogin).collect(Collectors.toSet());
-			}
+			LOGGER.debug("Was got the division \"{}\" with id={}", division.getName(), division.getId());
+			userSet = division.getUsers().stream().map(User::getLogin).collect(Collectors.toSet());
 			session.getTransaction().commit();
+			LOGGER.debug("Was got next users which belong the division \"{}\" with id={}: {}", division.getName(),
+					division.getId(), userSet.toString());
 		} catch (NoResultException e) {
-			// TODO: add logging in UserService.getByDivision()
-			userSet = new HashSet<String>();
+			LOGGER.debug("Cannot find the division \"{}\"", divisionName);
+			LOGGER.catching(e);
 		} catch (Exception e) {
-			// TODO: add logging in UserService.getByDivision()
-			throw new DBException("Cannot read users with divisions: " + divisionName, e);
+			LOGGER.error("Cannot get user logins by division: " + divisionName, e);
+			throw new DBException("Cannot get user logins by division: " + divisionName, e);
 		}
 		return userSet;
 	}
 
 	@Override
 	public boolean deleteById(long id) throws DBException {
+		LOGGER.debug("Try to delete a user bi id={}", id);
 		boolean result = false;
 		Transaction transaction = null;
 		try (Session session = SESSION_FACTORY.openSession()) {
 			transaction = session.beginTransaction();
 			User user = session.byId(User.class).load(id);
-			if(user != null) {
+			if (user != null) {
 				session.remove(user);
+				transaction.commit();
+				LOGGER.debug("The user \"{}\" with login \"{}\" anf id={} was deleted", user.getLastName(),
+						user.getLogin(), user.getId());
+				result = true;
+			} else {
+				transaction.commit();
+				LOGGER.debug("The user with id={} does not exist", id);
 			}
-			transaction.commit();
-			result = true;
 		} catch (Exception e) {
-			// TODO Add logging in UserService.deleteByID()
 			if (transaction != null && transaction.isActive()) {
 				transaction.rollback();
 			}
-			throw new DBException("Cannot delet the user with id=" + id, e);
+			LOGGER.error("Cannot delete the user with id=" + id, e);
+			throw new DBException("Cannot delete the user with id=" + id, e);
 		}
 		return result;
 	}
 
 	@Override
 	public boolean deleteByLogin(String login) throws DBException {
+		LOGGER.debug("Try to delete a user by login=\"{}\"", login);
 		boolean result = false;
 		Transaction transaction = null;
 		try (Session session = SESSION_FACTORY.openSession()) {
@@ -196,14 +230,17 @@ public class UserService implements UserDAO {
 			deleteQuery.where(builder.equal(userRoot.get(User_.login), login));
 			int numberDelettedRows = session.createQuery(deleteQuery).executeUpdate();
 			transaction.commit();
-			if(numberDelettedRows != 0) {
+			if (numberDelettedRows != 0) {
+				LOGGER.debug("The user with login \"{}\" was deleted", login);
 				result = true;
+			} else {
+				LOGGER.debug("The user with login \"{}\" doesn't exist", login);
 			}
 		} catch (Exception e) {
 			if (transaction != null && transaction.isActive()) {
 				transaction.rollback();
 			}
-			// TODO: add logging in UserService.deleteByLogin()
+			LOGGER.error("Cannot delete user with login: " + login, e);
 			throw new DBException("Cannot delete user with login: " + login, e);
 		}
 		return result;
@@ -211,22 +248,25 @@ public class UserService implements UserDAO {
 
 	@Override
 	public boolean delete(User user) throws DBException {
+		LOGGER.debug("Try to delete user \"{}\" with login \"{}\" and id={}", user.getLastName(), user.getLastName(),
+				user.getId());
 		boolean result = false;
 		Transaction transaction = null;
 		try (Session session = SESSION_FACTORY.openSession()) {
 			transaction = session.beginTransaction();
-			if (session.get(User.class, user.getId()) != null) {
-				session.clear();
-				session.remove(user);
-				result = true;
-			}
+			session.update(user); // attach user
+			session.remove(user);
 			transaction.commit();
+			LOGGER.debug("The user \"{}\" with login \"{}\" and id={} was deleted", user.getLastName(), user.getLogin(),
+					user.getId());
 		} catch (Exception e) {
 			if (transaction != null && transaction.isActive()) {
 				transaction.rollback();
 			}
-			// TODO: add logging in UserService.delete()
-			throw new DBException("Cannot delete user with login: " + user.getLogin(), e);
+			LOGGER.error("Cannot delete user \"" + user.getLastName() + "\" with login \"" + user.getLogin()
+					+ "\" and id=" + user.getId(), e);
+			throw new DBException("Cannot delete user \"" + user.getLastName() + "\"with login \"" + user.getLogin()
+					+ "\" and id=" + user.getId(), e);
 		}
 		return result;
 	}
@@ -238,9 +278,8 @@ public class UserService implements UserDAO {
 		try (Session session = SESSION_FACTORY.openSession()) {
 			transaction = session.beginTransaction();
 			session.update(user);
-			//session.saveOrUpdate(user);
 			transaction.commit();
-			result= true;
+			result = true;
 		} catch (Exception e) {
 			// TODO: add logging in UserService.update()
 			throw new DBException("Cannot update an user with login: " + user.getLogin(), e);
