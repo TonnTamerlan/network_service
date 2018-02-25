@@ -40,7 +40,7 @@ public class DivisionService implements DivisionDAO {
 	
 	@Override
 	public boolean add(Division div) throws DBException {
-		LOGGER.debug("Start adding the division \"{}\" to repository", div.getName());
+		LOGGER.debug("Try to add the division \"{}\" in repository", div.getName());
 		boolean result = false;
 		try (Session session = SESSION_FACTORY.openSession()){
 			session.beginTransaction();
@@ -49,8 +49,8 @@ public class DivisionService implements DivisionDAO {
 			LOGGER.debug("The division \"{}\" with id={} has added", div.getName(), div.getId());
 			result = true;
 		} catch (PersistenceException e) {
-			LOGGER.warn("The division \"{}\" is already exists", div.getName());
-			throw new DBException("The division with name " + div.getName() + " is already exists", e);
+			LOGGER.warn("The division \"{}\" already exists", div.getName());
+			throw new DBException("The division \"" + div.getName() + "\" already exists", e);
 		} catch (Exception e) {
 			LOGGER.error("Cannot add the devision \"" + div.getName() + "\"", e);
 			throw new DBException("Cannot add the devision \"" + div.getName() + "\"", e);
@@ -60,7 +60,7 @@ public class DivisionService implements DivisionDAO {
 
 	@Override
 	public Division getById(long id) throws DBException {
-		LOGGER.debug("Try to get the division with id={} by ID", id);
+		LOGGER.debug("Try to get a division by id={}", id);
 		Division division = null;
 		try(Session session = SESSION_FACTORY.openSession()){
 			session.beginTransaction();
@@ -171,7 +171,7 @@ public class DivisionService implements DivisionDAO {
 
 	@Override
 	public Set<String> getAllNames() throws DBException {
-		LOGGER.debug("Try to read all the division names");
+		LOGGER.debug("Try to get all the division names");
 		Set<String> divisionSet = null;
 		try (Session session = SESSION_FACTORY.openSession()) {
 			session.beginTransaction();
@@ -181,9 +181,9 @@ public class DivisionService implements DivisionDAO {
 			criteriaQuery.select(divisionRoot.get(Division_.name));
 			divisionSet = new HashSet<String>(session.createQuery(criteriaQuery).getResultList());
 			session.getTransaction().commit();
-			LOGGER.debug("Was read next division names: {}", divisionSet.toString());
+			LOGGER.debug("Was got next division names: {}", divisionSet.toString());
 		} catch (Exception e) {
-			LOGGER.error("Cannot read names of all divisions", e);
+			LOGGER.error("Cannot get names of all divisions", e);
 			throw new DBException("Cannot read names of all divisions", e);
 		}
 		return divisionSet;
@@ -191,7 +191,7 @@ public class DivisionService implements DivisionDAO {
 
 	@Override
 	public Division getByName(String name) throws DBException {
-		LOGGER.debug("Try to get the divisin \"{}\" by name", name);
+		LOGGER.debug("Try to get a divisin by name=\"{}\"", name);
 		Division division = null;
 		try (Session session = SESSION_FACTORY.openSession()) {
 			session.beginTransaction();
