@@ -36,8 +36,9 @@ public class Equipment implements Serializable {
 	@Column(name = "discription", length = 2000)
 	private String discription;
 
+	@NotNull
 	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "division_id")
+	@JoinColumn(name = "division_id", nullable = false)
 	private Division division;
 
 	public Equipment() {
@@ -121,12 +122,12 @@ public class Equipment implements Serializable {
 	@Override
 	public String toString() {
 		StringBuilder str = new StringBuilder();
-		str.append("Division =\n")
+		str.append("Equipment =\n")
 				.append("{\n")
 				.append("\t\"id\": ").append(this.getId()).append("\",\n")
 				.append("\t\"name\": \"").append(name).append("\",\n")
 				.append("\t\"ip\": \"").append(ip).append("\",\n")
-				.append("\t\"unit\": \"").append(division).append("\"\n")
+				.append("\t\"division\": \"").append(division == null ? "null" : division.getName()).append("\"\n")
 				.append("}");
 		return str.toString();
 	}
