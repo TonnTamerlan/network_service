@@ -60,10 +60,9 @@ public class UserService implements UserDAO {
 			LOGGER.debug("The user \"{}\" with login \"{}\" already exists!", user.getLastName(), user.getLogin());
 			LOGGER.catching(Level.DEBUG, e);
 		} catch (Exception e) {
-			LOGGER.error("Cannot add the user \"" + user.getLastName() + "\" with login \"" + user.getLogin() + "\"",
-					e);
-			throw new DBException(
-					"Cannot add the user \"" + user.getLastName() + "\" with login \"" + user.getLogin() + "\"", e);
+			String errorMessage = "Cannot add the user \"" + user.getLastName() + "\" with login \"" + user.getLogin() + "\"";
+			LOGGER.error(errorMessage, e);
+			throw new DBException(errorMessage, e);
 		}
 		return result;
 	}
@@ -86,8 +85,9 @@ public class UserService implements UserDAO {
 			}
 
 		} catch (Exception e) {
-			LOGGER.error("Cannot read the user with id=" + id, e);
-			throw new DBException("Cannot read the user with id=" + id, e);
+			String errorMessage = "Cannot read the user with id=" + id;
+			LOGGER.error(errorMessage, e);
+			throw new DBException(errorMessage, e);
 		}
 		return user;
 	}
@@ -113,8 +113,9 @@ public class UserService implements UserDAO {
 			LOGGER.debug("Cannot get the user \"{}\" by login, because it does not exist", login);
 			LOGGER.catching(Level.DEBUG, e);
 		} catch (Exception e) {
-			LOGGER.error("Cannot get the user with login \"" + login + "\" by login", e);
-			throw new DBException("Cannot get the user with login \"" + login + "\" by login", e);
+			String errorMessage = "Cannot get the user with login \"" + login + "\" by login";
+			LOGGER.error(errorMessage, e);
+			throw new DBException(errorMessage, e);
 		}
 		return user;
 	}
@@ -133,8 +134,9 @@ public class UserService implements UserDAO {
 			session.getTransaction().commit();
 			LOGGER.debug("Was got next user logins: {}", userSet.toString());
 		} catch (Exception e) {
-			LOGGER.error("Cannot read logins of all users", e);
-			throw new DBException("Cannot read logins of all users", e);
+			String errorMessage = "Cannot read logins of all users";
+			LOGGER.error(errorMessage, e);
+			throw new DBException(errorMessage, e);
 		}
 		return userSet;
 	}
@@ -155,8 +157,9 @@ public class UserService implements UserDAO {
 			session.getTransaction().commit();
 			LOGGER.debug("Was got next users which have role \"{}\": {}", role, userSet.toString());
 		} catch (Exception e) {
-			LOGGER.error("Cannot get user logins by role: " + role.name(), e);
-			throw new DBException("Cannot get user logins by role: " + role.name(), e);
+			String errorMessage = "Cannot get user logins by role: " + role.name();
+			LOGGER.error(errorMessage, e);
+			throw new DBException(errorMessage, e);
 		}
 		return userSet;
 	}
@@ -182,8 +185,9 @@ public class UserService implements UserDAO {
 			LOGGER.debug("Cannot find the division \"{}\"", divisionName);
 			LOGGER.catching(Level.DEBUG, e);
 		} catch (Exception e) {
-			LOGGER.error("Cannot get user logins by division: " + divisionName, e);
-			throw new DBException("Cannot get user logins by division: " + divisionName, e);
+			String errorMessage = "Cannot get user logins by division: " + divisionName;
+			LOGGER.error(errorMessage, e);
+			throw new DBException(errorMessage, e);
 		}
 		return userSet;
 	}
@@ -210,8 +214,9 @@ public class UserService implements UserDAO {
 			if (transaction != null && transaction.isActive()) {
 				transaction.rollback();
 			}
-			LOGGER.error("Cannot delete the user with id=" + id, e);
-			throw new DBException("Cannot delete the user with id=" + id, e);
+			String errorMessage = "Cannot delete the user with id=" + id;
+			LOGGER.error(errorMessage, e);
+			throw new DBException(errorMessage, e);
 		}
 		return result;
 	}
@@ -239,8 +244,9 @@ public class UserService implements UserDAO {
 			if (transaction != null && transaction.isActive()) {
 				transaction.rollback();
 			}
-			LOGGER.error("Cannot delete user with login: " + login, e);
-			throw new DBException("Cannot delete user with login: " + login, e);
+			String errorMessage = "Cannot delete user with login: " + login;
+			LOGGER.error(errorMessage, e);
+			throw new DBException(errorMessage, e);
 		}
 		return result;
 	}
@@ -262,10 +268,10 @@ public class UserService implements UserDAO {
 			if (transaction != null && transaction.isActive()) {
 				transaction.rollback();
 			}
-			LOGGER.error("Cannot delete user \"" + user.getLastName() + "\" with login \"" + user.getLogin()
-					+ "\" and id=" + user.getId(), e);
-			throw new DBException("Cannot delete user \"" + user.getLastName() + "\"with login \"" + user.getLogin()
-					+ "\" and id=" + user.getId(), e);
+			String errorMessage = "Cannot delete user \"" + user.getLastName() + "\" with login \"" + user.getLogin()
+					+ "\" and id=" + user.getId();
+			LOGGER.error(errorMessage, e);
+			throw new DBException(errorMessage, e);
 		}
 		return result;
 	}
@@ -284,10 +290,10 @@ public class UserService implements UserDAO {
 					user.getLastName(), user.getLogin(), user.getId());
 			result = true;
 		} catch (Exception e) {
-			LOGGER.error("Cannot update the user \"" + user.getLastName() +
-					"\" with login \"" + user.getLogin() + "\" and id=" + user.getId() , e);
-			throw new DBException("Cannot update the user \"" + user.getLastName() +
-					"\" with login \"" + user.getLogin() + "\" and id=" + user.getId() , e);
+			String errorMessage = "Cannot update the user \"" + user.getLastName() +
+					"\" with login \"" + user.getLogin() + "\" and id=" + user.getId();
+			LOGGER.error(errorMessage , e);
+			throw new DBException(errorMessage , e);
 		}
 		return result;
 	}
@@ -319,10 +325,10 @@ public class UserService implements UserDAO {
 			if (transanction != null && transanction.isActive()) {
 				transanction.rollback();
 			}
-			LOGGER.error("Cannot to add the division \"" + division.getName() + "\" with id=" + division.getId()
-					+ " to the user with login \"" + login + "\"", e);
-			throw new DBException("Cannot to add the division \"" + division.getName() + "\" with id=" + division.getId()
-					+ " to the user with login \"" + login + "\"", e);
+			String errorMessage = "Cannot to add the division \"" + division.getName() + "\" with id=" + division.getId()
+					+ " to the user with login \"" + login + "\"";
+			LOGGER.error(errorMessage, e);
+			throw new DBException(errorMessage, e);
 		}
 		return result;
 	}
