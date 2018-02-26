@@ -9,6 +9,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
@@ -207,7 +208,7 @@ public class DivisionService implements DivisionDAO {
 			LOGGER.debug("The division \"{}\" with id={} has got", division.getName(), division.getId());
 		} catch (NoResultException e) {
 			LOGGER.debug("Cannot get the division \"{}\" by name, because it does not exist", name);
-			LOGGER.catching(e);
+			LOGGER.catching(Level.DEBUG, e);
 		} catch (Exception e) {
 			LOGGER.error("Cannot get the division \"" + name + "\" by name", e);
 			throw new DBException("Cannot get the division \"" + name + "\" by name", e);
@@ -238,7 +239,7 @@ public class DivisionService implements DivisionDAO {
 			result = true;
 		} catch (NoResultException e) {
 			LOGGER.debug("Cannot delete the division \"{}\" by name, because it doesn't exist");
-			LOGGER.catching(e);
+			LOGGER.catching(Level.DEBUG,e);
 		} catch (Exception e) {
 			if (transaction != null && transaction.isActive()) {
 				transaction.rollback();
