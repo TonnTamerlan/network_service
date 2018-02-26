@@ -53,8 +53,9 @@ public class DivisionService implements DivisionDAO {
 			LOGGER.debug("The division \"{}\" already exists", div.getName());
 			LOGGER.catching(Level.DEBUG, e);
 		} catch (Exception e) {
-			LOGGER.error("Cannot add the devision \"" + div.getName() + "\"", e);
-			throw new DBException("Cannot add the devision \"" + div.getName() + "\"", e);
+			String UserService = "Cannot add the devision \"" + div.getName() + "\"";
+			LOGGER.error(UserService, e);
+			throw new DBException(UserService, e);
 		}
 		return result;
 	}
@@ -78,8 +79,9 @@ public class DivisionService implements DivisionDAO {
 			}
 			
 		} catch (Exception e) {
-			LOGGER.error("Cannot read the devision with id=" + id + " by ID", e);
-			throw new DBException("Cannot read the devision with id=" + id + " by ID", e);
+			String errorMessage = "Cannot read the devision with id=" + id + " by ID";
+			LOGGER.error(errorMessage, e);
+			throw new DBException(errorMessage, e);
 		}
 		return division;
 	}
@@ -112,8 +114,9 @@ public class DivisionService implements DivisionDAO {
 			if (transaction != null && transaction.isActive()) {
 				transaction.rollback();
 			}
-			LOGGER.error("Cannot delete the division \"" + div.getName() + "\" with id=" + div.getId(), e);
-			throw new DBException("Cannot delete the division \"" + div.getName() + "\" with id=" + div.getId(), e);
+			String errorMessage = "Cannot delete the division \"" + div.getName() + "\" with id=" + div.getId();
+			LOGGER.error(errorMessage, e);
+			throw new DBException(errorMessage, e);
 		}
 		return result;
 	}
@@ -146,8 +149,9 @@ public class DivisionService implements DivisionDAO {
 			if (transaction != null && transaction.isActive()) {
 				transaction.rollback();
 			}
-			LOGGER.error("Cannot delete the division with id=" + id + " by ID", e);
-			throw new DBException("Cannot delete the division with id=" + id + " by ID", e);
+			String errorMessage = "Cannot delete the division with id=" + id + " by ID";
+			LOGGER.error(errorMessage, e);
+			throw new DBException(errorMessage, e);
 		}
 		return result;
 	}
@@ -164,8 +168,9 @@ public class DivisionService implements DivisionDAO {
 			LOGGER.debug("The division \"{}\" with id={} has updated", div.getName(), div.getId());
 			result= true;
 		} catch (Exception e) {
-			LOGGER.error("Cannot update the division \"" + div.getName() + "\" with id=" + div.getId(), e);
-			throw new DBException("Cannot update the division \"" + div.getName() + "\" with id=" + div.getId(), e);
+			String errorMessage = "Cannot update the division \"" + div.getName() + "\" with id=" + div.getId();
+			LOGGER.error(errorMessage, e);
+			throw new DBException(errorMessage, e);
 		}
 		return result;
 	}
@@ -184,8 +189,9 @@ public class DivisionService implements DivisionDAO {
 			session.getTransaction().commit();
 			LOGGER.debug("Was got next division names: {}", divisionSet.toString());
 		} catch (Exception e) {
-			LOGGER.error("Cannot get names of all divisions", e);
-			throw new DBException("Cannot read names of all divisions", e);
+			String errorMessage = "Cannot get names of all divisions";
+			LOGGER.error(errorMessage, e);
+			throw new DBException(errorMessage, e);
 		}
 		return divisionSet;
 	}
@@ -210,8 +216,9 @@ public class DivisionService implements DivisionDAO {
 			LOGGER.debug("Cannot get the division \"{}\" by name, because it does not exist", name);
 			LOGGER.catching(Level.DEBUG, e);
 		} catch (Exception e) {
-			LOGGER.error("Cannot get the division \"" + name + "\" by name", e);
-			throw new DBException("Cannot get the division \"" + name + "\" by name", e);
+			String errorMessage = "Cannot get the division \"" + name + "\" by name";
+			LOGGER.error(errorMessage, e);
+			throw new DBException(errorMessage, e);
 		}
 		return division;
 	}
@@ -244,8 +251,9 @@ public class DivisionService implements DivisionDAO {
 			if (transaction != null && transaction.isActive()) {
 				transaction.rollback();
 			}
-			LOGGER.error("Cannot delete the devision \"" + name + "\" by name", e);
-			throw new DBException("Cannot delete the devision \"" + name + "\" by name", e);
+			String errorMessage = "Cannot delete the devision \"" + name + "\" by name";
+			LOGGER.error(errorMessage, e);
+			throw new DBException(errorMessage, e);
 		}
 		return result;
 	}
