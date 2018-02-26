@@ -123,7 +123,7 @@ public class DivisionService implements DivisionDAO {
 
 	@Override
 	public boolean deleteById(long id) throws DBException {
-		LOGGER.debug("Try to delete the division with id={} by ID", id);
+		LOGGER.debug("Try to delete the division by id={}", id);
 		boolean result = false;
 		Transaction transaction = null;
 		try (Session session = SESSION_FACTORY.openSession()) {
@@ -198,7 +198,7 @@ public class DivisionService implements DivisionDAO {
 
 	@Override
 	public Division getByName(String name) throws DBException {
-		LOGGER.debug("Try to get a divisin by name=\"{}\"", name);
+		LOGGER.debug("Try to get the divisin by name=\"{}\"", name);
 		Division division = null;
 		try (Session session = SESSION_FACTORY.openSession()) {
 			session.beginTransaction();
@@ -225,7 +225,7 @@ public class DivisionService implements DivisionDAO {
 
 	@Override
 	public boolean deleteByName(String name) throws DBException {
-		LOGGER.debug("Try to delete the division \"{}\" by name", name);
+		LOGGER.debug("Try to delete the division by name=\"{}\"", name);
 		boolean result = false;
 		Transaction transaction = null;
 		try (Session session = SESSION_FACTORY.openSession()) {
