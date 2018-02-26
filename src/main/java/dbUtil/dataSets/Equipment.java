@@ -91,11 +91,13 @@ public class Equipment implements Serializable {
 		}
 	}
 
+	
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + (int) (this.getId() ^ (this.getId() >>> 32));
+		result = prime * result + ((division == null) ? 0 : division.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		return result;
 	}
@@ -109,7 +111,10 @@ public class Equipment implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		Equipment other = (Equipment) obj;
-		if (this.getId() != other.getId())
+		if (division == null) {
+			if (other.division != null)
+				return false;
+		} else if (!division.equals(other.division))
 			return false;
 		if (name == null) {
 			if (other.name != null)
@@ -118,7 +123,7 @@ public class Equipment implements Serializable {
 			return false;
 		return true;
 	}
-	
+
 	@Override
 	public String toString() {
 		StringBuilder str = new StringBuilder();
