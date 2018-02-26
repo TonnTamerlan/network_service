@@ -194,7 +194,7 @@ public class UserService implements UserDAO {
 
 	@Override
 	public boolean deleteById(long id) throws DBException {
-		LOGGER.debug("Try to delete a user bi id={}", id);
+		LOGGER.debug("Try to delete the user by id={}", id);
 		boolean result = false;
 		Transaction transaction = null;
 		try (Session session = SESSION_FACTORY.openSession()) {
