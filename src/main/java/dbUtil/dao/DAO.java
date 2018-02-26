@@ -10,7 +10,7 @@ public interface DAO<T> {
 	 * @param div is the division
 	 * @throws DBException 
 	 */
-	boolean add(T div) throws DBException;
+	boolean add(T entity) throws DBException;
 
 	/**
 	 * Find and get an entity from the repository by id
@@ -26,7 +26,7 @@ public interface DAO<T> {
 	 * 
 	 * @param div
 	 */
-	boolean delete(T div) throws DBException;
+	boolean delete(T entity) throws DBException;
 
 	/**
 	 * Delete an entity by id from the repository
@@ -40,6 +40,6 @@ public interface DAO<T> {
 	 * 
 	 * @param div
 	 */
-	boolean update(T div) throws DBException;
+	boolean update(T entity) throws DBException;
 
 }
