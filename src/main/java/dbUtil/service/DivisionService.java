@@ -50,8 +50,8 @@ public class DivisionService implements DivisionDAO {
 			LOGGER.debug("The division \"{}\" with id={} has added", div.getName(), div.getId());
 			result = true;
 		} catch (PersistenceException e) {
-			LOGGER.warn("The division \"{}\" already exists", div.getName());
-			throw new DBException("The division \"" + div.getName() + "\" already exists", e);
+			LOGGER.debug("The division \"{}\" already exists", div.getName());
+			LOGGER.catching(Level.DEBUG, e);
 		} catch (Exception e) {
 			LOGGER.error("Cannot add the devision \"" + div.getName() + "\"", e);
 			throw new DBException("Cannot add the devision \"" + div.getName() + "\"", e);
