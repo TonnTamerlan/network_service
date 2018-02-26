@@ -12,6 +12,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
@@ -112,7 +113,7 @@ public class UserService implements UserDAO {
 					user.getId());
 		} catch (NoResultException e) {
 			LOGGER.debug("Cannot get the user \"{}\" by login, because it does not exist", login);
-			LOGGER.catching(e);
+			LOGGER.catching(Level.DEBUG, e);
 		} catch (Exception e) {
 			LOGGER.error("Cannot get the user with login \"" + login + "\" by login", e);
 			throw new DBException("Cannot get the user with login \"" + login + "\" by login", e);
@@ -181,7 +182,7 @@ public class UserService implements UserDAO {
 					division.getId(), userSet.toString());
 		} catch (NoResultException e) {
 			LOGGER.debug("Cannot find the division \"{}\"", divisionName);
-			LOGGER.catching(e);
+			LOGGER.catching(Level.DEBUG, e);
 		} catch (Exception e) {
 			LOGGER.error("Cannot get user logins by division: " + divisionName, e);
 			throw new DBException("Cannot get user logins by division: " + divisionName, e);
@@ -282,6 +283,7 @@ public class UserService implements UserDAO {
 			result = true;
 		} catch (Exception e) {
 			// TODO: add logging in UserService.update()
+			
 			throw new DBException("Cannot update an user with login: " + user.getLogin(), e);
 		}
 		return result;
@@ -289,6 +291,8 @@ public class UserService implements UserDAO {
 
 	@Override
 	public boolean addDivision(String login, Division division) throws DBException {
+		LOGGER.debug("Try to add the division \"{}\" with id={} in the user with login \"{}\"", division.getName(),
+				division.getId(), login);
 		boolean result = false;
 		Transaction transanction = null;
 		try (Session session = SESSION_FACTORY.openSession()) {
@@ -301,16 +305,21 @@ public class UserService implements UserDAO {
 			criteriaQuery.where(predicate);
 			User user = session.createQuery(criteriaQuery).getSingleResult();
 			user.addDivision(division);
-			session.update(user);
 			transanction.commit();
 			result = true;
+			LOGGER.debug("The division \"{}\" with id={} was added in the user \"{}\" with login \"{}\" and id={}",
+					division.getName(), division.getId(), user.getLastName(), user.getLogin(), user.getId());
 		} catch (NoResultException e) {
-			// TODO: add logging in UserService.addDivision()
+			LOGGER.debug("The user with login=\"{}\" doesn't exist", login);
+			LOGGER.catching(Level.DEBUG, e);
 		} catch (Exception e) {
-			// TODO: add logging to UserService.addDevision
 			if (transanction != null && transanction.isActive()) {
 				transanction.rollback();
 			}
+			LOGGER.error("Cannot to add the division \"" + division.getName() + "\" with id=" + division.getId()
+					+ " to the user with login \"" + login + "\"", e);
+			throw new DBException("Cannot to add the division \"" + division.getName() + "\" with id=" + division.getId()
+					+ " to the user with login \"" + login + "\"", e);
 		}
 		return result;
 	}
