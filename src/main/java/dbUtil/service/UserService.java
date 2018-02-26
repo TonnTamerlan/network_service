@@ -57,10 +57,8 @@ public class UserService implements UserDAO {
 					user.getId());
 			result = true;
 		} catch (PersistenceException e) {
-			LOGGER.warn("The user \"{}\" with login \"{}\" already exists");
-			throw new DBException(
-					"The user \"" + user.getLastName() + "\" with login \"" + user.getLogin() + "\" already exists!",
-					e);
+			LOGGER.debug("The user \"{}\" with login \"{}\" already exists!", user.getLastName(), user.getLogin());
+			LOGGER.catching(Level.DEBUG, e);
 		} catch (Exception e) {
 			LOGGER.error("Cannot add the user \"" + user.getLastName() + "\" with login \"" + user.getLogin() + "\"",
 					e);
@@ -201,8 +199,8 @@ public class UserService implements UserDAO {
 			if (user != null) {
 				session.remove(user);
 				transaction.commit();
-				LOGGER.debug("The user \"{}\" with login \"{}\" anf id={} was deleted", user.getLastName(),
-						user.getLogin(), user.getId());
+				LOGGER.debug("The user \"{}\" with login \"{}\" anf id={} was deleted", 
+						user.getLastName(), user.getLogin(), user.getId());
 				result = true;
 			} else {
 				transaction.commit();
@@ -274,17 +272,22 @@ public class UserService implements UserDAO {
 
 	@Override
 	public boolean update(User user) throws DBException {
+		LOGGER.debug("Try to update the user \"{}\" with login \"{}\" and id={}",
+				user.getLastName(), user.getLogin(), user.getId());
 		boolean result = false;
 		Transaction transaction = null;
 		try (Session session = SESSION_FACTORY.openSession()) {
 			transaction = session.beginTransaction();
 			session.update(user);
 			transaction.commit();
+			LOGGER.debug("The user \"{}\" with login \"{}\" and id={} has updated",
+					user.getLastName(), user.getLogin(), user.getId());
 			result = true;
 		} catch (Exception e) {
-			// TODO: add logging in UserService.update()
-			
-			throw new DBException("Cannot update an user with login: " + user.getLogin(), e);
+			LOGGER.error("Cannot update the user \"" + user.getLastName() +
+					"\" with login \"" + user.getLogin() + "\" and id=" + user.getId() , e);
+			throw new DBException("Cannot update the user \"" + user.getLastName() +
+					"\" with login \"" + user.getLogin() + "\" and id=" + user.getId() , e);
 		}
 		return result;
 	}
