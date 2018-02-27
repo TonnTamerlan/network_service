@@ -1,5 +1,6 @@
 package dbUtil.service;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -178,7 +179,7 @@ public class DivisionService implements DivisionDAO {
 	@Override
 	public Set<String> getAllNames() throws DBException {
 		LOGGER.debug("Try to get all the division names");
-		Set<String> divisionSet = null;
+		Set<String> divisionSet = Collections.emptySet();
 		try (Session session = SESSION_FACTORY.openSession()) {
 			session.beginTransaction();
 			CriteriaBuilder builder = session.getCriteriaBuilder();
