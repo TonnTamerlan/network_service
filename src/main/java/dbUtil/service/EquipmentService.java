@@ -1,6 +1,5 @@
 package dbUtil.service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -8,7 +7,6 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.apache.logging.log4j.Level;
@@ -31,6 +29,10 @@ import dbUtil.dataSets.Equipment_;
  * @author Alexey Kopylov
  * 
  * @version 1.0-alfa
+ *
+ */
+/**
+ * @author Ellena
  *
  */
 public class EquipmentService implements EquipmentDAO {
@@ -175,38 +177,10 @@ public class EquipmentService implements EquipmentDAO {
 	}
 
 	@Override
-	public List<Equipment> getByNameAndDivision(String equipName, Division div) throws DBException {
-		LOGGER.debug("Try to get the list of equipments by the equipment name \"{}\" and the division \"{}\" with id={}",
-				equipName, div.getName(), div.getId());
-		List<Equipment> listEquip = Collections.emptyList();
-		try (Session session = SESSION_FACTORY.openSession()) {
-			session.beginTransaction();
-			// TODO try to refactoring
-			CriteriaBuilder builder = session.getCriteriaBuilder();
-			CriteriaQuery<Equipment> criteriaQuery = builder.createQuery(Equipment.class);
-			Root<Equipment> equipmentRoot = criteriaQuery.from(Equipment.class);
-			criteriaQuery.select(equipmentRoot);
-			Predicate equipNamePredicate = builder.equal(equipmentRoot.get(Equipment_.division), div);
-			Predicate divisionPredicat = builder.equal(equipmentRoot.get(Equipment_.name), equipName);
-			criteriaQuery.where(builder.and(equipNamePredicate, divisionPredicat));
-			listEquip = session.createQuery(criteriaQuery).getResultList();
-			session.getTransaction().commit();
-			LOGGER.debug("Was got next equipments wich have name \"{}\" and belong the division \"{}\" with id={}: {}", 
-					equipName, div.getName(), div.getId(), listEquip.stream().map(equip->equip.getName()).collect(Collectors.toList()));
-		} catch (Exception e) {
-			String errorMessage = "Cannot get list of equipments by equipment name \"" + equipName
-					+ "\" and the division \"" + div.getName() + "\" with id=" + div.getId();
-			LOGGER.error(errorMessage, e);
-			throw new DBException(errorMessage, e);
-		}
-		return listEquip;
-	}
-
-	@Override
 	public List<Equipment> getByNameAndDivision(String equipName, String divName) throws DBException {
 		LOGGER.debug("Try to get the list of equipment by the equipment name \"{}\" and the division name \"{}\"", 
 				equipName, divName);
-		List<Equipment> listEquip = Collections.emptyList();
+		List<Equipment> listEquip = null;
 		try (Session session = SESSION_FACTORY.openSession()) {
 			session.beginTransaction();
 			CriteriaBuilder builder = session.getCriteriaBuilder();
@@ -217,6 +191,8 @@ public class EquipmentService implements EquipmentDAO {
 			Division division = session.createQuery(criteriaQuery).getSingleResult();
 			listEquip = division.getEquipment().stream().filter(equip->equip.getName().equals(equipName)).collect(Collectors.toList());
 			session.getTransaction().commit();
+			LOGGER.debug("Was got the next list of equipments \"{}\" by division \"{}\": {}",
+					equipName, divName, listEquip.stream().map(equip->equip.getName()).collect(Collectors.toList()));
 		} catch (NoResultException e) {
 			LOGGER.debug("Cannot get the list of equipments which have name \"{}\" and belong division \"{}\", because the division doesn't exist", equipName, divName);
 			LOGGER.catching(Level.DEBUG, e);
@@ -230,16 +206,57 @@ public class EquipmentService implements EquipmentDAO {
 	}
 
 	@Override
-	public List<Equipment> getByDivision(String nameDivision, String nameMasterDivision) throws DBException {
-		// TODO Auto-generated method stub
-		return null;
+	public List<Equipment> getByDivision(String nameDivision) throws DBException {
+		LOGGER.debug("Try to get the list of eguipments by division \"{}\"", nameDivision);
+		List<Equipment> listEquip = null;
+		try (Session session = SESSION_FACTORY.openSession()) {
+			session.beginTransaction();
+			CriteriaBuilder builder = session.getCriteriaBuilder();
+			CriteriaQuery<Division> criteriaQuery = builder.createQuery(Division.class);
+			Root<Division> divisionRoot = criteriaQuery.from(Division.class);
+			criteriaQuery.select(divisionRoot);
+			criteriaQuery.where(builder.equal(divisionRoot.get(Division_.name), nameDivision));
+			Division  div = session.createQuery(criteriaQuery).getSingleResult();
+			listEquip = div.getEquipment();
+			listEquip.size();
+			session.getTransaction().commit();
+			LOGGER.debug("Was got the next list of equipments by division \"{}\": {}",
+					nameDivision, listEquip.stream().map(equip->equip.getName()).collect(Collectors.toList()));
+		} catch (NoResultException e) {
+			LOGGER.debug(
+					"Cannot get the list of equipments by division name \"{}\", because the division doesn't exist",
+					nameDivision);
+			LOGGER.catching(Level.DEBUG, e);
+		} catch (Exception e) {
+			String errorMeassage = "Cannot get the list of equipments by division name \"" + nameDivision + "\"";
+			LOGGER.error(errorMeassage, e);
+			throw new DBException(errorMeassage, e);
+		}
+		return listEquip;
 	}
 
 	@Override
-	public List<Equipment> getAllByName(String equipName) throws DBException {
-		// TODO Auto-generated method stub
-		return null;
+	public List<Equipment> getAllByName(String name) throws DBException {
+		LOGGER.debug("Try to get the list of equipments by name \"{}\"", name);
+		List<Equipment> listEquip = null;
+		try (Session session = SESSION_FACTORY.openSession()) {
+			session.beginTransaction();
+			CriteriaBuilder builder = session.getCriteriaBuilder();
+			CriteriaQuery<Equipment> criteriaQuery = builder.createQuery(Equipment.class);
+			Root<Equipment> equipRoot = criteriaQuery.from(Equipment.class);
+			criteriaQuery.select(equipRoot);
+			criteriaQuery.where(builder.equal(equipRoot.get(Equipment_.name), name));
+			listEquip = session.createQuery(criteriaQuery).getResultList();
+			session.getTransaction().commit();
+		} catch (NoResultException e) {
+			LOGGER.debug("Cannot get the list of equipments by name \"{}\"," + 
+								" because the equipment with this name does not exist", name);
+			LOGGER.catching(Level.DEBUG, e);
+		} catch (Exception e) {
+			String errorMessage = "Cannot get the lis of equipments with name \"" + name + "\"";
+			LOGGER.error(errorMessage, e);
+			throw new DBException(errorMessage, e);
+		}
+		return listEquip;
 	}
-
-
 }
