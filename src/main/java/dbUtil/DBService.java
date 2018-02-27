@@ -3,39 +3,26 @@ package dbUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.SessionFactory;
-import org.hibernate.boot.Metadata;
-import org.hibernate.boot.MetadataSources;
-import org.hibernate.boot.registry.StandardServiceRegistry;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 
 
 public class DBService {
 	
-	final static Logger logger = LogManager.getLogger(DBService.class.getName());
+	final static Logger LOGGER = LogManager.getLogger(DBService.class.getName());
 	
 	private SessionFactory sessionFactory = null;
 	private String CFG_RESOURCE_NAME = "hibernate.cfg.xml";
 	
 	public DBService() {
 		this.start();
-	}
-
-	@SuppressWarnings("unused")
-	@Deprecated
-	private SessionFactory createSessionFactory(Configuration cfg) {
-		StandardServiceRegistry standardRegistry = new StandardServiceRegistryBuilder()
-				.configure("hibernate.cfg.xml")
-				.build();
-		Metadata metaData = new MetadataSources(standardRegistry).getMetadataBuilder().build();
-		return metaData.getSessionFactoryBuilder().build();
+		LOGGER.debug("Data base service created and started");
 	}
 
 	public void stop() {
 		if(this.isWorked()) {
 			sessionFactory.close();
 		}
-		logger.info("Data base service is closed");
+		LOGGER.debug("Data base service is stopped");
 	}
 
 	public boolean isWorked() {
@@ -47,7 +34,7 @@ public class DBService {
 			Configuration cfg = new Configuration().configure(CFG_RESOURCE_NAME);
 			sessionFactory = cfg.buildSessionFactory();
 		}
-		logger.info("Data base service is started");
+		LOGGER.debug("Data base service is started");
 	}
 
 	public SessionFactory getSessionFactory() {
