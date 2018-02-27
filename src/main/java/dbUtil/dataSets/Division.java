@@ -1,7 +1,9 @@
 package dbUtil.dataSets;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.*;
@@ -37,13 +39,26 @@ public class Division implements Serializable {
 
 	@Column(name = "phone")
 	private String phone;
-
+	
+	@Column(name = "photos")
+	private String photos;
+	
+	@Column(name = "sources")
+	private String sources;
+	
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "master_division_id")
+	private Division masterDivision;
+	
+	@OneToMany(mappedBy = "masterDivision", fetch = FetchType.LAZY)
+	private Set<Division> slaveDivisions = new HashSet<>();
+	
 	@ManyToMany(mappedBy = "divisions", fetch = FetchType.LAZY)
 	private Set<User> users = new HashSet<>();
-
-	@OneToMany(mappedBy = "division", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	private Set<Unit> units = new HashSet<>();
-
+	
+	@OneToMany(mappedBy = "division", fetch = FetchType.LAZY)
+	private List<Equipment> equipment = new ArrayList<>();
+	
 	public Division() {
 	}
 
@@ -83,32 +98,76 @@ public class Division implements Serializable {
 		this.phone = phone;
 	}
 
+	public String getPhotos() {
+		return photos;
+	}
+
+	public void setPhotos(String photos) {
+		this.photos = photos;
+	}
+
+	public String getSources() {
+		return sources;
+	}
+
+	public void setSources(String sources) {
+		this.sources = sources;
+	}
+
+	public Division getMasterDivision() {
+		return masterDivision;
+	}
+
+	public void setMasterDivision(Division masterDivision) {
+		this.masterDivision = masterDivision;
+		if(masterDivision != null) {
+			masterDivision.getSlaveDivisions().add(this);
+		}
+	}
+
+	public Set<Division> getSlaveDivisions() {
+		return slaveDivisions;
+	}
+
+	public void setSlaveDivisions(Set<Division> slaveDivisions) {
+		if(slaveDivisions != null) {
+			this.slaveDivisions = slaveDivisions;
+		} else {
+			this.slaveDivisions = new HashSet<Division>();
+		}
+	}
+
 	public Set<User> getUsers() {
 		return users;
 	}
 
 	public void setUsers(Set<User> users) {
-		this.users = users;
+		if (users != null) {
+			this.users = users;
+		} else {
+			this.users = new HashSet<User>();
+		}
 	}
+	
 
 	public void addUser(User user) {
 		if (user == null) {
 			return;
 		}
-		if (!this.users.contains(user)) {
-			this.users.add(user);
-		}
-		if (!user.getDivisions().contains(this)) {
-			user.addDivision(this);
-		}
+		this.users.add(user);
+		user.getDivisions().add(this);
 	}
 
-	public Set<Unit> getUnits() {
-		return units;
+	public List<Equipment> getEquipment() {
+		return equipment;
 	}
 
-	public void setUnits(Set<Unit> units) {
-		this.units = units;
+	public void setEquipment(List<Equipment> equipment) {
+		if (equipment != null) {
+			this.equipment = equipment;
+		} else {
+			this.equipment = new ArrayList<Equipment>();
+		}
 	}
 
 	@Override
@@ -141,18 +200,13 @@ public class Division implements Serializable {
 		StringBuilder str = new StringBuilder();
 		str.append("Division =\n")
 				.append("{\n")
-				.append("\t\"id\": ").append(this.getId()).append("\",\n")
-				.append("\t\"name\": \"").append(name).append("\",\n")
-				.append("\t\"adress\": \"").append(adress).append("\",\n")
-				.append("\t\"phone\": \"").append(phone).append("\"\n")
-				.append("\t\"users\":\n\t{\n");
-		if (users != null && !users.isEmpty()) {
-			for (User user : users) {
-				str.append("\t\t\"").append(user.getLogin()).append("\"\n");
-			}
-		}
-		str.append("\t}\n").append("}");
+				.append("id: ").append(this.getId()).append("\n")
+				.append("name: ").append(name).append("\n")
+				.append("adress: ").append(adress).append("\n")
+				.append("phone: ").append(phone).append("\n")
+				.append("masterDivision: ").append(masterDivision == null ? "null" : masterDivision.name).append("\n").append("}");
 		return str.toString();
 	}
+
 
 }

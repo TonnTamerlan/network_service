@@ -1,5 +1,6 @@
 package dbUtil.dataSets;
 
+import javax.persistence.metamodel.ListAttribute;
 import javax.persistence.metamodel.SetAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 import javax.persistence.metamodel.StaticMetamodel;
@@ -20,9 +21,17 @@ public class Division_ {
 	public static volatile SingularAttribute<Division, String> adress;
 
 	public static volatile SingularAttribute<Division, String> phone;
+	
+	public static volatile SingularAttribute<Division, String> photos;
+	
+	public static volatile SingularAttribute<Division, String> sources;
+	
+	public static volatile SingularAttribute<Division, Division> masterDivision;
+	
+	public static volatile SetAttribute<Division, Division> slaveDivisions;
 
 	public static volatile SetAttribute<Division, User> users;
 
-	public static volatile SetAttribute<Division, Unit> units;
+	public static volatile ListAttribute<Division, Equipment> equipment;
 	
 }

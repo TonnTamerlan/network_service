@@ -14,11 +14,11 @@ import dbUtil.dataSets.Division;
 public interface DivisionDAO extends DAO<Division> {
 	
 	/**
-	 * Return all of entities from the repository
+	 * Return names of all divisions from the repository
 	 * 
-	 * @return set of all of divisions
+	 * @return set of names of all divisions
 	 */
-	Set<Division> getAll() throws DBException;
+	Set<String> getAllNames() throws DBException;
 	
 	/**
 	 * Find and get a division from repository by name
@@ -28,15 +28,6 @@ public interface DivisionDAO extends DAO<Division> {
 	 * @return division
 	 */
 	public Division getByName(String name)  throws DBException;
-	
-	/**
-	 * Get all of divisions with specific name
-	 * 
-	 * @param equipName is specific name
-	 * 
-	 * @return set of division
-	 */
-	public Set<Division> getByEquipmentName(String equipName)  throws DBException;
 	
 	/**
 	 * Delete a division by name

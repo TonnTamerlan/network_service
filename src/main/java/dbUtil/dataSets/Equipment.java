@@ -33,12 +33,13 @@ public class Equipment implements Serializable {
 	@Column(name = "ip", nullable = false)
 	private String ip;
 
-	@Column(name = "discription", length = 1000)
+	@Column(name = "discription", length = 2000)
 	private String discription;
 
-	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	@JoinColumn(name = "unit_id")
-	private Unit unit;
+	@NotNull
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "division_id", nullable = false)
+	private Division division;
 
 	public Equipment() {
 	}
@@ -79,22 +80,24 @@ public class Equipment implements Serializable {
 		this.discription = discription;
 	}
 
-	public Unit getUnit() {
-		return unit;
+	public Division getDivision() {
+		return division;
 	}
 
-	public void setUnit(Unit unit) {
-		this.unit = unit;
-		if (unit != null) {
-			unit.addEquipment(this);
+	public void setDivision(Division division) {
+		this.division = division;
+		if (division != null) {
+			division.getEquipment().add(this);
 		}
 	}
 
+	
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + (int) (this.getId() ^ (this.getId() >>> 32));
+		result = prime * result + ((division == null) ? 0 : division.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		return result;
 	}
@@ -108,7 +111,10 @@ public class Equipment implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		Equipment other = (Equipment) obj;
-		if (this.getId() != other.getId())
+		if (division == null) {
+			if (other.division != null)
+				return false;
+		} else if (!division.equals(other.division))
 			return false;
 		if (name == null) {
 			if (other.name != null)
@@ -117,16 +123,16 @@ public class Equipment implements Serializable {
 			return false;
 		return true;
 	}
-	
+
 	@Override
 	public String toString() {
 		StringBuilder str = new StringBuilder();
-		str.append("Division =\n")
+		str.append("Equipment =\n")
 				.append("{\n")
 				.append("\t\"id\": ").append(this.getId()).append("\",\n")
 				.append("\t\"name\": \"").append(name).append("\",\n")
 				.append("\t\"ip\": \"").append(ip).append("\",\n")
-				.append("\t\"unit\": \"").append(unit).append("\"\n")
+				.append("\t\"division\": \"").append(division == null ? "null" : division.getName()).append("\"\n")
 				.append("}");
 		return str.toString();
 	}
