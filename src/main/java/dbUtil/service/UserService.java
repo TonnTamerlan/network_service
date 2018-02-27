@@ -1,5 +1,6 @@
 package dbUtil.service;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -123,7 +124,7 @@ public class UserService implements UserDAO {
 	@Override
 	public Set<String> getAllLogins() throws DBException {
 		LOGGER.debug("Try to get all the user logins");
-		Set<String> userSet = null;
+		Set<String> userSet = Collections.emptySet();
 		try (Session session = SESSION_FACTORY.openSession()) {
 			session.beginTransaction();
 			CriteriaBuilder builder = session.getCriteriaBuilder();
@@ -167,7 +168,7 @@ public class UserService implements UserDAO {
 	@Override
 	public Set<String> getByDivision(String divisionName) throws DBException {
 		LOGGER.debug("Try to get user logins by the division name \"{}\"", divisionName);
-		Set<String> userSet = null;
+		Set<String> userSet = Collections.emptySet();
 		try (Session session = SESSION_FACTORY.openSession()) {
 			session.beginTransaction();
 			CriteriaBuilder builder = session.getCriteriaBuilder();
@@ -332,5 +333,4 @@ public class UserService implements UserDAO {
 		}
 		return result;
 	}
-
 }
