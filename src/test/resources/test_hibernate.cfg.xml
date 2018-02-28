@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+   <session-factory>
+        <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/test_network-servce?useSSL=false&amp;useUnicode=true&amp;useJDBCCompliantTimezoneShift=true&amp;useLegacyDatetimeCode=false&amp;serverTimezone=UTC</property>
+        <property name="hibernate.connection.username">root</property>
+        <property name="hibernate.connection.password">root</property>
+        
+        <property name="hibernate.hbm2ddl.auto">create</property>
+        
+    	<!-- <property name="hibernate.c3p0.minPoolSize">5</property>
+    	<property name="hibernate.c3p0.maxPoolSize">20</property>
+		<property name="hibernate.c3p0.timeout">1800</property>
+		<property name="hibernate.c3p0.max_statement">50</property> -->
+       
+       
+       <!--  <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property> -->
+        <property name="show_sql">true</property>
+		
+		<mapping class="dbUtil.dataSets.User" />
+	<!-- 	<mapping class="dbService.dataSets.Role" />  -->
+		<mapping class="dbUtil.dataSets.Division" />	
+		<!-- <mapping class="dbUtil.dataSets.Unit" /> -->	
+		<mapping class="dbUtil.dataSets.Equipment" />	
+    </session-factory>
+</hibernate-configuration>
