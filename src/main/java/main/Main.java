@@ -92,7 +92,7 @@ public class Main {
 		System.out.println(userDAO.getById(admin.getId()));
 		System.out.println(divDAO.delete(kmem));
 		System.out.println(userDAO.delete(userOne));
-		System.out.println(userDAO.delete(getUser("UserNew", Role.USER)));
+		//System.out.println(userDAO.delete(getUser("UserNew", Role.USER)));
 		
 		db.stop();
 
