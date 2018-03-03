@@ -8,7 +8,8 @@ public interface DAO<T> {
 	 * Add an entity to the repository
 	 * 
 	 * @param div is the division
-	 * @throws DBException 
+	 * @throws DBException when something wrong in connection
+	 * @throws {@link IllegalArgumentException} when entity already exists in repository or some its fields are wrong
 	 */
 	boolean add(T entity) throws DBException;
 
