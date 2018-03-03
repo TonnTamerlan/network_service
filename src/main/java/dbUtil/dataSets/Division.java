@@ -8,6 +8,7 @@ import java.util.Set;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 /**
  * Class contains information about devision of company
@@ -29,11 +30,13 @@ public class Division implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 	
-	@NotNull
+	@NotNull(message="The field name cannot be null")
+	@Size(min=20, max=200, message="The field name must be not less than 10 character and not more than 200 characters")
 	@Column(name = "name", nullable = false, unique = true)
 	private String name;
 
-	@NotNull
+	@NotNull(message="The field adress cannot be null")
+	@Size(min=20, max = 300, message="The field adress must be not less than 20 character and not more than 100 characters")
 	@Column(name = "adress", nullable = false)
 	private String adress;
 
@@ -198,13 +201,12 @@ public class Division implements Serializable {
 	@Override
 	public String toString() {
 		StringBuilder str = new StringBuilder();
-		str.append("Division =\n")
-				.append("{\n")
-				.append("id: ").append(this.getId()).append("\n")
-				.append("name: ").append(name).append("\n")
-				.append("adress: ").append(adress).append("\n")
-				.append("phone: ").append(phone).append("\n")
-				.append("masterDivision: ").append(masterDivision == null ? "null" : masterDivision.name).append("\n").append("}");
+		str.append("Division: {")
+				.append("id=").append(this.getId()).append(", ")
+				.append("name=").append(name).append(", ")
+				.append("adress=").append(adress).append(", ")
+				.append("phone=").append(phone).append(", ")
+				.append("masterDivision=").append(masterDivision == null ? "null" : masterDivision.name).append("}");
 		return str.toString();
 	}
 
