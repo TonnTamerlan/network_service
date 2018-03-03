@@ -51,12 +51,13 @@ public class DivisionService implements DivisionDAO {
 			LOGGER.debug("The division \"{}\" with id={} has added", div.getName(), div.getId());
 			result = true;
 		} catch (PersistenceException e) {
-			LOGGER.debug("The division \"{}\" already exists", div.getName());
-			LOGGER.catching(Level.DEBUG, e);
+			String errorMessage = "The division \"" + div + "\" already exists or some its fields are wrong";
+			LOGGER.debug(errorMessage, e);
+			throw new IllegalArgumentException(errorMessage, e);
 		} catch (Exception e) {
-			String UserService = "Cannot add the devision \"" + div.getName() + "\"";
-			LOGGER.error(UserService, e);
-			throw new DBException(UserService, e);
+			String errorMessage = "Cannot add the devision \"" + div + "\"";
+			LOGGER.error(errorMessage, e);
+			throw new DBException(errorMessage, e);
 		}
 		return result;
 	}
