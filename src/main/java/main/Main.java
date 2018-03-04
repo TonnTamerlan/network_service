@@ -121,12 +121,12 @@ public class Main {
 		User user = new User();
 		user.setEmail(name + "@gmail.com");
 		user.setRole(role);
-		user.setFirstName("name_" +name);
-		user.setLastName("lastName_" + name);
-		user.setLogin("login_"+ name);
-		user.setPassword("password_" + name);
-		user.setPhone("phone_" + name);
-		user.setTitle("title_" +name);
+		user.setFirstName(name + "_name");
+		user.setLastName(name + "_lastName");
+		user.setLogin(name + "_login");
+		user.setPassword(name + "_password");
+		user.setPhone(name + "_phone");
+		user.setTitle(name + "_title");
 		
 		return user;
 	}
@@ -134,9 +134,9 @@ public class Main {
 	private static Division getDivision(String name) {
 		Division div = new Division();
 		
-		div.setAdress("adress_" + name);
+		div.setAdress(name + "_adress");
 		div.setName(name);
-		div.setPhone("phone_" + name);
+		div.setPhone(name + "_phone");
 		return div;
 	}
 
