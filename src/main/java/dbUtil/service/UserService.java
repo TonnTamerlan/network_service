@@ -254,23 +254,26 @@ public class UserService implements UserDAO {
 
 	@Override
 	public boolean delete(User user) throws DBException {
-		LOGGER.debug("Try to delete user \"{}\" with login \"{}\" and id={}", user.getLastName(), user.getLastName(),
-				user.getId());
+		LOGGER.debug("Try to delete the user {}", user);
 		boolean result = false;
 		Transaction transaction = null;
 		try (Session session = SESSION_FACTORY.openSession()) {
 			transaction = session.beginTransaction();
-			session.update(user); // attach user
-			session.remove(user);
-			transaction.commit();
-			LOGGER.debug("The user \"{}\" with login \"{}\" and id={} was deleted", user.getLastName(), user.getLogin(),
-					user.getId());
+			if (session.get(User.class, user.getId()) != null) {
+				session.clear();
+				session.remove(user);
+				transaction.commit();
+				LOGGER.debug("The user {} was deleted", user);
+				result = true;
+			} else {
+				transaction.commit();
+				LOGGER.debug("The user {} didn't find", user);
+			}
 		} catch (Exception e) {
 			if (transaction != null && transaction.isActive()) {
 				transaction.rollback();
 			}
-			String errorMessage = "Cannot delete user \"" + user.getLastName() + "\" with login \"" + user.getLogin()
-					+ "\" and id=" + user.getId();
+			String errorMessage = "Cannot delete the user " + user;
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
 		}
