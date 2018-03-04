@@ -42,20 +42,20 @@ public class DivisionService implements DivisionDAO {
 	
 	@Override
 	public boolean add(Division div) throws DBException {
-		LOGGER.debug("Try to add the division \"{}\" in repository", div.getName());
+		LOGGER.debug("Try to add the division {} in repository", div);
 		boolean result = false;
 		try (Session session = SESSION_FACTORY.openSession()){
 			session.beginTransaction();
 			session.persist(div);
 			session.getTransaction().commit();
-			LOGGER.debug("The division \"{}\" with id={} has added", div.getName(), div.getId());
+			LOGGER.debug("The division {} has added", div);
 			result = true;
 		} catch (PersistenceException e) {
-			String errorMessage = "The division \"" + div + "\" already exists or some its fields are wrong";
+			String errorMessage = "The division " + div + " already exists or some its fields are wrong";
 			LOGGER.debug(errorMessage, e);
 			throw new IllegalArgumentException(errorMessage, e);
 		} catch (Exception e) {
-			String errorMessage = "Cannot add the devision \"" + div + "\"";
+			String errorMessage = "Cannot add the devision " + div;
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
 		}
@@ -74,7 +74,7 @@ public class DivisionService implements DivisionDAO {
 				division.getEquipment().size(); //for attaching the set of equipments
 				division.getSlaveDivisions().size(); //for attaching the set of slaveDivision
 				session.getTransaction().commit();
-				LOGGER.debug("The division \"{}\" with id={} has got", division.getName(), division.getId());
+				LOGGER.debug("The division {} has got", division);
 			} else {
 				session.getTransaction().commit();
 				LOGGER.debug("The division with id={} didn't find", id);
@@ -90,33 +90,38 @@ public class DivisionService implements DivisionDAO {
 
 	@Override
 	public boolean delete(Division div) throws DBException {
-		LOGGER.debug("Try to delete the division \"{}\" with id={}", div.getName(), div.getId());
+		LOGGER.debug("Try to delete the division {}", div);
 		boolean result = false;
 		Transaction transaction = null;
 		try (Session session = SESSION_FACTORY.openSession()) {
 			transaction = session.beginTransaction();
+			
 			if (session.get(Division.class, div.getId()) != null) {
 				session.clear();
 				div.getUsers().forEach(user->user.getDivisions().remove(div));
 				div.getUsers().stream()
-							.peek(user->LOGGER.debug("Delete the division from user\"{}\" with id={}", user.getLogin(), user.getId()))
+							.peek(user->LOGGER.debug("Delete the division from the user {}", user))
 							.forEach(user->session.update(user));
 				div.getEquipment().stream()
-							.peek(equip->LOGGER.debug("Delete the equipment \"{}\" with id={} which was installed in the division", equip.getName(), equip.getId()))
+							.peek(equip->LOGGER.debug("Delete the equipment {} which was installed in the division", equip))
 							.forEach(equip->session.delete(equip));
 				session.delete(div);
 				transaction.commit();
-				LOGGER.debug("The division \"{}\" with id={} has deleted", div.getName(), div.getId());
+				LOGGER.debug("The division {} has deleted", div);
 				result = true;
 			} else {
 				transaction.commit();
-				LOGGER.debug("The division \"{}\" with id={} didn't find", div.getName(), div.getId());
+				LOGGER.debug("The division {} didn't find", div);
 			}
 		} catch (Exception e) {
-			if (transaction != null && transaction.isActive()) {
-				transaction.rollback();
+			try {
+				if (transaction != null && transaction.isActive()) {
+					transaction.rollback();
+				}
+			} catch (Exception ex) {
+				LOGGER.error("Cannot rollback transanction when the division " + div + " was trying to delete", ex);
 			}
-			String errorMessage = "Cannot delete the division \"" + div.getName() + "\" with id=" + div.getId();
+			String errorMessage = "Cannot delete the division " + div;
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
 		}
@@ -130,26 +135,30 @@ public class DivisionService implements DivisionDAO {
 		Transaction transaction = null;
 		try (Session session = SESSION_FACTORY.openSession()) {
 			transaction = session.beginTransaction();
-			Division division = session.byId(Division.class).load(id);
+			Division division = session.get(Division.class, id);
 			if(division != null) {
 				division.getUsers().forEach(user->user.getDivisions().remove(division));
 				division.getUsers().stream()
-							.peek(user->LOGGER.debug("Delete the division from user\"{}\" with id={}", user.getLogin(), user.getId()))
+							.peek(user->LOGGER.debug("Delete the division {} from user {}", division, user))
 							.forEach(user->session.update(user));;
 				division.getEquipment().stream()
-							.peek(equip->LOGGER.debug("Delete the equipment \"{}\" with id={} which was installed in the division", equip.getName(), equip.getId()))
+							.peek(equip->LOGGER.debug("Delete the equipment {} which was installed in the division {}", equip, division))
 							.forEach(equip->session.delete(equip));
 				session.remove(division);
 				transaction.commit();
-				LOGGER.debug("The division \"{}\" with id={} has deleted", division.getName(), id);
+				LOGGER.debug("The division {} has deleted", division);
 				result = true;
 			} else {
 				transaction.commit();
 				LOGGER.debug("The division with id={} didn't find", id);
 			}
 		} catch (Exception e) {
-			if (transaction != null && transaction.isActive()) {
-				transaction.rollback();
+			try {
+				if (transaction != null && transaction.isActive()) {
+					transaction.rollback();
+				}
+			} catch (Exception ex) {
+				LOGGER.error("Cannot rollback transanction when the division with id=" + id + " was trying to delete", ex);
 			}
 			String errorMessage = "Cannot delete the division with id=" + id + " by ID";
 			LOGGER.error(errorMessage, e);
