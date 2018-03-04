@@ -100,6 +100,7 @@ public class EquipmentService implements EquipmentDAO {
 		try (Session session = SESSION_FACTORY.openSession()) {
 			transaction = session.beginTransaction();
 			if(session.get(Equipment.class, equip.getId()) != null) {
+				session.clear();
 				session.delete(equip);
 				transaction.commit();
 				result = true;
