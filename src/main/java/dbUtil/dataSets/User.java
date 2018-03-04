@@ -204,15 +204,15 @@ public class User implements Serializable {
 	public String toString() {
 
 		StringBuilder str = new StringBuilder();
-		str.append("User =\n").append("{\n")
-				.append("id: ").append(id).append("\n")
-				.append("login: ").append(login).append("\n")
-				.append("password: ").append(password).append("\n")
-				.append("firstName: ").append(firstName).append("\n")
-				.append("lastName\": ").append(lastName).append("\n")
-				.append("title: ").append(title).append("\n")
-				.append("phone: ").append(phone).append("\n")
-				.append("role: ").append(role).append("\n")
+		str.append("{")
+				.append("id=").append(id).append(", ")
+				.append("login=").append(login).append(", ")
+				.append("password=").append(password).append(", ")
+				.append("firstName=").append(firstName).append(", ")
+				.append("lastName=").append(lastName).append(", ")
+				.append("title=").append(title).append(", ")
+				.append("phone=").append(phone).append(", ")
+				.append("role=").append(role)
 				.append("}");
 
 		return str.toString();

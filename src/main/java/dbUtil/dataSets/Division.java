@@ -201,7 +201,7 @@ public class Division implements Serializable {
 	@Override
 	public String toString() {
 		StringBuilder str = new StringBuilder();
-		str.append("Division: {")
+		str.append("{")
 				.append("id=").append(this.getId()).append(", ")
 				.append("name=").append(name).append(", ")
 				.append("adress=").append(adress).append(", ")

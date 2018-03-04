@@ -127,12 +127,11 @@ public class Equipment implements Serializable {
 	@Override
 	public String toString() {
 		StringBuilder str = new StringBuilder();
-		str.append("Equipment =\n")
-				.append("{\n")
-				.append("\t\"id\": ").append(this.getId()).append("\",\n")
-				.append("\t\"name\": \"").append(name).append("\",\n")
-				.append("\t\"ip\": \"").append(ip).append("\",\n")
-				.append("\t\"division\": \"").append(division == null ? "null" : division.getName()).append("\"\n")
+		str.append("{")
+				.append("id=").append(this.getId()).append(", ")
+				.append("name=").append(name).append(", ")
+				.append("ip=").append(ip).append(", ")
+				.append("division=").append(division == null ? "null" : division)
 				.append("}");
 		return str.toString();
 	}
