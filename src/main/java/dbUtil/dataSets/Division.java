@@ -10,6 +10,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+
 /**
  * Class contains information about devision of company
  * 
@@ -59,7 +60,7 @@ public class Division implements Serializable {
 	@ManyToMany(mappedBy = "divisions", fetch = FetchType.LAZY)
 	private Set<User> users = new HashSet<>();
 	
-	@OneToMany(mappedBy = "division", fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "division", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private List<Equipment> equipment = new ArrayList<>();
 	
 	public Division() {
