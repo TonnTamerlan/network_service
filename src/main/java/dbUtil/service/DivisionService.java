@@ -169,17 +169,17 @@ public class DivisionService implements DivisionDAO {
 
 	@Override
 	public boolean update(Division div) throws DBException {
-		LOGGER.debug("Try to update the division \"{}\" with id={}", div.getName(), div.getId());
+		LOGGER.debug("Try to update the division {}", div);
 		boolean result = false;
 		Transaction transaction = null;
 		try (Session session = SESSION_FACTORY.openSession()) {
 			transaction = session.beginTransaction();
 			session.update(div);
 			transaction.commit();
-			LOGGER.debug("The division \"{}\" with id={} has updated", div.getName(), div.getId());
+			LOGGER.debug("The division {} has updated", div);
 			result= true;
 		} catch (Exception e) {
-			String errorMessage = "Cannot update the division \"" + div.getName() + "\" with id=" + div.getId();
+			String errorMessage = "Cannot update the division " + div;
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
 		}
@@ -222,7 +222,7 @@ public class DivisionService implements DivisionDAO {
 			division.getUsers().size(); //for attaching the set of users
 			division.getSlaveDivisions(); //for attaching the set of slaveDevisions
 			session.getTransaction().commit();
-			LOGGER.debug("The division \"{}\" with id={} has got", division.getName(), division.getId());
+			LOGGER.debug("The division {} has got", division);
 		} catch (NoResultException e) {
 			LOGGER.debug("Cannot get the division \"{}\" by name, because it does not exist", name);
 			LOGGER.catching(Level.DEBUG, e);
