@@ -30,7 +30,7 @@ public class Equipment implements Serializable {
 	private String name;
 
 	@NotNull
-	@Column(name = "ip", nullable = false)
+	@Column(name = "ip", nullable = true)
 	private String ip;
 
 	@Column(name = "discription", length = 2000)
