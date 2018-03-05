@@ -1,15 +1,21 @@
 package dbUtil.service;
 
 import static org.junit.Assert.assertNull;
+import static org.junit.Assume.assumeNoException;
 import static org.junit.Assume.assumeTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.query.Query;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -36,9 +42,9 @@ public class DivisionServiceTest {
 
 	@AfterAll
 	public static void tearDownAfterClass() throws Exception {
-		sessionFactory.close();
-		sessionFactory = null;
-		divisionService = null;
+		if (sessionFactory.isOpen()) {
+			sessionFactory.close();
+		}
 	}
 
 	@BeforeEach
@@ -58,7 +64,7 @@ public class DivisionServiceTest {
 		Throwable exception = assertThrows(DBException.class, () -> divisionService.add(nullDivision));
 		assertEquals("Cannot add the devision " + nullDivision, exception.getMessage());
 
-		Division one = createExampleDivision("DivisionAdd_" + 1);
+		Division one = createExampleDivision("Add_" + 1);
 
 		// Testing adding the devision when it doesn't exist in the repository
 		assertTrue(divisionService.add(one));
@@ -70,7 +76,7 @@ public class DivisionServiceTest {
 
 		// Testing adding the division when it doesn't exist in the repository, but its fields
 		// are wrong. The method must throw IllegalArgumentException
-		Division two = createExampleDivision("DivisionAdd_" + 2);
+		Division two = createExampleDivision("Add_" + 2);
 		two.setName(null);
 		exception = assertThrows(IllegalArgumentException.class, () -> divisionService.add(two));
 		assertEquals("The division " + two + " already exists or some its fields are wrong", exception.getMessage());
@@ -90,7 +96,7 @@ public class DivisionServiceTest {
 		assertNull(divisionService.getById(0));
 		
 		//Testing getting the division
-		Division one = createExampleDivision("DivisionGetByID_" + 1);
+		Division one = createExampleDivision("GetByID_" + 1);
 		assumeTrue(divisionService.add(one));
 		assertEquals(one, divisionService.getById(one.getId()));
 		
@@ -105,13 +111,14 @@ public class DivisionServiceTest {
 		Throwable exception = assertThrows(Exception.class, () -> divisionService.delete(nullDivision));
 		assertEquals("Cannot delete the division " + nullDivision, exception.getMessage());
 		
+		// TODO add in the division users, equipments and save divisions
 		//Testing deleting the division which exists in the repository
-		Division one = createExampleDivision("DivisionDelete_" + 1);
+		Division one = createExampleDivision("Delete_" + 1);
 		assumeTrue(divisionService.add(one));
 		assertTrue(divisionService.delete(one));
 		
 		//Testing deleting the division which doesn't exist in the repository
-		Division two = createExampleDivision("DivisionDelete_" + 2);
+		Division two = createExampleDivision("Delete_" + 2);
 		assertFalse(divisionService.delete(two));
 		
 	}
@@ -123,8 +130,9 @@ public class DivisionServiceTest {
 		//Testing deleting the division by id when it doesn't exist
 		assertFalse(divisionService.deleteById(0));
 		
+		// TODO add in the division users, equipments and save divisions
 		//Testing deleting the division when the repository has a division with specific id
-		Division one = createExampleDivision("DivisionDeletByID_" + 1);
+		Division one = createExampleDivision("DeletByID_" + 1);
 		assumeTrue(divisionService.add(one));
 		assertTrue(divisionService.deleteById(one.getId()));
 		
@@ -140,7 +148,7 @@ public class DivisionServiceTest {
 		assertEquals("Cannot update the division " + nullDivision, exception.getMessage());
 		
 		//Testing updating the division which doesn't exist in the repository.  The method must throw DBException
-		Division one = createExampleDivision("DivisionUpdate_" + 1);
+		Division one = createExampleDivision("Update_" + 1);
 		exception = assertThrows(DBException.class, () -> divisionService.update(one));
 		assertEquals("Cannot update the division " + one, exception.getMessage());
 		
@@ -150,7 +158,7 @@ public class DivisionServiceTest {
 		assertTrue(divisionService.update(one));
 		
 		//Testing updating the division with the name, which already exist in the repository
-		Division two = createExampleDivision("DivisionUpdate_" + 2);
+		Division two = createExampleDivision("Update_" + 2);
 		assumeTrue(divisionService.add(two));
 		two.setName(one.getName());
 		exception = assertThrows(DBException.class, () -> divisionService.update(two));
@@ -165,11 +173,37 @@ public class DivisionServiceTest {
 	}
 
 	@Test
-	public void testGetAllNames() {
-		fail("Not yet implemented");
+	@DisplayName("Getting the set of all division names")
+	public void testGetAllNames() throws DBException {
+		
+		//Preparing the repository
+		try {
+			deleteAllDivision();
+		} catch (Exception e) {
+			assumeNoException("Cannot delete all devision after testing method getAllNames", e);
+		}
+		
+		//Testing getting the set of division names when repository is empty
+		assertEquals(Collections.emptySet(), divisionService.getAllNames());
+		
+		
+		//Filling the repository with test data
+		String prefixName = "GetAllNames_";
+		Set<String> exceptedSetOfNames = new HashSet<>();
+		for(int i = 0; i < 10; i++) {
+			Division division = createExampleDivision(prefixName + i);
+			exceptedSetOfNames.add(division.getName());
+			assumeTrue(divisionService.add(division));
+		}
+		
+		//Testing getting the set of all division names
+		assertEquals(exceptedSetOfNames, divisionService.getAllNames());
+		
 	}
 
+	
 	@Test
+	@DisplayName("Getting the division by name")
 	public void testGetByName() throws DBException {
 		
 		//Testing getting by null
@@ -177,19 +211,42 @@ public class DivisionServiceTest {
 		assertNull(divisionService.getByName(nullName));
 		
 		//Testing getting the division
-		Division one = createExampleDivision("DivisionGetByName_" + 1);
+		Division one = createExampleDivision("GetByName_" + 1);
 		assumeTrue(divisionService.add(one));
 		assertEquals(one, divisionService.getByName(one.getName()));
 		
 		//Testing getting division by wrong name
-		String wrongName = "WrongDivisionName";
+		String wrongName = "WrongName";
 		assertNull(divisionService.getByName(wrongName));
 		
 	}
 
 	@Test
-	public void testDeleteByName() {
-		fail("Not yet implemented");
+	@DisplayName("Deleting the division by name")
+	public void testDeleteByName() throws DBException {
+		
+		//Testing deleting null
+		assertFalse(divisionService.deleteByName(null));
+		
+		// TODO add in the division users, equipments and save divisions
+		Division one = createExampleDivision("DeleteByName_" + 1);
+		
+		
+		
+		
+
+	}
+	
+	@SuppressWarnings("unchecked")
+	private static void deleteAllDivision() {
+		try (Session session = sessionFactory.openSession()) {
+			session.beginTransaction();
+			Query<Integer> query = session.createQuery("DELETE FROM Division");
+			query.executeUpdate();
+			session.getTransaction().commit();
+		} catch (Exception e) {
+			throw e;
+		}
 	}
 	
 	public static Division createExampleDivision(String name) {
@@ -198,6 +255,7 @@ public class DivisionServiceTest {
 		div.setAdress(name + "_adress");
 		div.setName(name);
 		div.setPhone(name + "_phone");
+		
 		return div;
 	}
 

@@ -198,7 +198,7 @@ public class DivisionService implements DivisionDAO {
 			criteriaQuery.select(divisionRoot.get(Division_.name));
 			divisionSet = new HashSet<String>(session.createQuery(criteriaQuery).getResultList());
 			session.getTransaction().commit();
-			LOGGER.debug("Was got next division names: {}", divisionSet.toString());
+			LOGGER.debug("Was got the next set of division names: {}", divisionSet.toString());
 		} catch (Exception e) {
 			String errorMessage = "Cannot get names of all divisions";
 			LOGGER.error(errorMessage, e);
@@ -253,7 +253,7 @@ public class DivisionService implements DivisionDAO {
 			division.getEquipment().forEach(equip -> session.delete(equip));
 			session.delete(division);
 			transaction.commit();
-			LOGGER.debug("The division \"{}\" with id={} has deleted", name, division.getId());
+			LOGGER.debug("The division {} has deleted", division);
 			result = true;
 		} catch (NoResultException e) {
 			LOGGER.debug("Cannot delete the division \"{}\" by name, because it doesn't exist");
