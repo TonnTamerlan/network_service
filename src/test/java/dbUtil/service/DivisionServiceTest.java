@@ -59,15 +59,16 @@ public class DivisionServiceTest {
 	@DisplayName("Adding the devision in the repository")
 	public void testAdd() throws DBException {
 		
-		// Testing adding null. The method must throw DBException
+		// Testing adding null. The method must throw IllegalArgumenException
 		Division nullDivision = null;
-		Throwable exception = assertThrows(DBException.class, () -> divisionService.add(nullDivision));
-		assertEquals("Cannot add the devision " + nullDivision, exception.getMessage());
+		Throwable exception = assertThrows(IllegalArgumentException.class, () -> divisionService.add(nullDivision));
+		assertEquals("The division is null", exception.getMessage());
 
 		Division one = createExampleDivision("Add_" + 1);
 
 		// Testing adding the devision when it doesn't exist in the repository
 		assertTrue(divisionService.add(one));
+		
 
 		// Testing adding the division when it already exists in the repository. The method
 		// must throw IllegalArgumentException
@@ -228,13 +229,13 @@ public class DivisionServiceTest {
 		//Testing deleting null
 		assertFalse(divisionService.deleteByName(null));
 		
+		//Testing deleting by wrong name
+		String wrongName = "WrongName";
+		assertFalse(divisionService.deleteByName(wrongName));
+		
 		// TODO add in the division users, equipments and save divisions
 		Division one = createExampleDivision("DeleteByName_" + 1);
 		
-		
-		
-		
-
 	}
 	
 	@SuppressWarnings("unchecked")

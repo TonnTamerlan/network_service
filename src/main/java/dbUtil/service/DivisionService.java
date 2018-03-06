@@ -44,6 +44,11 @@ public class DivisionService implements DivisionDAO {
 	public boolean add(Division div) throws DBException {
 		LOGGER.debug("Try to add the division {} in repository", div);
 		boolean result = false;
+		if (div == null) {
+			String errorMesage = "The division is null";
+			LOGGER.debug(errorMesage);
+			throw new IllegalArgumentException(errorMesage);
+		}
 		try (Session session = SESSION_FACTORY.openSession()){
 			session.beginTransaction();
 			session.persist(div);
