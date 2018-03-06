@@ -42,7 +42,7 @@ public class DivisionService implements DivisionDAO {
 	
 	@Override
 	public boolean add(Division div) throws DBException {
-		LOGGER.debug("Try to add the division {} in repository", div);
+		LOGGER.debug("Try to add the division {} in the repository", div);
 		boolean result = false;
 		if (div == null) {
 			String errorMesage = "The division is null";
@@ -97,6 +97,12 @@ public class DivisionService implements DivisionDAO {
 	public boolean delete(Division div) throws DBException {
 		LOGGER.debug("Try to delete the division {}", div);
 		boolean result = false;
+		
+		if (div == null) {
+			LOGGER.debug("Cannot delete the division null");
+			return result;
+		}
+		
 		Transaction transaction = null;
 		try (Session session = SESSION_FACTORY.openSession()) {
 			transaction = session.beginTransaction();

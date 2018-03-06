@@ -109,14 +109,14 @@ public class DivisionServiceTest {
 		
 		//Test deleting null
 		Division nullDivision = null;
-		Throwable exception = assertThrows(Exception.class, () -> divisionService.delete(nullDivision));
-		assertEquals("Cannot delete the division " + nullDivision, exception.getMessage());
+		assertFalse(divisionService.delete(nullDivision));
 		
 		// TODO add in the division users, equipments and save divisions
 		//Testing deleting the division which exists in the repository
 		Division one = createExampleDivision("Delete_" + 1);
 		assumeTrue(divisionService.add(one));
 		assertTrue(divisionService.delete(one));
+		assertNull(divisionService.getById(one.getId()));
 		
 		//Testing deleting the division which doesn't exist in the repository
 		Division two = createExampleDivision("Delete_" + 2);
