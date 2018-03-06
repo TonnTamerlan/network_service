@@ -16,7 +16,7 @@ public interface DivisionDAO extends DAO<Division> {
 	/**
 	 * Return names of all divisions from the repository
 	 * 
-	 * @return set of names of all divisions
+	 * @return set of all names of divisions
 	 */
 	Set<String> getAllNames() throws DBException;
 	
