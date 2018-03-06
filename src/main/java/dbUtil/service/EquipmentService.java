@@ -44,38 +44,24 @@ public class EquipmentService implements EquipmentDAO {
 	public EquipmentService(final SessionFactory sesionFactory) {
 		SESSION_FACTORY = sesionFactory;
 	}
-
 	
 	@Override
 	public boolean add(Equipment equip) throws DBException {
-		LOGGER.debug("Try to add the equipment {} in the repository", equip);
-		if (equip == null) {
-			String errorMesage = "The equipment is null";
-			LOGGER.debug(errorMesage);
-			throw new IllegalArgumentException(errorMesage);
-		}
+		LOGGER.debug("Try to add the equipment \"{}\" in repository", equip.getName());
 		boolean result = false;
 		try (Session session = SESSION_FACTORY.openSession()) {
-			if (equip.getDivision() == null) {
-				throw new IllegalArgumentException("The division in the equipment " + equip + " is null");
-			}
 			session.beginTransaction();
-			session.update(equip.getDivision());
 			session.persist(equip);
 			session.getTransaction().commit();
-			LOGGER.debug("The equipment {} has added", equip);
+			LOGGER.debug("The equipment \"{}\" with ip=\"{}\" and id={} has added",
+					equip.getName(), equip.getIp(), equip.getId());
 			result = true;
-		} catch (IllegalArgumentException e) {
-			String errorMesage = "The equipment " + equip + " has wrong field division";
-			LOGGER.debug(errorMesage, e);
-			throw e;
 		} catch (PersistenceException e) {
-			String errorMesage = "The equipment " + equip + " already exists or some its fields are wrong";
-			LOGGER.debug(errorMesage, e);
-			throw new IllegalArgumentException(errorMesage, e);
+			LOGGER.debug("The equipment \"{}\" with ip=\"{}\" already exists!", equip.getName(), equip.getIp());
+			LOGGER.catching(Level.DEBUG, e);
 		}
 		catch (Exception e) {
-			String errorMessage = "Cannot add the equipment " + equip;
+			String errorMessage = "Cannot add the equipment \"" + equip.getName() + "\" with ip=\"" + equip.getIp() + "\"";
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
 		}
