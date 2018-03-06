@@ -18,14 +18,14 @@ public interface DAO<T> {
 	 * 
 	 * @param id is the primary key
 	 * 
-	 * @return division or null
+	 * @return entity or null
 	 */
 	T getById(long id) throws DBException;
 
 	/**
 	 * Delete an entity from the repository
 	 * 
-	 * @param div
+	 * @param entity which will be deleted
 	 */
 	boolean delete(T entity) throws DBException;
 
@@ -39,7 +39,7 @@ public interface DAO<T> {
 	/**
 	 * Update entity in the repository
 	 * 
-	 * @param div
+	 * @param entity which will be updated
 	 */
 	boolean update(T entity) throws DBException;
 
