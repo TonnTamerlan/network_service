@@ -36,7 +36,7 @@ public interface EquipmentDAO extends DAO<Equipment> {
 	 * Find and read all of the equipment which name is equipName
 	 * 
 	 * @param name is name of equipments
-	 * @return list of equipments or null if the equipment does not exist
+	 * @return list of equipments
 	 */
 	public List<Equipment> getAllByName(String name)  throws DBException;
 	
