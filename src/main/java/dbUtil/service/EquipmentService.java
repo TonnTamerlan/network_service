@@ -1,5 +1,6 @@
 package dbUtil.service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,21 +48,32 @@ public class EquipmentService implements EquipmentDAO {
 	
 	@Override
 	public boolean add(Equipment equip) throws DBException {
-		LOGGER.debug("Try to add the equipment \"{}\" in repository", equip.getName());
+		LOGGER.debug("Try to add the equipment {} in the repository", equip);
 		boolean result = false;
+		if (equip == null) {
+			String errorMessage = "The eqipment is null";
+			LOGGER.debug(errorMessage);
+			throw new IllegalArgumentException(errorMessage);
+		}
+		if (equip.getDivision() == null) {
+			String errorMessage = "The eqipment " + equip + " doesn't contains division";
+			LOGGER.debug(errorMessage);
+			throw new IllegalArgumentException(errorMessage);
+		}
 		try (Session session = SESSION_FACTORY.openSession()) {
 			session.beginTransaction();
+			session.refresh(equip.getDivision());
 			session.persist(equip);
 			session.getTransaction().commit();
-			LOGGER.debug("The equipment \"{}\" with ip=\"{}\" and id={} has added",
-					equip.getName(), equip.getIp(), equip.getId());
+			LOGGER.debug("The equipment {} has added", equip);
 			result = true;
 		} catch (PersistenceException e) {
-			LOGGER.debug("The equipment \"{}\" with ip=\"{}\" already exists!", equip.getName(), equip.getIp());
-			LOGGER.catching(Level.DEBUG, e);
+			String errorMessage = "The equipment " + equip + " already exists or some its fields are wrong";
+			LOGGER.debug(errorMessage, e);
+			throw new IllegalArgumentException(errorMessage, e);
 		}
 		catch (Exception e) {
-			String errorMessage = "Cannot add the equipment \"" + equip.getName() + "\" with ip=\"" + equip.getIp() + "\"";
+			String errorMessage = "Cannot add the equipment " + equip;
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
 		}
@@ -77,8 +89,7 @@ public class EquipmentService implements EquipmentDAO {
 			equip = session.get(Equipment.class, id);
 			if (equip != null) {
 				session.getTransaction().commit();
-				LOGGER.debug("The equipment \"{}\" with ip=\"{}\" and id={} in the division \"{}\" has got",
-						equip.getName(), equip.getIp(), equip.getId(), equip.getDivision().getName());
+				LOGGER.debug("The equipment {} has got", equip);
 			} else {
 				session.getTransaction().commit();
 				LOGGER.debug("The equipment with id={} didn't find", id);				
@@ -93,9 +104,14 @@ public class EquipmentService implements EquipmentDAO {
 
 	@Override
 	public boolean delete(Equipment equip) throws DBException {
-		LOGGER.debug("Try to delete the equipment \"{}\" with ip=\"{}\" and id={} in the division \"{}\"",
-				equip.getName(), equip.getIp(), equip.getId(), equip.getDivision().getName());
+		LOGGER.debug("Try to delete the equipment {}", equip);
 		boolean result = false;
+		
+		if (equip == null) {
+			LOGGER.debug("Cann't delete the equipment null");
+			return result;
+		}
+		
 		Transaction transaction = null;
 		try (Session session = SESSION_FACTORY.openSession()) {
 			transaction = session.beginTransaction();
@@ -104,19 +120,13 @@ public class EquipmentService implements EquipmentDAO {
 				session.delete(equip);
 				transaction.commit();
 				result = true;
-				LOGGER.debug("The equipment \"{}\" with ip=\"{}\" and id={} in the division \"{}\" has deleted",
-						equip.getName(), equip.getIp(), equip.getId(), equip.getDivision().getName());
+				LOGGER.debug("The equipment {} has deleted", equip);
 			} else {
 				transaction.commit();
-				LOGGER.debug("The equipment \"{}\" with ip=\"{}\" and id={} in the division \"{}\" didn't find",
-						equip.getName(), equip.getIp(), equip.getId(), equip.getDivision().getName());
+				LOGGER.debug("The equipment {} didn't find", equip);
 			}
 		} catch (Exception e) {
-			if (transaction != null && transaction.isActive()) {
-				transaction.rollback();
-			}
-			String errorMessage = "Cannot delete the equipment \"" + equip.getName() + "\" with ip=\"" + equip.getIp()
-					+ "\" and id=" + equip.getId() + "\" in the devision \"" + equip.getDivision().getName() + "\"";
+			String errorMessage = "Cannot delete the equipment " + equip;
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
 		}
@@ -134,17 +144,13 @@ public class EquipmentService implements EquipmentDAO {
 			if (equip != null) {
 				session.remove(equip);
 				transanction.commit();
-				LOGGER.debug("The equipment \"{}\" with ip=\"{}\" and id={} in the division \"{}\" has deleted by id",
-						equip.getName(), equip.getIp(), equip.getId(), equip.getDivision().getName());
+				LOGGER.debug("The equipment {} has deleted by id", equip);
 				result = true;
 			} else {
 				transanction.commit();
 				LOGGER.debug("The equipment with id={} didn' find", id);
 			}
 		} catch (Exception e) {
-			if (transanction != null && transanction.isActive()) {
-				transanction.rollback();
-			}
 			String errorMessage = "Cannot delete the equipment with id=" + id;
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
@@ -239,7 +245,7 @@ public class EquipmentService implements EquipmentDAO {
 	@Override
 	public List<Equipment> getAllByName(String name) throws DBException {
 		LOGGER.debug("Try to get the list of equipments by name \"{}\"", name);
-		List<Equipment> listEquip = null;
+		List<Equipment> listEquip = Collections.emptyList();
 		try (Session session = SESSION_FACTORY.openSession()) {
 			session.beginTransaction();
 			CriteriaBuilder builder = session.getCriteriaBuilder();
