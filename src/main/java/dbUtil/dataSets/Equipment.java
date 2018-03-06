@@ -29,7 +29,6 @@ public class Equipment implements Serializable {
 	@Column(name = "name", nullable = false)
 	private String name;
 
-	@NotNull
 	@Column(name = "ip", nullable = true)
 	private String ip;
 
