@@ -1,6 +1,7 @@
 package dbUtil.service;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assume.assumeNoException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -8,7 +9,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -26,7 +30,6 @@ import dbUtil.DBException;
 import dbUtil.dao.DivisionDAO;
 import dbUtil.dao.EquipmentDAO;
 import dbUtil.dataSets.Division;
-import dbUtil.dataSets.Division_;
 import dbUtil.dataSets.Equipment;
 
 class EquipmentServiceTest {
@@ -139,8 +142,45 @@ class EquipmentServiceTest {
 	}
 
 	@Test
-	void testUpdate() {
-		fail("Not yet implemented");
+	@DisplayName("Updating the equipment")
+	void testUpdate() throws TestAbortedException, DBException {
+		String prefixDivisionName = "EquipmentServiceUpdate_";
+		String prefixEquipmentName = "Update_";
+		
+		
+		//Testing updating null. Method must throw DBException
+		Equipment nullEquipment = null;
+		Throwable exception = assertThrows(DBException.class, () -> equipmentService.update(nullEquipment));
+		assertEquals("Cannot update the equipment " + nullEquipment, exception.getMessage());
+		
+		Division oneDivision = DivisionServiceTest.createExampleDivision(prefixDivisionName + 1);
+		assumeTrue(divisionService.add(oneDivision));
+		
+		//Testing updating the equipment which doesn't exists in the repository
+		//Method must throw DBException
+		Equipment oneEquipment = createExampleEquipment(prefixEquipmentName + 1, oneDivision);
+		exception = assertThrows(DBException.class, () -> equipmentService.update(oneEquipment));
+		assertEquals("Cannot update the equipment " + oneEquipment, exception.getMessage());
+		
+		// Testing updating the equipment with wrong fields. The method must throw DBException
+
+		//The field devision is null
+		assumeTrue(equipmentService.add(oneEquipment));
+		oneEquipment.setDivision(null);
+		exception = assertThrows(DBException.class, () -> equipmentService.update(oneEquipment));
+		assertEquals("Cannot update the equipment " + oneEquipment, exception.getMessage());
+		
+		//The field devision does not exist in the database
+		Division twoDivision = DivisionServiceTest.createExampleDivision(prefixDivisionName + 2);
+		oneEquipment.setDivision(twoDivision);
+		exception = assertThrows(DBException.class, () -> equipmentService.update(oneEquipment));
+		assertEquals("Cannot update the equipment " + oneEquipment, exception.getMessage());
+		
+		//Testing updating the division in the case when everything is correct
+		assumeTrue(divisionService.add(twoDivision));
+		assertTrue(equipmentService.update(oneEquipment));
+		assertEquals(oneEquipment, equipmentService.getById(oneEquipment.getId()));
+		
 	}
 
 	@Test
@@ -159,10 +199,113 @@ class EquipmentServiceTest {
 		
 		//Testing getting the list of equipments by name null
 		String nullName = null;
-		assertEquals(Collections.emptyList(), equipmentService.getAllByName(nullName ));
+		assertNull(equipmentService.getAllByName(nullName ));
 		
+		//Testing getting the list of equipment by wrong name
+		String wrongName = "Wrong name";
+		assertNull(equipmentService.getAllByName(wrongName));
+		
+		//Testing getting the list of equipment when everything is correct
+		Division oneDiv = DivisionServiceTest.createExampleDivision("EquipmentServiceGetAllByName_" + 1);
+		Division twoDiv = DivisionServiceTest.createExampleDivision("EquipmentServiceGetAllByName_" + 2);
+		Division threeDiv = DivisionServiceTest.createExampleDivision("EquipmentServiceGetAllByName_" + 3);
+		assumeTrue(divisionService.add(oneDiv));
+		assumeTrue(divisionService.add(twoDiv));
+		assumeTrue(divisionService.add(threeDiv));
+		int countEquip = 100;
+		Equipment equip = null;
+		String nameEquipOne = "GetAllByName_1";
+		String nameEquipTwo = "GetAllByName_2";
+		String nameEquipThree = "GetAllByName_3";
+		String nameEquipFour = "GetAllByName_4";
+		String nameEquipFive = "GetAllByName_5";
+		Map<String, List<Equipment>> mapOfEquip = new HashMap<>();
+		
+		// Filling the repository
+		try {
+			for (int i = 0; i < countEquip; i++) {
+				if (i % 2 == 0) {
+					equip = createExampleEquipment(nameEquipOne, oneDiv);
+					equipmentService.add(equip);
+					if (mapOfEquip.containsKey(nameEquipOne)) {
+						mapOfEquip.get(nameEquipOne).add(equip);
+					} else {
+						mapOfEquip.put(nameEquipOne, new ArrayList<Equipment>());
+						mapOfEquip.get(nameEquipOne).add(equip);
+					}
+				} else if (i % 3 == 0) {
+					equip = createExampleEquipment(nameEquipTwo, twoDiv);
+					equipmentService.add(equip);
+					if (mapOfEquip.containsKey(nameEquipTwo)) {
+						mapOfEquip.get(nameEquipTwo).add(equip);
+					} else {
+						mapOfEquip.put(nameEquipTwo, new ArrayList<Equipment>());
+						mapOfEquip.get(nameEquipTwo).add(equip);
+					}
+				} else if (i % 5 == 0) {
+					equip = createExampleEquipment(nameEquipThree, twoDiv);
+					equipmentService.add(equip);
+					if (mapOfEquip.containsKey(nameEquipThree)) {
+						mapOfEquip.get(nameEquipThree).add(equip);
+					} else {
+						mapOfEquip.put(nameEquipThree, new ArrayList<Equipment>());
+						mapOfEquip.get(nameEquipThree).add(equip);
+					}
+				} else if (i % 7 == 0) {
+					equip = createExampleEquipment(nameEquipFour, threeDiv);
+					equipmentService.add(equip);
+					if (mapOfEquip.containsKey(nameEquipFour)) {
+						mapOfEquip.get(nameEquipFour).add(equip);
+					} else {
+						mapOfEquip.put(nameEquipFour, new ArrayList<Equipment>());
+						mapOfEquip.get(nameEquipFour).add(equip);
+					}
+				} else {
+					equip = createExampleEquipment(nameEquipFive, oneDiv);
+					equipmentService.add(equip);
+					if (mapOfEquip.containsKey(nameEquipFive)) {
+						mapOfEquip.get(nameEquipFive).add(equip);
+					} else {
+						mapOfEquip.put(nameEquipFive, new ArrayList<Equipment>());
+						mapOfEquip.get(nameEquipFive).add(equip);
+					}
+				}
+			}
+		} catch (Exception e) {
+			assumeNoException("Canor add the equipment for testing", e);
+		}
+		//Executing tests
+		List<Equipment> actualList = equipmentService.getAllByName(nameEquipOne);
+		List<Equipment> expectedList = mapOfEquip.get(nameEquipOne);
+		assertTrue(isSameLists(expectedList, actualList));
+		
+		actualList = equipmentService.getAllByName(nameEquipTwo);
+		expectedList = mapOfEquip.get(nameEquipTwo);
+		assertTrue(isSameLists(expectedList, actualList));
+		
+		actualList = equipmentService.getAllByName(nameEquipThree);
+		expectedList = mapOfEquip.get(nameEquipThree);
+		assertTrue(isSameLists(expectedList, actualList));
+		
+		actualList = equipmentService.getAllByName(nameEquipFour);
+		expectedList = mapOfEquip.get(nameEquipFour);
+		assertTrue(isSameLists(expectedList, actualList));
+		
+		actualList = equipmentService.getAllByName(nameEquipFive);
+		expectedList = mapOfEquip.get(nameEquipFive);
+		assertTrue(isSameLists(expectedList, actualList));
 	}
-	
+
+	private <T> boolean isSameLists(List<T> expectedList, List<T> actualList) {
+		if (expectedList == null && actualList == null) {
+			return true;
+		} else if (expectedList == null || actualList == null) {
+			return false;
+		} else {
+			return expectedList.size() == actualList.size() && expectedList.containsAll(actualList);
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	private static void deleteAllEquipments() {
 		try (Session session = sessionFactory.openSession()) {

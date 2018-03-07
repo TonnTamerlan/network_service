@@ -1,6 +1,5 @@
 package dbUtil.service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -62,8 +61,7 @@ public class EquipmentService implements EquipmentDAO {
 		}
 		try (Session session = SESSION_FACTORY.openSession()) {
 			session.beginTransaction();
-			session.refresh(equip.getDivision());
-			session.persist(equip);
+			session.save(equip);
 			session.getTransaction().commit();
 			LOGGER.debug("The equipment {} has added", equip);
 			result = true;
@@ -160,23 +158,17 @@ public class EquipmentService implements EquipmentDAO {
 
 	@Override
 	public boolean update(Equipment equip) throws DBException {
-		LOGGER.debug("Try to update the equipment \"{}\" with ip=\"{}\" and id={} in the division \"{}\"",
-				equip.getName(), equip.getIp(), equip.getId(), equip.getDivision().getName());
+		LOGGER.debug("Try to update the equipment {}", equip);
 		boolean result = false;
 		Transaction transaction = null;
 		try (Session session = SESSION_FACTORY.openSession()) {
 			transaction = session.beginTransaction();
 			session.update(equip);
 			transaction.commit();
-			LOGGER.debug("The equipment \"{}\" with ip=\"{}\" and id={} in the division \"{}\" has updated",
-					equip.getName(), equip.getIp(), equip.getId(), equip.getDivision().getName());
+			LOGGER.debug("The equipment {} has updated", equip);
 			result = true;
 		} catch (Exception e) {
-			if (transaction != null && transaction.isActive()) {
-				transaction.rollback();
-			}
-			String errorMessage = "Cannot update the equipment \"" + equip.getName() + "\" with ip=\"" + equip.getIp()
-					+ "\" and id=" + equip.getId() + " in the division \"" + equip.getDivision().getName() + "\"";
+			String errorMessage = "Cannot update the equipment " + equip;
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
 		}
@@ -245,7 +237,7 @@ public class EquipmentService implements EquipmentDAO {
 	@Override
 	public List<Equipment> getAllByName(String name) throws DBException {
 		LOGGER.debug("Try to get the list of equipments by name \"{}\"", name);
-		List<Equipment> listEquip = Collections.emptyList();
+		List<Equipment> listEquip = null;
 		try (Session session = SESSION_FACTORY.openSession()) {
 			session.beginTransaction();
 			CriteriaBuilder builder = session.getCriteriaBuilder();
@@ -254,6 +246,9 @@ public class EquipmentService implements EquipmentDAO {
 			criteriaQuery.select(equipRoot);
 			criteriaQuery.where(builder.equal(equipRoot.get(Equipment_.name), name));
 			listEquip = session.createQuery(criteriaQuery).getResultList();
+			if (listEquip.isEmpty()) {
+				listEquip = null;
+			}
 			session.getTransaction().commit();
 		} catch (NoResultException e) {
 			LOGGER.debug("Cannot get the list of equipments by name \"{}\"," + 
