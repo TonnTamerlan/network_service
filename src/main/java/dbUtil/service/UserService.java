@@ -52,7 +52,7 @@ public class UserService implements UserDAO {
 		boolean result = false;
 		try (Session session = SESSION_FACTORY.openSession()) {
 			session.beginTransaction();
-			session.persist(user);
+			session.save(user);
 			session.getTransaction().commit();
 			LOGGER.debug("The user \"{}\" with login \"{}\" and id={} has added", user.getLastName(), user.getLogin(),
 					user.getId());
