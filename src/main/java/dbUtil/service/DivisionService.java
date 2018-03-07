@@ -51,7 +51,8 @@ public class DivisionService implements DivisionDAO {
 		}
 		try (Session session = SESSION_FACTORY.openSession()){
 			session.beginTransaction();
-			session.persist(div);
+			session.save(div);
+			//session.persist(div);
 			session.getTransaction().commit();
 			LOGGER.debug("The division {} has added", div);
 			result = true;

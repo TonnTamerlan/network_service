@@ -157,6 +157,7 @@ public class DivisionServiceTest {
 		assumeTrue(divisionService.add(one));
 		one.setName("UpdatedName_" + one.getName());
 		assertTrue(divisionService.update(one));
+		assertEquals(one, divisionService.getById(one.getId()));
 		
 		//Testing updating the division with the name, which already exist in the repository
 		Division two = createExampleDivision("Update_" + 2);
@@ -166,7 +167,7 @@ public class DivisionServiceTest {
 		assertEquals("Cannot update the division " + two, exception.getMessage());
 		
 		
-		//Testing updating the division with wrong parameters
+		//Testing updating the division with wrong fields
 		one.setName(null);
 		exception = assertThrows(DBException.class, () -> divisionService.update(one));
 		assertEquals("Cannot update the division " + one, exception.getMessage());
