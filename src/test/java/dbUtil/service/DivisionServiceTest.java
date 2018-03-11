@@ -182,7 +182,7 @@ public class DivisionServiceTest {
 		try {
 			deleteAllDivision();
 		} catch (Exception e) {
-			assumeNoException("Cannot delete all devision after testing method getAllNames", e);
+			assumeNoException("Cannot delete all devision befor testing method getAllNames", e);
 		}
 		
 		//Testing getting the set of division names when repository is empty
