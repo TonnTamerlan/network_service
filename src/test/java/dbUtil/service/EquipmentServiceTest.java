@@ -184,8 +184,100 @@ class EquipmentServiceTest {
 	}
 
 	@Test
-	void testGetByNameAndDivision() {
-		fail("Not yet implemented");
+	@DisplayName("Getting the list of equipment by its and division names")
+	void testGetByNameAndDivision() throws DBException {
+		final String divisionPrefix = "EquipmentServiceGetByNameAndDivision_";
+		final String equipPrefix = "GetByNameAndDivision_";
+		
+		
+		//Testing getting the list of equipment by an equipment name=null and a division name=null
+		String nullDivisionName = null;
+		String nullEquipName = null;
+		assertNull(equipmentService.getByNameAndDivision(nullEquipName, nullDivisionName));
+		
+		//Testing getting the list of equipment by an equipment name and a division name=null
+		Division oneDivision = DivisionServiceTest.createExampleDivision(divisionPrefix + 1);
+		
+		Equipment oneEquipment = createExampleEquipment(equipPrefix + 1, oneDivision);
+		assumeTrue(divisionService.add(oneDivision));
+		assumeTrue(equipmentService.add(oneEquipment));
+		assertNull(equipmentService.getByNameAndDivision(oneEquipment.getName(), nullDivisionName));
+		
+		//Testing getting the list of equipment by an equipment name=null and a division name
+		assertNull(equipmentService.getByNameAndDivision(nullEquipName, oneDivision.getName()));
+		
+		//Testing getting the list of equipment by wrong division and equipment names
+		String wrongEquipmentName = "Wrong equipment name";
+		String wrongDivisionName = "Wrong division name";
+		assertNull(equipmentService.getByNameAndDivision(wrongEquipmentName, wrongDivisionName));
+		
+		//Testing getting the list of equipment by wrong division name
+		assertNull(equipmentService.getByNameAndDivision(oneEquipment.getName(), wrongDivisionName));
+	
+		//Testing getting the list of equipment by wrong equipment name
+		assertNull(equipmentService.getByNameAndDivision(wrongEquipmentName, oneDivision.getName()));
+		
+		//Testing getting list of equipment when everything is correct
+		//Prepare the repository
+		try {
+			deleteAllEquipments();
+		} catch (Exception e) {
+			assumeNoException("Cannot delete all equipment", e);
+		}
+		Division twoDivision = DivisionServiceTest.createExampleDivision(divisionPrefix + 2);
+		assumeTrue(divisionService.add(twoDivision));
+
+		List<Equipment> listOneEquipmentOneDivision = new ArrayList<>();
+		List<Equipment> listFourEquipmentTwoDivision = new ArrayList<>();
+		List<Equipment> listTwoEquipmentOneDivision = new ArrayList<>();
+		List<Equipment> listTwoEquipmentTwoDivision = new ArrayList<>();
+		List<Equipment> listFourEquipmentOneDivision = new ArrayList<>();
+		List<Equipment> listThreeEquipmentTwoDivision = new ArrayList<>();
+		int count = 100;
+		String oneNameEquipment = equipPrefix + 1;
+		String twoNameEquipment = equipPrefix + 2;
+		String threeNameEquipment = equipPrefix + 3;
+		String fourNameEquipment = equipPrefix + 4;
+		
+
+		//Filling the repository
+		try {
+			for (int i = 0; i < count; i++) {
+				if(i % 2 == 0) {
+					Equipment oneEquip = createExampleEquipment(oneNameEquipment, oneDivision);
+					assumeTrue(equipmentService.add(oneEquip));
+					listOneEquipmentOneDivision.add(oneEquip);
+					oneEquip = createExampleEquipment(oneNameEquipment, twoDivision);
+					assumeTrue(equipmentService.add(oneEquip));
+					listTwoEquipmentTwoDivision.add(oneEquip);
+				} else if (i % 3 == 0) {
+					Equipment twoEquip = createExampleEquipment(twoNameEquipment, oneDivision);
+					assumeTrue(equipmentService.add(twoEquip));
+					listTwoEquipmentOneDivision.add(twoEquip);
+				} else if (i % 5 == 0) {
+					Equipment threeEquip = createExampleEquipment(threeNameEquipment, twoDivision);
+					assumeTrue(equipmentService.add(threeEquip));
+					listThreeEquipmentTwoDivision.add(threeEquip);
+				} else {
+					Equipment fourEquip=createExampleEquipment(fourNameEquipment, oneDivision);
+					assumeTrue(equipmentService.add(fourEquip));
+					listFourEquipmentOneDivision.add(fourEquip);
+					fourEquip = createExampleEquipment(fourNameEquipment, twoDivision);
+					assumeTrue(equipmentService.add(fourEquip));
+					listFourEquipmentTwoDivision.add(fourEquip);
+				}
+			}
+		} catch (Exception e) {
+			assumeNoException("Cannot fill the repository before testing getByNameAndDivision with correct parameters", e);
+		}
+		
+		// TODO create the test
+		List<Equipment> expectedList = equipmentService.getByNameAndDivision(oneNameEquipment, oneDivision.getName());
+		assertTrue(isSameLists(expectedList, listOneEquipmentOneDivision));
+		
+		//TODO finish the test
+				
+				
 	}
 
 	@Test
@@ -221,7 +313,7 @@ class EquipmentServiceTest {
 		String nameEquipFive = "GetAllByName_5";
 		Map<String, List<Equipment>> mapOfEquip = new HashMap<>();
 		
-		// Filling the repository
+		// Filling the repository for testing
 		try {
 			for (int i = 0; i < countEquip; i++) {
 				if (i % 2 == 0) {
@@ -272,7 +364,7 @@ class EquipmentServiceTest {
 				}
 			}
 		} catch (Exception e) {
-			assumeNoException("Canor add the equipment for testing", e);
+			assumeNoException("Canot add the equipment for testing", e);
 		}
 		//Executing tests
 		List<Equipment> actualList = equipmentService.getAllByName(nameEquipOne);

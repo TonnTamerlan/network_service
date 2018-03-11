@@ -179,6 +179,10 @@ public class EquipmentService implements EquipmentDAO {
 	public List<Equipment> getByNameAndDivision(String equipName, String divName) throws DBException {
 		LOGGER.debug("Try to get the list of equipment by the equipment name \"{}\" and the division name \"{}\"", 
 				equipName, divName);
+		if (equipName == null || divName == null) {
+			LOGGER.debug("Cannot get the list of equipment with wrong equipment or division names");
+			return null;
+		}
 		List<Equipment> listEquip = null;
 		try (Session session = SESSION_FACTORY.openSession()) {
 			session.beginTransaction();
@@ -190,11 +194,20 @@ public class EquipmentService implements EquipmentDAO {
 			Division division = session.createQuery(criteriaQuery).getSingleResult();
 			listEquip = division.getEquipment().stream().filter(equip->equip.getName().equals(equipName)).collect(Collectors.toList());
 			session.getTransaction().commit();
+			List<String> listOfEquipmentNames = null;
+			if (listEquip.isEmpty()) {
+				listEquip = null;
+			} else {
+				listOfEquipmentNames = listEquip.stream()
+						.map(equip -> "id=" + equip.getId() + ", name="
+								+ equip.getName())
+						.collect(Collectors.toList());
+			}
 			LOGGER.debug("Was got the next list of equipments \"{}\" by division \"{}\": {}",
-					equipName, divName, listEquip.stream().map(equip->equip.getName()).collect(Collectors.toList()));
+					equipName, divName, listOfEquipmentNames);
 		} catch (NoResultException e) {
-			LOGGER.debug("Cannot get the list of equipments which have name \"{}\" and belong division \"{}\", because the division doesn't exist", equipName, divName);
-			LOGGER.catching(Level.DEBUG, e);
+			LOGGER.debug("Cannot get the list of equipments which have name \"" + equipName + 
+					"\" and belong division \"" + divName + "\", because the division doesn't exist", e);
 		} catch (Exception e) {
 			String errorMessage = "Cannot get the list of equipment by the equipment name \"" + equipName
 					+ "\" and the division name \"" + divName + "\"";
@@ -220,7 +233,9 @@ public class EquipmentService implements EquipmentDAO {
 			listEquip.size();
 			session.getTransaction().commit();
 			LOGGER.debug("Was got the next list of equipments by division \"{}\": {}",
-					nameDivision, listEquip.stream().map(equip->equip.getName()).collect(Collectors.toList()));
+					nameDivision, listEquip.stream()
+						.map(equip->"id=" + equip.getId() + ", name=" + equip.getName())
+						.collect(Collectors.toList()));
 		} catch (NoResultException e) {
 			LOGGER.debug(
 					"Cannot get the list of equipments by division name \"{}\", because the division doesn't exist",
@@ -246,14 +261,20 @@ public class EquipmentService implements EquipmentDAO {
 			criteriaQuery.select(equipRoot);
 			criteriaQuery.where(builder.equal(equipRoot.get(Equipment_.name), name));
 			listEquip = session.createQuery(criteriaQuery).getResultList();
+			List<String> listOfEquipmentNames = null;
 			if (listEquip.isEmpty()) {
 				listEquip = null;
+			} else {
+				listOfEquipmentNames = listEquip.stream()
+						.map(equip -> "id=" + equip.getId() + ", name="
+								+ equip.getName() + ", division=" + equip.getDivision().getName())
+						.collect(Collectors.toList());
 			}
+			LOGGER.debug("Was got the next list of equipment: {}", listOfEquipmentNames);
 			session.getTransaction().commit();
 		} catch (NoResultException e) {
-			LOGGER.debug("Cannot get the list of equipments by name \"{}\"," + 
-								" because the equipment with this name does not exist", name);
-			LOGGER.catching(Level.DEBUG, e);
+			LOGGER.debug("Cannot get the list of equipments by name \"" + name + 
+					"\", because the equipment with this name does not exist", e);
 		} catch (Exception e) {
 			String errorMessage = "Cannot get the lis of equipments with name \"" + name + "\"";
 			LOGGER.error(errorMessage, e);
