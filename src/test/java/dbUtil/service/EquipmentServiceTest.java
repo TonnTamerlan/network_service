@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.util.ArrayList;
@@ -213,7 +212,7 @@ class EquipmentServiceTest {
 		
 		//Testing getting the list of equipment by wrong division name
 		assertNull(equipmentService.getByNameAndDivision(oneEquipment.getName(), wrongDivisionName));
-	
+		
 		//Testing getting the list of equipment by wrong equipment name
 		assertNull(equipmentService.getByNameAndDivision(wrongEquipmentName, oneDivision.getName()));
 		
@@ -228,17 +227,16 @@ class EquipmentServiceTest {
 		assumeTrue(divisionService.add(twoDivision));
 
 		List<Equipment> listOneEquipmentOneDivision = new ArrayList<>();
-		List<Equipment> listFourEquipmentTwoDivision = new ArrayList<>();
+		List<Equipment> listOneEquipmentTwoDivision = new ArrayList<>();
 		List<Equipment> listTwoEquipmentOneDivision = new ArrayList<>();
-		List<Equipment> listTwoEquipmentTwoDivision = new ArrayList<>();
-		List<Equipment> listFourEquipmentOneDivision = new ArrayList<>();
 		List<Equipment> listThreeEquipmentTwoDivision = new ArrayList<>();
-		int count = 100;
+		List<Equipment> listFourEquipmentTwoDivision = new ArrayList<>();
+		List<Equipment> listFourEquipmentOneDivision = new ArrayList<>();
+		int count = 50;
 		String oneNameEquipment = equipPrefix + 1;
 		String twoNameEquipment = equipPrefix + 2;
 		String threeNameEquipment = equipPrefix + 3;
 		String fourNameEquipment = equipPrefix + 4;
-		
 
 		//Filling the repository
 		try {
@@ -249,7 +247,7 @@ class EquipmentServiceTest {
 					listOneEquipmentOneDivision.add(oneEquip);
 					oneEquip = createExampleEquipment(oneNameEquipment, twoDivision);
 					assumeTrue(equipmentService.add(oneEquip));
-					listTwoEquipmentTwoDivision.add(oneEquip);
+					listOneEquipmentTwoDivision.add(oneEquip);
 				} else if (i % 3 == 0) {
 					Equipment twoEquip = createExampleEquipment(twoNameEquipment, oneDivision);
 					assumeTrue(equipmentService.add(twoEquip));
@@ -271,18 +269,86 @@ class EquipmentServiceTest {
 			assumeNoException("Cannot fill the repository before testing getByNameAndDivision with correct parameters", e);
 		}
 		
-		// TODO create the test
 		List<Equipment> expectedList = equipmentService.getByNameAndDivision(oneNameEquipment, oneDivision.getName());
 		assertTrue(isSameLists(expectedList, listOneEquipmentOneDivision));
 		
-		//TODO finish the test
-				
-				
+		expectedList = equipmentService.getByNameAndDivision(oneNameEquipment, twoDivision.getName());
+		assertTrue(isSameLists(expectedList, listOneEquipmentTwoDivision));
+		
+		expectedList = equipmentService.getByNameAndDivision(twoNameEquipment, oneDivision.getName());
+		assertTrue(isSameLists(expectedList, listTwoEquipmentOneDivision));
+		
+		expectedList = equipmentService.getByNameAndDivision(threeNameEquipment, twoDivision.getName());
+		assertTrue(isSameLists(expectedList, listThreeEquipmentTwoDivision));
+		
+		expectedList = equipmentService.getByNameAndDivision(fourNameEquipment, oneDivision.getName());
+		assertTrue(isSameLists(expectedList, listFourEquipmentOneDivision));
+		
+		expectedList = equipmentService.getByNameAndDivision(fourNameEquipment, twoDivision.getName());
+		assertTrue(isSameLists(expectedList, listFourEquipmentTwoDivision));
+
 	}
 
 	@Test
-	void testGetByDivision() {
-		fail("Not yet implemented");
+	@DisplayName("Getting the list of equipment by division name")
+	void testGetByDivision() throws DBException {
+		final String divisionPrefix = "EquipmentServiceGetByDivision_";
+		final String equipPrefix = "GetByDivision_";
+		
+		
+		//Testing getting the list of equipment by division name null
+		String nullName = null;
+		assertNull(equipmentService.getByDivision(nullName));
+		
+		//Testing getting the list of equipment by wrong division name
+		String wrongName = "Wrong name";
+		assertNull(equipmentService.getByDivision(wrongName));
+		
+		//Testing getting the list of equipment by division name
+		//which exists in the repository
+		//Prepare the data
+		Division oneDivision = DivisionServiceTest.createExampleDivision(divisionPrefix + 1);
+		Division twoDivision = DivisionServiceTest.createExampleDivision(divisionPrefix + 2);
+		assumeTrue(divisionService.add(oneDivision));
+		assumeTrue(divisionService.add(twoDivision));
+		int count = 50;
+		List<Equipment> listOneDivision = new ArrayList<>();
+		List<Equipment> listTwoDivision = new ArrayList<>();
+		//Filling the repository
+		try {
+			for (int i = 0; i < count; i++) {
+				if (i % 2 == 0) {
+					if (i % 3 == 0) {
+						Equipment oneEquip = createExampleEquipment(equipPrefix + 1, oneDivision);
+						assumeTrue(equipmentService.add(oneEquip));
+						listOneDivision.add(oneEquip);
+					} else {
+						Equipment twoEquip = createExampleEquipment(divisionPrefix + 2, oneDivision);
+						assumeTrue(equipmentService.add(twoEquip));
+						listOneDivision.add(twoEquip);
+					}
+				} else {
+					if (i % 3 == 0) {
+						Equipment threeEquip = createExampleEquipment(equipPrefix + 3, twoDivision);
+						assumeTrue(equipmentService.add(threeEquip));
+						listTwoDivision.add(threeEquip);
+					} else {
+						Equipment fourEquip = createExampleEquipment(divisionPrefix + 4, twoDivision);
+						assumeTrue(equipmentService.add(fourEquip));
+						listTwoDivision.add(fourEquip);
+					}
+				}
+			}
+		} catch (Exception e) {
+			assumeNoException("Cannot fill the repository befor testing the getByDivision method", e);
+		}
+		
+		List<Equipment> expectedList = equipmentService.getByDivision(oneDivision.getName());
+		assertTrue(isSameLists(expectedList, listOneDivision));
+		
+		expectedList = equipmentService.getByDivision(twoDivision.getName());
+		assertTrue(isSameLists(expectedList, listTwoDivision));
+		
 	}
 
 	@Test
@@ -304,7 +370,7 @@ class EquipmentServiceTest {
 		assumeTrue(divisionService.add(oneDiv));
 		assumeTrue(divisionService.add(twoDiv));
 		assumeTrue(divisionService.add(threeDiv));
-		int countEquip = 100;
+		int countEquip = 50;
 		Equipment equip = null;
 		String nameEquipOne = "GetAllByName_1";
 		String nameEquipTwo = "GetAllByName_2";

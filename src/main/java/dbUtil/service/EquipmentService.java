@@ -220,6 +220,10 @@ public class EquipmentService implements EquipmentDAO {
 	@Override
 	public List<Equipment> getByDivision(String nameDivision) throws DBException {
 		LOGGER.debug("Try to get the list of eguipments by division \"{}\"", nameDivision);
+		if (nameDivision == null) {
+			LOGGER.debug("The division name is null");
+			return null;
+		}
 		List<Equipment> listEquip = null;
 		try (Session session = SESSION_FACTORY.openSession()) {
 			session.beginTransaction();
@@ -237,10 +241,8 @@ public class EquipmentService implements EquipmentDAO {
 						.map(equip->"id=" + equip.getId() + ", name=" + equip.getName())
 						.collect(Collectors.toList()));
 		} catch (NoResultException e) {
-			LOGGER.debug(
-					"Cannot get the list of equipments by division name \"{}\", because the division doesn't exist",
-					nameDivision);
-			LOGGER.catching(Level.DEBUG, e);
+			LOGGER.debug("Cannot get the list of equipments by division name \"" + nameDivision
+					+ "\", because the division doesn't exist", e);
 		} catch (Exception e) {
 			String errorMeassage = "Cannot get the list of equipments by division name \"" + nameDivision + "\"";
 			LOGGER.error(errorMeassage, e);
