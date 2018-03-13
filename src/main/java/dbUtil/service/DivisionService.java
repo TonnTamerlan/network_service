@@ -49,14 +49,20 @@ public class DivisionService implements DivisionDAO {
 			LOGGER.debug(errorMesage);
 			throw new IllegalArgumentException(errorMesage);
 		}
+		Transaction transaction = null;
 		try (Session session = SESSION_FACTORY.openSession()){
-			session.beginTransaction();
+			transaction = session.beginTransaction();
+			session.getTransaction().begin();
 			session.save(div);
-			//session.persist(div);
-			session.getTransaction().commit();
+			transaction.commit();
 			LOGGER.debug("The division {} has added", div);
 			result = true;
 		} catch (PersistenceException e) {
+			try {
+				if (transaction != null) {
+					transaction.rollback();
+				}
+			} catch (Exception ignored) {}
 			String errorMessage = "The division " + div + " already exists or some its fields are wrong";
 			LOGGER.debug(errorMessage, e);
 			throw new IllegalArgumentException(errorMessage, e);

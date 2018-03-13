@@ -25,19 +25,23 @@ import org.junit.jupiter.api.Test;
 
 import dbUtil.DBException;
 import dbUtil.dao.DivisionDAO;
+import dbUtil.dao.EquipmentDAO;
 import dbUtil.dataSets.Division;
+import dbUtil.dataSets.Equipment;
 
 
 public class DivisionServiceTest {
 
 	private static SessionFactory sessionFactory = null;
 	private static DivisionDAO divisionService = null;
+	private static EquipmentDAO equipmentService = null;
 	
 	@BeforeAll
 	public static void setUpBeforeClass() throws Exception {
 		Configuration cfg = new Configuration().configure("test_hibernate.cfg.xml");
 		sessionFactory = cfg.buildSessionFactory();
 		divisionService = new DivisionService(sessionFactory);
+		equipmentService = new EquipmentService(sessionFactory);
 	}
 
 	@AfterAll
@@ -48,42 +52,57 @@ public class DivisionServiceTest {
 	}
 
 	@BeforeEach
-	public void setUp() throws Exception {
+	public void setUp() {
 	}
 
 	@AfterEach
-	public void tearDown() throws Exception {
+	public void tearDown() {
 	}
 
 	@Test
 	@DisplayName("Adding the devision in the repository")
 	public void testAdd() throws DBException {
+		String divisionPrefix = "Add_";
+		String equipmentPrefix = "DivisionServiceAdd_";
 		
 		// Testing adding null. The method must throw IllegalArgumenException
 		Division nullDivision = null;
 		Throwable exception = assertThrows(IllegalArgumentException.class, () -> divisionService.add(nullDivision));
 		assertEquals("The division is null", exception.getMessage());
 
-		Division one = createExampleDivision("Add_" + 1);
-
-		// Testing adding the devision when it doesn't exist in the repository
-		assertTrue(divisionService.add(one));
+		Division oneDivision = createExampleDivision(divisionPrefix + 1);
 		
+		
+		//Testing adding the division with an equipment with wrong parameter
+		Equipment wrongParameterEquipment = EquipmentServiceTest.createExampleEquipment("Wrong parametr equipment", oneDivision);
+		wrongParameterEquipment.setName(null);
+		exception = assertThrows(IllegalArgumentException.class, ()->divisionService.add(oneDivision));
+		assertEquals("The division " + oneDivision + " already exists or some its fields are wrong", exception.getMessage());
+		
+		
+		Equipment oneEquip = EquipmentServiceTest.createExampleEquipment(equipmentPrefix + 1, oneDivision);
+		Equipment twoEquip = EquipmentServiceTest.createExampleEquipment(equipmentPrefix + 1, oneDivision);
+
+		
+		// Testing adding the devision when it doesn't exist in the repository
+		assertTrue(divisionService.add(oneDivision));
+		assertEquals(oneEquip, equipmentService.getById(oneEquip.getId()));
+		assertEquals(twoEquip, equipmentService.getById(twoEquip.getId()));
 
 		// Testing adding the division when it already exists in the repository. The method
 		// must throw IllegalArgumentException
-		exception = assertThrows(IllegalArgumentException.class, () -> divisionService.add(one));
-		assertEquals("The division " + one + " already exists or some its fields are wrong", exception.getMessage());
+		exception = assertThrows(IllegalArgumentException.class, () -> divisionService.add(oneDivision));
+		assertEquals("The division " + oneDivision + " already exists or some its fields are wrong", exception.getMessage());
 
 		// Testing adding the division when it doesn't exist in the repository, but its fields
 		// are wrong. The method must throw IllegalArgumentException
-		Division two = createExampleDivision("Add_" + 2);
+		Division two = createExampleDivision(divisionPrefix + 2);
 		two.setName(null);
 		exception = assertThrows(IllegalArgumentException.class, () -> divisionService.add(two));
 		assertEquals("The division " + two + " already exists or some its fields are wrong", exception.getMessage());
 
-		//Testing adding the division with name which already exsits in repository
-		two.setName(one.getName());
+		//Testing adding the division with name which already exists in the repository
+		two.setName(oneDivision.getName());
 		exception = assertThrows(IllegalArgumentException.class, () -> divisionService.add(two));
 		assertEquals("The division " + two + " already exists or some its fields are wrong", exception.getMessage());
 		
@@ -251,7 +270,7 @@ public class DivisionServiceTest {
 		}
 	}
 	
-	public static Division createExampleDivision(String name) {
+	static Division createExampleDivision(String name) {
 		Division div = new Division();
 		
 		div.setAdress(name + "_adress");
