@@ -476,7 +476,7 @@ class EquipmentServiceTest {
 		}
 	}
 	
-	private static Equipment createExampleEquipment(String name, Division div) {
+	static Equipment createExampleEquipment(String name, Division div) {
 		Equipment equip = new Equipment();
 		equip.setName(name);
 		equip.setIp(name + "_ip");

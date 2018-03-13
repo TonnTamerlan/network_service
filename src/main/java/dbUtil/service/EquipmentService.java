@@ -41,8 +41,8 @@ public class EquipmentService implements EquipmentDAO {
 	
 	private final SessionFactory SESSION_FACTORY;
 	
-	public EquipmentService(final SessionFactory sesionFactory) {
-		SESSION_FACTORY = sesionFactory;
+	public EquipmentService(final SessionFactory sessionFactory) {
+		SESSION_FACTORY = sessionFactory;
 	}
 	
 	@Override
