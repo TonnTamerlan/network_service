@@ -40,6 +40,7 @@ class EquipmentServiceTest {
 	@BeforeAll
 	static void setUpBeforeClass() throws Exception {
 		Configuration cfg = new Configuration().configure("test_hibernate.cfg.xml");
+		System.setProperty("hibernate.dialect.storage_engine", "innodb");
 		sessionFactory = cfg.buildSessionFactory();
 		equipmentService = new EquipmentService(sessionFactory);
 		divisionService = new DivisionService(sessionFactory);
