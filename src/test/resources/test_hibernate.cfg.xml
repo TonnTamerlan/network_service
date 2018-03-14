@@ -10,14 +10,8 @@
         <property name="hibernate.connection.password">root</property>
         
         <property name="hibernate.connection.autocommit">false</property>
-       
-       
-        <!-- <property name="hibernate.transaction.coordinator">jta</property> 
-         -->
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQL57InnoDBDialect</property>
         <property name="hibernate.hbm2ddl.auto">create</property>
-        
-       
-       <!--  <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property> -->
         <property name="show_sql">true</property>
 		
 		<mapping class="dbUtil.dataSets.User" />
