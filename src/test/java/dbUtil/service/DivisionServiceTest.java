@@ -39,6 +39,7 @@ public class DivisionServiceTest {
 	@BeforeAll
 	public static void setUpBeforeClass() throws Exception {
 		Configuration cfg = new Configuration().configure("test_hibernate.cfg.xml");
+		System.setProperty("hibernate.dialect.storage_engine", "innodb");
 		sessionFactory = cfg.buildSessionFactory();
 		divisionService = new DivisionService(sessionFactory);
 		equipmentService = new EquipmentService(sessionFactory);
@@ -70,23 +71,22 @@ public class DivisionServiceTest {
 		Throwable exception = assertThrows(IllegalArgumentException.class, () -> divisionService.add(nullDivision));
 		assertEquals("The division is null", exception.getMessage());
 
-		Division oneDivision = createExampleDivision(divisionPrefix + 1);
+		Division wrongDivision = createExampleDivision(divisionPrefix + "wrong");
 		
 		
 		//Testing adding the division with an equipment with wrong parameter
-		Equipment wrongParameterEquipment = EquipmentServiceTest.createExampleEquipment("Wrong parametr equipment", oneDivision);
+		Equipment oneEquip = EquipmentServiceTest.createExampleEquipment(equipmentPrefix + 1, wrongDivision);
+		Equipment wrongParameterEquipment = EquipmentServiceTest.createExampleEquipment("Wrong parametr equipment", wrongDivision);
 		wrongParameterEquipment.setName(null);
-		exception = assertThrows(IllegalArgumentException.class, ()->divisionService.add(oneDivision));
-		assertEquals("The division " + oneDivision + " already exists or some its fields are wrong", exception.getMessage());
-		
-		
-		Equipment oneEquip = EquipmentServiceTest.createExampleEquipment(equipmentPrefix + 1, oneDivision);
-		Equipment twoEquip = EquipmentServiceTest.createExampleEquipment(equipmentPrefix + 1, oneDivision);
-
+		exception = assertThrows(IllegalArgumentException.class, ()->divisionService.add(wrongDivision));
+		assertEquals("The division " + wrongDivision + " already exists or some its fields are wrong", exception.getMessage());
 		
 		// Testing adding the devision when it doesn't exist in the repository
+		Division oneDivision = createExampleDivision(divisionPrefix + 1);
+		Equipment twoEquip = EquipmentServiceTest.createExampleEquipment(equipmentPrefix + 1, oneDivision);
+		Equipment threeEquip = EquipmentServiceTest.createExampleEquipment(equipmentPrefix + 1, oneDivision);
 		assertTrue(divisionService.add(oneDivision));
-		assertEquals(oneEquip, equipmentService.getById(oneEquip.getId()));
+		assertEquals(threeEquip, equipmentService.getById(threeEquip.getId()));
 		assertEquals(twoEquip, equipmentService.getById(twoEquip.getId()));
 
 		// Testing adding the division when it already exists in the repository. The method

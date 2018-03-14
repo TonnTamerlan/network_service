@@ -21,6 +21,7 @@ import dbUtil.DBException;
 import dbUtil.dao.DivisionDAO;
 import dbUtil.dataSets.Division;
 import dbUtil.dataSets.Division_;
+import dbUtil.dataSets.Equipment;
 
 /**
  * Implementation interface DivisionDAO for working with table "divisions"
@@ -52,17 +53,16 @@ public class DivisionService implements DivisionDAO {
 		Transaction transaction = null;
 		try (Session session = SESSION_FACTORY.openSession()){
 			transaction = session.beginTransaction();
-			session.getTransaction().begin();
-			session.save(div);
+			try {
+				session.save(div);
+			} catch (Exception e) {
+				transaction.rollback();
+				throw e;
+			}
 			transaction.commit();
 			LOGGER.debug("The division {} has added", div);
 			result = true;
 		} catch (PersistenceException e) {
-			try {
-				if (transaction != null) {
-					transaction.rollback();
-				}
-			} catch (Exception ignored) {}
 			String errorMessage = "The division " + div + " already exists or some its fields are wrong";
 			LOGGER.debug(errorMessage, e);
 			throw new IllegalArgumentException(errorMessage, e);
