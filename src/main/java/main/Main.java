@@ -29,12 +29,12 @@ public class Main {
 		UserDAO userDAO = new UserService(db.getSessionFactory());
 		DivisionDAO divDAO = new DivisionService(db.getSessionFactory());
 		
-		Division kmem = getDivision("KMEM");
-		Division dmem = getDivision("DMEM");
-		Division svem = getDivision("SVEM");
-		Division kmemRES_1 = getDivision("KMEM_RES_1");
-		Division kmemRES_2 = getDivision("KMEM_RES_2");
-		Division kmemRES_3 = getDivision("KMEM_RES_3");
+		Division kmem = createExampleDivision("KMEM");
+		Division dmem = createExampleDivision("DMEM");
+		Division svem = createExampleDivision("SVEM");
+		Division kmemRES_1 = createExampleDivision("KMEM_RES_1");
+		Division kmemRES_2 = createExampleDivision("KMEM_RES_2");
+		Division kmemRES_3 = createExampleDivision("KMEM_RES_3");
 		
 		
 		System.out.println("-------------------Add divisions----------------------------");
@@ -131,12 +131,12 @@ public class Main {
 		return user;
 	}
 	
-	private static Division getDivision(String name) {
-		Division div = new Division();
-		
-		div.setAdress(name + "_adress");
+	static Division createExampleDivision(String name) {
+		String adress = name + "_adress";
+		Division div = new Division(name, adress);
 		div.setName(name);
 		div.setPhone(name + "_phone");
+		
 		return div;
 	}
 
