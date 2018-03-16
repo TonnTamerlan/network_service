@@ -10,7 +10,6 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
@@ -21,7 +20,7 @@ import dbUtil.DBException;
 import dbUtil.dao.DivisionDAO;
 import dbUtil.dataSets.Division;
 import dbUtil.dataSets.Division_;
-import dbUtil.dataSets.Equipment;
+import dbUtil.dataSets.User;
 
 /**
  * Implementation interface DivisionDAO for working with table "divisions"
@@ -43,42 +42,66 @@ public class DivisionService implements DivisionDAO {
 	
 	@Override
 	public boolean add(Division div) throws DBException {
-		LOGGER.debug("Try to add the division {} in the repository", div);
+		LOGGER.info("Try to add the division {} in the repository", div);
 		boolean result = false;
 		if (div == null) {
 			String errorMesage = "The division is null";
 			LOGGER.debug(errorMesage);
 			throw new IllegalArgumentException(errorMesage);
 		}
+		Session session = null;
 		Transaction transaction = null;
-		try (Session session = SESSION_FACTORY.openSession()){
+		try {
+			session = SESSION_FACTORY.openSession();
+			LOGGER.trace("Session is open");
 			transaction = session.beginTransaction();
-			try {
-				session.save(div);
-			} catch (Exception e) {
-				transaction.rollback();
-				throw e;
-			}
+			session.save(div);
 			transaction.commit();
-			LOGGER.debug("The division {} has added", div);
+			LOGGER.info("The division {} has added", div);
 			result = true;
 		} catch (PersistenceException e) {
+			try {
+				if (transaction != null && transaction.isActive()) {
+					transaction.rollback();
+					LOGGER.trace("The transaction rollbacked");
+				}
+			} catch (Exception ignored) {
+				LOGGER.error("Cannot rollback transaction", ignored);
+			}
 			String errorMessage = "The division " + div + " already exists or some its fields are wrong";
-			LOGGER.debug(errorMessage, e);
+			LOGGER.error(errorMessage, e);
 			throw new IllegalArgumentException(errorMessage, e);
 		} catch (Exception e) {
+			try {
+				if (transaction != null && transaction.isActive()) {
+					transaction.rollback();
+					LOGGER.trace("The transaction rollbacked");
+				}
+			} catch (Exception ignored) {
+				LOGGER.error("Cannot rollback transaction in method add", ignored);
+			}
 			String errorMessage = "Cannot add the devision " + div;
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
+		} finally {
+			try {
+				session.close();
+				LOGGER.trace("Session is close");
+			} catch (Exception ignored) {
+				LOGGER.error("Cannot close the session", ignored);
+			}
 		}
 		return result;
 	}
 
 	@Override
 	public Division getById(long id) throws DBException {
-		LOGGER.debug("Try to get a division by id={}", id);
+		LOGGER.info("Try to get a division by id={}", id);
 		Division division = null;
-		try(Session session = SESSION_FACTORY.openSession()){
+		Session session = null;
+		try {
+			session = SESSION_FACTORY.openSession();
+			LOGGER.trace("Session is open");
 			session.beginTransaction();
 			division = session.get(Division.class, id);
 			if (division != null) {
@@ -86,120 +109,163 @@ public class DivisionService implements DivisionDAO {
 				division.getEquipment().size(); //for attaching the set of equipments
 				division.getSlaveDivisions().size(); //for attaching the set of slaveDivision
 				session.getTransaction().commit();
-				LOGGER.debug("The division {} has got", division);
+				LOGGER.info("The division {} has got", division);
 			} else {
 				session.getTransaction().commit();
-				LOGGER.debug("The division with id={} didn't find", id);
+				LOGGER.info("The division with id={} didn't find", id);
 			}
 			
 		} catch (Exception e) {
 			String errorMessage = "Cannot read the devision with id=" + id + " by ID";
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
+		}  finally {
+			try {
+				session.close();
+				LOGGER.trace("Session is close");
+			} catch (Exception ignored) {
+				LOGGER.error("Cannot close the session", ignored);
+			}
 		}
 		return division;
 	}
 
 	@Override
 	public boolean delete(Division div) throws DBException {
-		LOGGER.debug("Try to delete the division {}", div);
+		LOGGER.info("Try to delete the division {}", div);
 		boolean result = false;
-		
 		if (div == null) {
 			LOGGER.debug("Cannot delete the division null");
 			return result;
 		}
-		
+		Session session = null;
 		Transaction transaction = null;
-		try (Session session = SESSION_FACTORY.openSession()) {
+		try {
+			session = SESSION_FACTORY.openSession();
+			LOGGER.trace("Session is open");
 			transaction = session.beginTransaction();
 			
 			if (session.get(Division.class, div.getId()) != null) {
 				session.clear();
 				div.getUsers().forEach(user->user.getDivisions().remove(div));
-				div.getUsers().stream()
-							.peek(user->LOGGER.debug("Delete the division from the user {}", user))
-							.forEach(user->session.update(user));
-				div.getEquipment().stream()
-							.peek(equip->LOGGER.debug("Delete the equipment {} which was installed in the division", equip))
-							.forEach(equip->session.delete(equip));
+				for (User user : div.getUsers()) {
+					session.update(user);
+					LOGGER.info("Delete the division from the user {}", user);
+				}
+				div.getEquipment().forEach(equip->LOGGER.info("Delete the equipment {} which was installed in the division", equip));
 				session.delete(div);
 				transaction.commit();
-				LOGGER.debug("The division {} has deleted", div);
+				LOGGER.info("The division {} has deleted", div);
 				result = true;
 			} else {
 				transaction.commit();
-				LOGGER.debug("The division {} didn't find", div);
+				LOGGER.info("The division {} didn't find", div);
 			}
 		} catch (Exception e) {
 			try {
 				if (transaction != null && transaction.isActive()) {
 					transaction.rollback();
+					LOGGER.trace("The transaction rollbacked");
 				}
-			} catch (Exception ex) {
-				LOGGER.error("Cannot rollback transanction when the division " + div + " was trying to delete", ex);
+			} catch (Exception ignored) {
+				LOGGER.error("Cannot rollback transanction", ignored);
 			}
 			String errorMessage = "Cannot delete the division " + div;
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
+		} finally {
+			try {
+				session.close();
+				LOGGER.trace("Session is close");
+			} catch (Exception ignored) {
+				LOGGER.error("Cannot close the session", ignored);
+			}
 		}
 		return result;
 	}
 
 	@Override
 	public boolean deleteById(long id) throws DBException {
-		LOGGER.debug("Try to delete the division by id={}", id);
+		LOGGER.info("Try to delete the division by id={}", id);
 		boolean result = false;
+		Session session = null;
 		Transaction transaction = null;
-		try (Session session = SESSION_FACTORY.openSession()) {
+		try {
+			session = SESSION_FACTORY.openSession();
+			LOGGER.trace("Session is open");
 			transaction = session.beginTransaction();
 			Division division = session.get(Division.class, id);
 			if(division != null) {
 				division.getUsers().forEach(user->user.getDivisions().remove(division));
-				division.getUsers().stream()
-							.peek(user->LOGGER.debug("Delete the division {} from user {}", division, user))
-							.forEach(user->session.update(user));;
-				division.getEquipment().stream()
-							.peek(equip->LOGGER.debug("Delete the equipment {} which was installed in the division {}", equip, division))
-							.forEach(equip->session.delete(equip));
+				for (User user : division.getUsers()) {
+					session.update(user);
+					LOGGER.info("Delete the division from the user {}", user);
+				}
+				division.getEquipment().forEach(equip->LOGGER.info("Delete the equipment {} which was installed in the division", equip));
 				session.remove(division);
 				transaction.commit();
-				LOGGER.debug("The division {} has deleted", division);
+				LOGGER.info("The division {} has deleted", division);
 				result = true;
 			} else {
 				transaction.commit();
-				LOGGER.debug("The division with id={} didn't find", id);
+				LOGGER.info("The division with id={} didn't find", id);
 			}
 		} catch (Exception e) {
 			try {
 				if (transaction != null && transaction.isActive()) {
 					transaction.rollback();
+					LOGGER.trace("The transaction rollbacked");
 				}
-			} catch (Exception ex) {
-				LOGGER.error("Cannot rollback transanction when the division with id=" + id + " was trying to delete", ex);
+			} catch (Exception ignored) {
+				LOGGER.error("Cannot rollback transanction", ignored);
 			}
 			String errorMessage = "Cannot delete the division with id=" + id + " by ID";
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
+		} finally {
+			try {
+				session.close();
+				LOGGER.trace("Session is close");
+			} catch (Exception ignored) {
+				LOGGER.error("Cannot close the session", ignored);
+			}
 		}
 		return result;
 	}
 
 	@Override
 	public boolean update(Division div) throws DBException {
-		LOGGER.debug("Try to update the division {}", div);
+		LOGGER.info("Try to update the division {}", div);
 		boolean result = false;
+		Session session = null;
 		Transaction transaction = null;
-		try (Session session = SESSION_FACTORY.openSession()) {
+		try {
+			session = SESSION_FACTORY.openSession();
+			LOGGER.trace("Session is open");
 			transaction = session.beginTransaction();
 			session.update(div);
 			transaction.commit();
-			LOGGER.debug("The division {} has updated", div);
+			LOGGER.info("The division {} has updated", div);
 			result= true;
 		} catch (Exception e) {
+			try {
+				if (transaction != null && transaction.isActive()) {
+					transaction.rollback();
+					LOGGER.trace("The transaction rollbacked");
+				}
+			} catch (Exception ignored) {
+				LOGGER.error("Cannot rollback transanction", ignored);
+			}
 			String errorMessage = "Cannot update the division " + div;
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
+		} finally {
+			try {
+				session.close();
+				LOGGER.trace("Session is close");
+			} catch (Exception ignored) {
+				LOGGER.error("Cannot close the session", ignored);
+			}
 		}
 		return result;
 	}
@@ -208,7 +274,10 @@ public class DivisionService implements DivisionDAO {
 	public Set<String> getAllNames() throws DBException {
 		LOGGER.debug("Try to get all the division names");
 		Set<String> divisionSet = Collections.emptySet();
-		try (Session session = SESSION_FACTORY.openSession()) {
+		Session session = null;
+		try {
+			session = SESSION_FACTORY.openSession();
+			LOGGER.trace("Sesion is open");
 			session.beginTransaction();
 			CriteriaBuilder builder = session.getCriteriaBuilder();
 			CriteriaQuery<String> criteriaQuery = builder.createQuery(String.class);
@@ -216,20 +285,30 @@ public class DivisionService implements DivisionDAO {
 			criteriaQuery.select(divisionRoot.get(Division_.name));
 			divisionSet = new HashSet<String>(session.createQuery(criteriaQuery).getResultList());
 			session.getTransaction().commit();
-			LOGGER.debug("Was got the next set of division names: {}", divisionSet.toString());
+			LOGGER.info("Was got the next set of division names: {}", divisionSet.toString());
 		} catch (Exception e) {
 			String errorMessage = "Cannot get names of all divisions";
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
+		} finally {
+			try {
+				session.close();
+				LOGGER.trace("Session is close");
+			} catch (Exception ignored) {
+				LOGGER.error("Cannot close the session", ignored);
+			}
 		}
 		return divisionSet;
 	}
 
 	@Override
 	public Division getByName(String name) throws DBException {
-		LOGGER.debug("Try to get the divisin by name=\"{}\"", name);
+		LOGGER.info("Try to get the divisin by name=\"{}\"", name);
 		Division division = null;
-		try (Session session = SESSION_FACTORY.openSession()) {
+		Session session = null;
+		try {
+			session = SESSION_FACTORY.openSession();
+			LOGGER.trace("Session is open");
 			session.beginTransaction();
 			CriteriaBuilder builder = session.getCriteriaBuilder();
 			CriteriaQuery<Division> criteriaQuery = builder.createQuery(Division.class);
@@ -240,24 +319,33 @@ public class DivisionService implements DivisionDAO {
 			division.getUsers().size(); //for attaching the set of users
 			division.getSlaveDivisions(); //for attaching the set of slaveDevisions
 			session.getTransaction().commit();
-			LOGGER.debug("The division {} has got", division);
+			LOGGER.info("The division {} has got", division);
 		} catch (NoResultException e) {
-			LOGGER.debug("Cannot get the division \"{}\" by name, because it does not exist", name);
-			LOGGER.catching(Level.DEBUG, e);
+			LOGGER.info("Cannot get the division \"" + name + "\" by name, because it does not exist", e);
 		} catch (Exception e) {
 			String errorMessage = "Cannot get the division \"" + name + "\" by name";
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
+		} finally {
+			try {
+				session.close();
+				LOGGER.trace("Session is close");
+			} catch (Exception ignored) {
+				LOGGER.error("Cannot close the session", ignored);
+			}
 		}
 		return division;
 	}
 
 	@Override
 	public boolean deleteByName(String name) throws DBException {
-		LOGGER.debug("Try to delete the division by name=\"{}\"", name);
+		LOGGER.info("Try to delete the division by name=\"{}\"", name);
 		boolean result = false;
+		Session session = null;
 		Transaction transaction = null;
-		try (Session session = SESSION_FACTORY.openSession()) {
+		try {
+			session = SESSION_FACTORY.openSession();
+			LOGGER.trace("Sesion is open");
 			transaction = session.beginTransaction();
 			CriteriaBuilder builder = session.getCriteriaBuilder();
 			CriteriaQuery<Division> criteriaQuery = builder.createQuery(Division.class);
@@ -267,22 +355,36 @@ public class DivisionService implements DivisionDAO {
 					.createQuery(criteriaQuery.where(builder.equal(divisionRoot.get(Division_.name), name)))
 					.getSingleResult();
 			division.getUsers().forEach(act -> act.getDivisions().remove(division));
-			division.getUsers().forEach(act -> session.update(act));
-			division.getEquipment().forEach(equip -> session.delete(equip));
+			for (User user : division.getUsers()) {
+				session.update(user);
+				LOGGER.info("The user {} has updated", user);
+			}
+			division.getEquipment().forEach(equip -> LOGGER.info("The equipment {} has deleted", equip));
 			session.delete(division);
 			transaction.commit();
-			LOGGER.debug("The division {} has deleted", division);
+			LOGGER.info("The division {} has deleted", division);
 			result = true;
 		} catch (NoResultException e) {
-			LOGGER.debug("Cannot delete the division \"{}\" by name, because it doesn't exist");
-			LOGGER.catching(Level.DEBUG,e);
+			LOGGER.info("Cannot delete the division \"" + name + "\" by name, because it doesn't exist", e);
 		} catch (Exception e) {
-			if (transaction != null && transaction.isActive()) {
-				transaction.rollback();
+			try {
+				if (transaction != null && transaction.isActive()) {
+					transaction.rollback();
+					LOGGER.trace("The transaction rollbacked");
+				}
+			} catch (Exception ignored) {
+				LOGGER.error("Cannot rollback transanction", ignored);
 			}
 			String errorMessage = "Cannot delete the devision \"" + name + "\" by name";
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
+		} finally {
+			try {
+				session.close();
+				LOGGER.trace("Session is close");
+			} catch (Exception ignored) {
+				LOGGER.error("Cannot close the session", ignored);
+			}
 		}
 		return result;
 	}
