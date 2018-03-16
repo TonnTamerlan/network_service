@@ -63,11 +63,16 @@ public class Division implements Serializable {
 	@OneToMany(mappedBy = "division", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private List<Equipment> equipment = new ArrayList<>();
 	
-	public Division() {
+	Division() {
 	}
 
-	public Division(long id) {
+	Division(long id) {
 		this.id = id;
+	}
+	
+	public Division (String name, String adress) {
+		this.name = name;
+		this.adress = adress;
 	}
 
 	public long getId() {

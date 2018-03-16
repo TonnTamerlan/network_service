@@ -48,11 +48,16 @@ public class Equipment implements Serializable {
 	@JoinColumn(name = "division_id", nullable = false)
 	private Division division;
 
-	public Equipment() {
+	Equipment() {
 	}
 
-	public Equipment(long id) {
+	Equipment(long id) {
 		this.id = id;
+	}
+	
+	public Equipment (String name, Division division) {
+		this.name = name;
+		this.division = division;
 	}
 
 	public long getId() {
