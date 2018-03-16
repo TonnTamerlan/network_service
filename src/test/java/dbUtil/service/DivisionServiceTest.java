@@ -15,7 +15,6 @@ import java.util.Set;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.query.Query;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -39,7 +38,6 @@ public class DivisionServiceTest {
 	@BeforeAll
 	public static void setUpBeforeClass() throws Exception {
 		Configuration cfg = new Configuration().configure("test_hibernate.cfg.xml");
-		//System.setProperty("hibernate.dialect.storage_engine", "innodb");
 		sessionFactory = cfg.buildSessionFactory();
 		divisionService = new DivisionService(sessionFactory);
 		equipmentService = new EquipmentService(sessionFactory);
@@ -262,8 +260,9 @@ public class DivisionServiceTest {
 	private static void deleteAllDivision() {
 		try (Session session = sessionFactory.openSession()) {
 			session.beginTransaction();
-			Query<Integer> query = session.createQuery("DELETE FROM Division");
-			query.executeUpdate();
+			session.createQuery("DELETE FROM Equipment").executeUpdate();
+			session.createQuery("DELETE FROM Division").executeUpdate();
+			// TODO create one statement that deletes all divisions with equipments 
 			session.getTransaction().commit();
 		} catch (Exception e) {
 			throw e;
@@ -271,9 +270,8 @@ public class DivisionServiceTest {
 	}
 	
 	static Division createExampleDivision(String name) {
-		Division div = new Division();
-		
-		div.setAdress(name + "_adress");
+		String adress = name + "_adress";
+		Division div = new Division(name, adress);
 		div.setName(name);
 		div.setPhone(name + "_phone");
 		
