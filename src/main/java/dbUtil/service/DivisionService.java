@@ -2,6 +2,7 @@ package dbUtil.service;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.NoResultException;
@@ -20,6 +21,7 @@ import dbUtil.DBException;
 import dbUtil.dao.DivisionDAO;
 import dbUtil.dataSets.Division;
 import dbUtil.dataSets.Division_;
+import dbUtil.dataSets.Equipment;
 import dbUtil.dataSets.User;
 
 /**
@@ -243,6 +245,26 @@ public class DivisionService implements DivisionDAO {
 			session = SESSION_FACTORY.openSession();
 			LOGGER.trace("Session is open");
 			transaction = session.beginTransaction();
+			
+			//for deleting equipments and users if necessarily
+			Division nonUpdatingDivision = session.get(Division.class, div.getId());
+			List<Equipment> oldEquipmentList = nonUpdatingDivision.getEquipment();
+			Set<User> oldUserSet = nonUpdatingDivision.getUsers();
+			//for attaching the list, because using lazy initialization
+			oldEquipmentList.size();
+			oldUserSet.size();
+			session.detach(nonUpdatingDivision);
+			if (!isSameLists(div.getEquipment(), oldEquipmentList)) {
+				for (Equipment equip : oldEquipmentList) {
+					if (!div.getEquipment().contains(equip)) {
+						session.remove(equip);
+						LOGGER.info("The equipment {} has deleted", equip);
+					}
+				}
+			}
+			if (!div.getUsers().equals(oldUserSet)) {
+				//TODO upgrade all division users if necessarily
+			}
 			session.update(div);
 			transaction.commit();
 			LOGGER.info("The division {} has updated", div);
@@ -387,6 +409,15 @@ public class DivisionService implements DivisionDAO {
 			}
 		}
 		return result;
+	}
+	
+	private <T> boolean isSameLists(List<T> expectedList, List<T> actualList) {
+		if (expectedList == null && actualList == null) {
+			return true;
+		} else if (expectedList == null || actualList == null) {
+			return false;
+		}
+		return expectedList.size() == actualList.size() && expectedList.containsAll(actualList);
 	}
 
 }

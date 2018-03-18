@@ -25,8 +25,11 @@ import org.junit.jupiter.api.Test;
 import dbUtil.DBException;
 import dbUtil.dao.DivisionDAO;
 import dbUtil.dao.EquipmentDAO;
+import dbUtil.dao.UserDAO;
 import dbUtil.dataSets.Division;
 import dbUtil.dataSets.Equipment;
+import dbUtil.dataSets.Role;
+import dbUtil.dataSets.User;
 
 
 public class DivisionServiceTest {
@@ -34,6 +37,7 @@ public class DivisionServiceTest {
 	private static SessionFactory sessionFactory = null;
 	private static DivisionDAO divisionService = null;
 	private static EquipmentDAO equipmentService = null;
+	private static UserDAO userService = null;
 	
 	@BeforeAll
 	public static void setUpBeforeClass() throws Exception {
@@ -41,6 +45,7 @@ public class DivisionServiceTest {
 		sessionFactory = cfg.buildSessionFactory();
 		divisionService = new DivisionService(sessionFactory);
 		equipmentService = new EquipmentService(sessionFactory);
+		userService = new UserService(sessionFactory);
 	}
 
 	@AfterAll
@@ -69,10 +74,8 @@ public class DivisionServiceTest {
 		Throwable exception = assertThrows(IllegalArgumentException.class, () -> divisionService.add(nullDivision));
 		assertEquals("The division is null", exception.getMessage());
 
-		Division wrongDivision = createExampleDivision(divisionPrefix + "wrong");
-		
-		
 		//Testing adding the division with an equipment with wrong parameter
+		Division wrongDivision = createExampleDivision(divisionPrefix + "wrong");
 		Equipment oneEquip = EquipmentServiceTest.createExampleEquipment(equipmentPrefix + 1, wrongDivision);
 		Equipment wrongParameterEquipment = EquipmentServiceTest.createExampleEquipment("Wrong parametr equipment", wrongDivision);
 		wrongParameterEquipment.setName(null);
@@ -109,12 +112,13 @@ public class DivisionServiceTest {
 	@Test
 	@DisplayName("Getting the division by id")
 	public void testGetById() throws DBException {
+		String devisionPrefix = "GetById_";
 		
 		//Testing getting the division by id, that doesn't exist
 		assertNull(divisionService.getById(0));
 		
 		//Testing getting the division
-		Division one = createExampleDivision("GetByID_" + 1);
+		Division one = createExampleDivision(devisionPrefix + 1);
 		assumeTrue(divisionService.add(one));
 		assertEquals(one, divisionService.getById(one.getId()));
 		
@@ -123,71 +127,124 @@ public class DivisionServiceTest {
 	@Test
 	@DisplayName("Deleting the division by the entity")
 	public void testDelete() throws DBException {
+		String divisionPrefix = "Delete_";
+		String equipmentPrefix = "DivisionServiceDelete_";
+		String userPrefix = "DivisionServiceDelete_";
 		
 		//Test deleting null
 		Division nullDivision = null;
 		assertFalse(divisionService.delete(nullDivision));
 		
-		// TODO add in the division users, equipments and save divisions
-		//Testing deleting the division which exists in the repository
-		Division one = createExampleDivision("Delete_" + 1);
-		assumeTrue(divisionService.add(one));
-		assertTrue(divisionService.delete(one));
-		assertNull(divisionService.getById(one.getId()));
+		// Testing deleting the division which doesn't exist in the repository
+		Division oneDivision = createExampleDivision(divisionPrefix + 1);
+		assertFalse(divisionService.delete(oneDivision));
 		
-		//Testing deleting the division which doesn't exist in the repository
-		Division two = createExampleDivision("Delete_" + 2);
-		assertFalse(divisionService.delete(two));
+		//Testing deleting the division which exists in the repository
+		Equipment oneEquip = EquipmentServiceTest.createExampleEquipment(equipmentPrefix + 1, oneDivision);
+		Equipment twoEquip = EquipmentServiceTest.createExampleEquipment(equipmentPrefix + 2, oneDivision);
+		Equipment threeEquip = EquipmentServiceTest.createExampleEquipment(equipmentPrefix + 3, oneDivision);
+		User oneUser = UserServiceTest.createExampleUser(userPrefix + 1, Role.ADMIN);
+		oneUser.addDivision(oneDivision);
+		User twoUser = UserServiceTest.createExampleUser(userPrefix + 2, Role.USER);
+		twoUser.addDivision(oneDivision);
+		assumeTrue(divisionService.add(oneDivision));
+		assumeTrue(userService.add(oneUser));
+		assumeTrue(userService.add(twoUser));
+		assertTrue(divisionService.delete(oneDivision));
+		assertNull(divisionService.getById(oneDivision.getId()));
+		assertNull(equipmentService.getById(oneEquip.getId()));
+		assertNull(equipmentService.getById(twoEquip.getId()));
+		assertNull(equipmentService.getById(threeEquip.getId()));
+		assertEquals(0, userService.getById(oneUser.getId()).getDivisions().size());
+		assertEquals(0, userService.getById(twoUser.getId()).getDivisions().size());
 		
 	}
 
 	@Test
 	@DisplayName("Deleting the division by id")
 	public void testDeleteById() throws DBException {
+		String divisionPrefix = "DeletByID_";
+		String userPrefix = "DivisionServiceDeleteById_";
+		String equipmentPrefix = "DivisionServiceDeleteByID_";
 		
 		//Testing deleting the division by id when it doesn't exist
 		assertFalse(divisionService.deleteById(0));
 		
-		// TODO add in the division users, equipments and save divisions
 		//Testing deleting the division when the repository has a division with specific id
-		Division one = createExampleDivision("DeletByID_" + 1);
-		assumeTrue(divisionService.add(one));
-		assertTrue(divisionService.deleteById(one.getId()));
+		Division oneDivision = createExampleDivision(divisionPrefix + 1);
+		Equipment oneEquip = EquipmentServiceTest.createExampleEquipment(equipmentPrefix + 1, oneDivision);
+		Equipment twoEquip = EquipmentServiceTest.createExampleEquipment(equipmentPrefix + 2, oneDivision);
+		Equipment threeEquip = EquipmentServiceTest.createExampleEquipment(equipmentPrefix + 3, oneDivision);
+		User oneUser = UserServiceTest.createExampleUser(userPrefix + 1, Role.ADMIN);
+		oneUser.addDivision(oneDivision);
+		User twoUser = UserServiceTest.createExampleUser(userPrefix + 2, Role.USER);
+		twoUser.addDivision(oneDivision);
+		assumeTrue(divisionService.add(oneDivision));
+		assumeTrue(userService.add(oneUser));
+		assumeTrue(userService.add(twoUser));
+		assertTrue(divisionService.deleteById(oneDivision.getId()));
+		assertNull(divisionService.getById(oneDivision.getId()));
+		assertNull(equipmentService.getById(oneEquip.getId()));
+		assertNull(equipmentService.getById(twoEquip.getId()));
+		assertNull(equipmentService.getById(threeEquip.getId()));
+		assertEquals(0, userService.getById(oneUser.getId()).getDivisions().size());
+		assertEquals(0, userService.getById(twoUser.getId()).getDivisions().size());
 		
 	}
 
 	@Test
 	@DisplayName("Updating the division")
 	public void testUpdate() throws DBException {
+		String divisionPrefix = "Update_";
+		String userPrefix = "DivisionServiceUpdate_";
+		String equipmentPrefix = "DivisionServiceUpdate_";
 		
 		//Testing updating null. The method must throw DBException
 		Division nullDivision = null;
 		Throwable exception = assertThrows(DBException.class, () -> divisionService.update(nullDivision));
 		assertEquals("Cannot update the division " + nullDivision, exception.getMessage());
 		
-		//Testing updating the division which doesn't exist in the repository.  The method must throw DBException
-		Division one = createExampleDivision("Update_" + 1);
-		exception = assertThrows(DBException.class, () -> divisionService.update(one));
-		assertEquals("Cannot update the division " + one, exception.getMessage());
+		//Testing updating the division which doesn't exist in the repository. The method must throw DBException
+		Division oneDivision = createExampleDivision(divisionPrefix + 1);
+		exception = assertThrows(DBException.class, () -> divisionService.update(oneDivision));
+		assertEquals("Cannot update the division " + oneDivision, exception.getMessage());
 		
-		//Testing updating the division
-		assumeTrue(divisionService.add(one));
-		one.setName("UpdatedName_" + one.getName());
-		assertTrue(divisionService.update(one));
-		assertEquals(one, divisionService.getById(one.getId()));
+		//Testing updating the division name
+		assumeTrue(divisionService.add(oneDivision));
+		oneDivision.setName("UpdatedName_" + oneDivision.getName());
+		assertTrue(divisionService.update(oneDivision));
+		assertEquals(oneDivision, divisionService.getById(oneDivision.getId()));
+		
+		//Testing updating the division (add the equipment)
+		Equipment oneEquipment = EquipmentServiceTest.createExampleEquipment(equipmentPrefix + 1, oneDivision);
+		assertTrue(divisionService.update(oneDivision));
+		assertTrue(equipmentService.getByDivision(oneDivision.getName()).contains(oneEquipment));
+		
+		//Testing updating the division (delete the equipment)
+		oneDivision.getEquipment().remove(oneEquipment);
+		assertTrue(divisionService.update(oneDivision));
+		assertTrue(!equipmentService.getByDivision(oneDivision.getName()).contains(oneEquipment));
+		
+		//Testing updating the division (add user)
+		User oneUser = UserServiceTest.createExampleUser(userPrefix + 1, Role.USER);
+		assumeTrue(userService.add(oneUser));
+		oneDivision.addUser(oneUser);
+		//TODO end the test
+		assertTrue(divisionService.update(oneDivision));
+		assertTrue(divisionService.getById(oneDivision.getId()).getUsers().contains(oneUser));
+		
 		
 		//Testing updating the division with the name, which already exist in the repository
-		Division two = createExampleDivision("Update_" + 2);
-		assumeTrue(divisionService.add(two));
-		two.setName(one.getName());
-		exception = assertThrows(DBException.class, () -> divisionService.update(two));
-		assertEquals("Cannot update the division " + two, exception.getMessage());
-		
+		Division twoDivision = createExampleDivision(divisionPrefix + 2);
+		assumeTrue(divisionService.add(twoDivision));
+		twoDivision.setName(oneDivision.getName());
+		exception = assertThrows(DBException.class, () -> divisionService.update(twoDivision));
+		assertEquals("Cannot update the division " + twoDivision, exception.getMessage());
 		
 		//Testing updating the division with wrong fields
-		one.setName(null);
-		exception = assertThrows(DBException.class, () -> divisionService.update(one));
-		assertEquals("Cannot update the division " + one, exception.getMessage());
+		oneDivision.setName(null);
+		exception = assertThrows(DBException.class, () -> divisionService.update(oneDivision));
+		assertEquals("Cannot update the division " + oneDivision, exception.getMessage());
 	
 	}
 
