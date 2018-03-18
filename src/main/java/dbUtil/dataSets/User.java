@@ -70,11 +70,17 @@ public class User implements Serializable {
 	@Column(name = "role", nullable = false)
 	private Role role;
 
-	public User() {
+	User() {
 	}
 
-	public User(long id) {
+	User(long id) {
 		this.id = id;
+	}
+	
+	public User(String login, String password, Role role) {
+		this.login = login;
+		this.password = password;
+		this.role = role;
 	}
 
 	public long getId() {
@@ -207,7 +213,6 @@ public class User implements Serializable {
 		str.append("{")
 				.append("id=").append(id).append(", ")
 				.append("login=").append(login).append(", ")
-				.append("password=").append(password).append(", ")
 				.append("firstName=").append(firstName).append(", ")
 				.append("lastName=").append(lastName).append(", ")
 				.append("title=").append(title).append(", ")
