@@ -111,16 +111,13 @@ class UserServiceTest {
 		}
 	}
 	
-	private static User createExampleUser(String name, Role role) {
-		User user = new User();
-		user.setEmail(name + "@gmail.com");
-		user.setRole(role);
-		user.setFirstName(name + "_name");
-		user.setLastName(name + "_lastName");
-		user.setLogin(name + "_login");
-		user.setPassword(name + "_password");
-		user.setPhone(name + "_phone");
-		user.setTitle(name + "_title");
+	public static User createExampleUser(String login, Role role) {
+		User user = new User(login, login + "_password", role);
+		user.setEmail(login + "@mail.com");
+		user.setFirstName(login + "_name");
+		user.setLastName(login + "_lastName");
+		user.setPhone(login + "_phone");
+		user.setTitle(login + "_title");
 		
 		return user;
 	}
