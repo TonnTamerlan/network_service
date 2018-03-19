@@ -166,6 +166,14 @@ public class Division implements Serializable {
 		this.users.add(user);
 		user.getDivisions().add(this);
 	}
+	
+	public void deleteUser(User user) {
+		if(user == null) {
+			return;
+		}
+		this.users.remove(user);
+		user.getDivisions().remove(user);
+	}
 
 	public List<Equipment> getEquipment() {
 		return equipment;
