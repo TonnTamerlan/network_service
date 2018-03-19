@@ -13,6 +13,7 @@ import javax.persistence.criteria.Root;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.ReplicationMode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -57,6 +58,10 @@ public class DivisionService implements DivisionDAO {
 			session = SESSION_FACTORY.openSession();
 			LOGGER.trace("Session is open");
 			transaction = session.beginTransaction();
+			for (User user : div.getUsers()) {
+				session.replicate(user, ReplicationMode.IGNORE);
+				user.addDivision(div);
+			}
 			session.save(div);
 			transaction.commit();
 			LOGGER.info("The division {} has added", div);
@@ -263,7 +268,17 @@ public class DivisionService implements DivisionDAO {
 				}
 			}
 			if (!div.getUsers().equals(oldUserSet)) {
-				//TODO upgrade all division users if necessarily
+				for (User user : oldUserSet) {
+					if(!div.getUsers().contains(user)) {
+						session.get(User.class, user.getId()).deleteDivision(div);
+					}
+				}
+				for (User user : div.getUsers()) {
+					if(!oldUserSet.contains(user)) {
+						session.get(User.class, user.getId()).addDivision(div);
+					}
+				}
+				session.replicate(div, ReplicationMode.OVERWRITE);
 			}
 			session.update(div);
 			transaction.commit();

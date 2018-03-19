@@ -1,7 +1,9 @@
 package dbUtil.service;
 
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assume.assumeNoException;
+import static org.junit.Assume.assumeThat;
 import static org.junit.Assume.assumeTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -12,6 +14,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.hamcrest.core.Is;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -68,6 +71,7 @@ public class DivisionServiceTest {
 	public void testAdd() throws DBException {
 		String divisionPrefix = "Add_";
 		String equipmentPrefix = "DivisionServiceAdd_";
+		//TODO add testing with users
 		
 		// Testing adding null. The method must throw IllegalArgumenException
 		Division nullDivision = null;
@@ -229,9 +233,23 @@ public class DivisionServiceTest {
 		User oneUser = UserServiceTest.createExampleUser(userPrefix + 1, Role.USER);
 		assumeTrue(userService.add(oneUser));
 		oneDivision.addUser(oneUser);
-		//TODO end the test
 		assertTrue(divisionService.update(oneDivision));
 		assertTrue(divisionService.getById(oneDivision.getId()).getUsers().contains(oneUser));
+		
+		//Testing updating the division (delete user)
+		oneDivision.deleteUser(oneUser);
+		assertTrue(divisionService.update(oneDivision));
+		assertFalse(divisionService.getById(oneDivision.getId()).getUsers().contains(oneUser));
+		
+		//Testing updating the division (add the user with which doesn't exist in the repository)
+		User twoUser = UserServiceTest.createExampleUser(userPrefix + 2, Role.ADMIN);
+		User dontExistUser = UserServiceTest.createExampleUser(userPrefix + "don't_exists", Role.USER);
+		assumeTrue(userService.add(twoUser));
+		oneDivision.addUser(oneUser);
+		oneDivision.addUser(twoUser);
+		oneDivision.addUser(dontExistUser);
+		exception = assertThrows(DBException.class, ()->divisionService.update(oneDivision));
+		assertEquals("Cannot update the division " + oneDivision, exception.getMessage());
 		
 		
 		//Testing updating the division with the name, which already exist in the repository
@@ -251,6 +269,7 @@ public class DivisionServiceTest {
 	@Test
 	@DisplayName("Getting the set of all division names")
 	public void testGetAllNames() throws DBException {
+		String divisionPrefix = "GetAllNames_";
 		
 		//Preparing the repository
 		try {
@@ -262,12 +281,10 @@ public class DivisionServiceTest {
 		//Testing getting the set of division names when repository is empty
 		assertEquals(Collections.emptySet(), divisionService.getAllNames());
 		
-		
 		//Filling the repository with test data
-		String prefixName = "GetAllNames_";
 		Set<String> exceptedSetOfNames = new HashSet<>();
 		for(int i = 0; i < 10; i++) {
-			Division division = createExampleDivision(prefixName + i);
+			Division division = createExampleDivision(divisionPrefix + i);
 			exceptedSetOfNames.add(division.getName());
 			assumeTrue(divisionService.add(division));
 		}
@@ -281,15 +298,16 @@ public class DivisionServiceTest {
 	@Test
 	@DisplayName("Getting the division by name")
 	public void testGetByName() throws DBException {
+		String divisionPrefix = "GetByName_";
 		
 		//Testing getting by null
 		String nullName = null;
 		assertNull(divisionService.getByName(nullName));
 		
 		//Testing getting the division
-		Division one = createExampleDivision("GetByName_" + 1);
-		assumeTrue(divisionService.add(one));
-		assertEquals(one, divisionService.getByName(one.getName()));
+		Division oneDivision = createExampleDivision(divisionPrefix + 1);
+		assumeTrue(divisionService.add(oneDivision));
+		assertEquals(oneDivision, divisionService.getByName(oneDivision.getName()));
 		
 		//Testing getting division by wrong name
 		String wrongName = "WrongName";
@@ -300,16 +318,42 @@ public class DivisionServiceTest {
 	@Test
 	@DisplayName("Deleting the division by name")
 	public void testDeleteByName() throws DBException {
+		String divisionPrefix = "DeleteByName_";
+		String userPrefix = "DivisionServiceDeleteByName_";
+		String equipPrefix =  "DivisionServiceDeleteByName_";
 		
 		//Testing deleting null
-		assertFalse(divisionService.deleteByName(null));
+		String nullName = null;
+		assertFalse(divisionService.deleteByName(nullName));
 		
 		//Testing deleting by wrong name
 		String wrongName = "WrongName";
 		assertFalse(divisionService.deleteByName(wrongName));
 		
 		// TODO add in the division users, equipments and save divisions
-		Division one = createExampleDivision("DeleteByName_" + 1);
+		Division oneDivision = createExampleDivision(divisionPrefix + 1);
+		Equipment oneEquip = EquipmentServiceTest.createExampleEquipment(equipPrefix + 1, oneDivision);
+		Equipment twoEquip = EquipmentServiceTest.createExampleEquipment(equipPrefix + 2, oneDivision);
+		User oneUser = UserServiceTest.createExampleUser(userPrefix + 1, Role.USER);
+		User twoUser = UserServiceTest.createExampleUser(userPrefix + 2, Role.ADMIN);
+		assumeTrue(userService.add(oneUser));
+		assumeTrue(userService.add(twoUser));
+		oneDivision.addUser(oneUser);
+		oneDivision.addUser(twoUser);
+		assumeTrue(divisionService.add(oneDivision));
+		assumeTrue(oneEquip.equals(equipmentService.getById(oneEquip.getId())));
+		assumeTrue(twoEquip.equals(equipmentService.getById(twoEquip.getId())));
+		assumeTrue(userService.getById(oneUser.getId()).getDivisions().contains(oneDivision));
+		assumeTrue(userService.getById(twoUser.getId()).getDivisions().contains(oneDivision));
+		assertTrue(divisionService.deleteByName(oneDivision.getName()));
+		assertNull(equipmentService.getById(oneEquip.getId()));
+		assertNull(equipmentService.getById(twoEquip.getId()));
+		assertNull(divisionService.getById(oneDivision.getId()));
+		Set<Division> emptyDivisionSet = new HashSet<>();
+		assertEquals(emptyDivisionSet, userService.getById(oneUser.getId()).getDivisions());
+		assertEquals(emptyDivisionSet, userService.getById(twoUser.getId()).getDivisions());
+		
+
 		
 	}
 	
@@ -319,6 +363,7 @@ public class DivisionServiceTest {
 			session.beginTransaction();
 			session.createQuery("DELETE FROM Equipment").executeUpdate();
 			session.createQuery("DELETE FROM Division").executeUpdate();
+			session.createNativeQuery("DELETE FROM user_division");
 			// TODO create one statement that deletes all divisions with equipments 
 			session.getTransaction().commit();
 		} catch (Exception e) {
