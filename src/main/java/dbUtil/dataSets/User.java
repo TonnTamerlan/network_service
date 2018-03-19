@@ -170,6 +170,14 @@ public class User implements Serializable {
 		this.divisions.add(div);
 		div.getUsers().add(this);
 	}
+	
+	public void deleteDivision(Division div) {
+		if(div == null) {
+			return;
+		}
+		this.divisions.remove(div);
+		div.getUsers().remove(div);
+	}
 
 	@Enumerated(EnumType.STRING)
 	public Role getRole() {
