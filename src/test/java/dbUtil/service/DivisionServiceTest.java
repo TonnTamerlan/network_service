@@ -1,9 +1,7 @@
 package dbUtil.service;
 
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assume.assumeNoException;
-import static org.junit.Assume.assumeThat;
 import static org.junit.Assume.assumeTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -14,7 +12,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.hamcrest.core.Is;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -71,6 +68,7 @@ public class DivisionServiceTest {
 	public void testAdd() throws DBException {
 		String divisionPrefix = "Add_";
 		String equipmentPrefix = "DivisionServiceAdd_";
+		String userPrefix = "DivisionServiceAdd_";
 		//TODO add testing with users
 		
 		// Testing adding null. The method must throw IllegalArgumenException
@@ -78,22 +76,33 @@ public class DivisionServiceTest {
 		Throwable exception = assertThrows(IllegalArgumentException.class, () -> divisionService.add(nullDivision));
 		assertEquals("The division is null", exception.getMessage());
 
-		//Testing adding the division with an equipment with wrong parameter
-		Division wrongDivision = createExampleDivision(divisionPrefix + "wrong");
-		Equipment oneEquip = EquipmentServiceTest.createExampleEquipment(equipmentPrefix + 1, wrongDivision);
-		Equipment wrongParameterEquipment = EquipmentServiceTest.createExampleEquipment("Wrong parametr equipment", wrongDivision);
+		//Testing adding the division with an equipment with wrong parameter equipment
+		Division divisionWithWrongEquipment = createExampleDivision(divisionPrefix + "wrong_equipment");
+		Equipment oneEquip = EquipmentServiceTest.createExampleEquipment(equipmentPrefix + 1, divisionWithWrongEquipment);
+		Equipment wrongParameterEquipment = EquipmentServiceTest.createExampleEquipment("Wrong parametr equipment", divisionWithWrongEquipment);
 		wrongParameterEquipment.setName(null);
-		exception = assertThrows(IllegalArgumentException.class, ()->divisionService.add(wrongDivision));
-		assertEquals("The division " + wrongDivision + " already exists or some its fields are wrong", exception.getMessage());
+		exception = assertThrows(IllegalArgumentException.class, ()->divisionService.add(divisionWithWrongEquipment));
+		assertEquals("The division " + divisionWithWrongEquipment + " already exists or some its fields are wrong", exception.getMessage());
 		
 		// Testing adding the devision when it doesn't exist in the repository
 		Division oneDivision = createExampleDivision(divisionPrefix + 1);
 		Equipment twoEquip = EquipmentServiceTest.createExampleEquipment(equipmentPrefix + 1, oneDivision);
 		Equipment threeEquip = EquipmentServiceTest.createExampleEquipment(equipmentPrefix + 1, oneDivision);
+		User oneUser = UserServiceTest.createExampleUser(userPrefix + 1, Role.ADMIN);
+		User twoUser = UserServiceTest.createExampleUser(userPrefix + 2, Role.USER);
+		assumeTrue(userService.add(oneUser));
+		assumeTrue(userService.add(twoUser));
+		oneDivision.addUser(oneUser);
+		oneDivision.addUser(twoUser);
 		assertTrue(divisionService.add(oneDivision));
 		assertEquals(threeEquip, equipmentService.getById(threeEquip.getId()));
 		assertEquals(twoEquip, equipmentService.getById(twoEquip.getId()));
+		assertTrue(divisionService.getById(oneDivision.getId()).getUsers().contains(oneUser));
+		assertTrue(divisionService.getById(oneDivision.getId()).getUsers().contains(twoUser));
+		assertTrue(userService.getById(oneUser.getId()).getDivisions().contains(oneDivision));
+		assertTrue(userService.getById(twoUser.getId()).getDivisions().contains(oneDivision));
 
+		
 		// Testing adding the division when it already exists in the repository. The method
 		// must throw IllegalArgumentException
 		exception = assertThrows(IllegalArgumentException.class, () -> divisionService.add(oneDivision));
@@ -273,7 +282,7 @@ public class DivisionServiceTest {
 		
 		//Preparing the repository
 		try {
-			deleteAllDivision();
+			clearRepository();
 		} catch (Exception e) {
 			assumeNoException("Cannot delete all devision befor testing method getAllNames", e);
 		}
@@ -358,13 +367,13 @@ public class DivisionServiceTest {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private static void deleteAllDivision() {
+	private static void clearRepository() {
 		try (Session session = sessionFactory.openSession()) {
 			session.beginTransaction();
 			session.createQuery("DELETE FROM Equipment").executeUpdate();
 			session.createQuery("DELETE FROM Division").executeUpdate();
-			session.createNativeQuery("DELETE FROM user_division");
-			// TODO create one statement that deletes all divisions with equipments 
+			session.createQuery("DELETE FROM User").executeUpdate();
+			session.createNativeQuery("DELETE FROM user_division").executeUpdate();
 			session.getTransaction().commit();
 		} catch (Exception e) {
 			throw e;

@@ -58,11 +58,12 @@ public class DivisionService implements DivisionDAO {
 			session = SESSION_FACTORY.openSession();
 			LOGGER.trace("Session is open");
 			transaction = session.beginTransaction();
-			for (User user : div.getUsers()) {
-				session.replicate(user, ReplicationMode.IGNORE);
-				user.addDivision(div);
-			}
 			session.save(div);
+			for (User user : div.getUsers()) {
+				if(user.getId() != 0) {
+					session.update(user);
+				}
+			}
 			transaction.commit();
 			LOGGER.info("The division {} has added", div);
 			result = true;
