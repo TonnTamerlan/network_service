@@ -69,7 +69,6 @@ public class DivisionServiceTest {
 		String divisionPrefix = "Add_";
 		String equipmentPrefix = "DivisionServiceAdd_";
 		String userPrefix = "DivisionServiceAdd_";
-		//TODO add testing with users
 		
 		// Testing adding null. The method must throw IllegalArgumenException
 		Division nullDivision = null;
@@ -83,6 +82,9 @@ public class DivisionServiceTest {
 		wrongParameterEquipment.setName(null);
 		exception = assertThrows(IllegalArgumentException.class, ()->divisionService.add(divisionWithWrongEquipment));
 		assertEquals("The division " + divisionWithWrongEquipment + " already exists or some its fields are wrong", exception.getMessage());
+		
+		
+		//TODO testing adding the division with user that doesn't exist
 		
 		// Testing adding the devision when it doesn't exist in the repository
 		Division oneDivision = createExampleDivision(divisionPrefix + 1);
@@ -110,8 +112,8 @@ public class DivisionServiceTest {
 
 		// Testing adding the division when it doesn't exist in the repository, but its fields
 		// are wrong. The method must throw IllegalArgumentException
-		Division two = createExampleDivision(divisionPrefix + 2);
-		two.setName(null);
+		String nullName = null;
+		Division two = createExampleDivision(nullName);
 		exception = assertThrows(IllegalArgumentException.class, () -> divisionService.add(two));
 		assertEquals("The division " + two + " already exists or some its fields are wrong", exception.getMessage());
 
@@ -339,7 +341,7 @@ public class DivisionServiceTest {
 		String wrongName = "WrongName";
 		assertFalse(divisionService.deleteByName(wrongName));
 		
-		// TODO add in the division users, equipments and save divisions
+		//Testing the division with correct parameters 
 		Division oneDivision = createExampleDivision(divisionPrefix + 1);
 		Equipment oneEquip = EquipmentServiceTest.createExampleEquipment(equipPrefix + 1, oneDivision);
 		Equipment twoEquip = EquipmentServiceTest.createExampleEquipment(equipPrefix + 2, oneDivision);
@@ -366,7 +368,6 @@ public class DivisionServiceTest {
 		
 	}
 	
-	@SuppressWarnings("unchecked")
 	private static void clearRepository() {
 		try (Session session = sessionFactory.openSession()) {
 			session.beginTransaction();

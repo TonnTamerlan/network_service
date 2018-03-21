@@ -63,6 +63,7 @@ public class DivisionService implements DivisionDAO {
 				if(user.getId() != 0) {
 					session.update(user);
 				}
+				//TODO add checking is existing user
 			}
 			transaction.commit();
 			LOGGER.info("The division {} has added", div);
