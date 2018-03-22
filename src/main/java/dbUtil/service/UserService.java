@@ -72,7 +72,7 @@ public class UserService implements UserDAO {
 			transaction.commit();
 			LOGGER.debug("The user {} has added", user);
 			result = true;
-		} catch (PersistenceException e) {
+		} catch (PersistenceException | IllegalArgumentException e) {
 			try {
 				if (transaction != null && transaction.isActive()) {
 					transaction.rollback();
@@ -84,8 +84,6 @@ public class UserService implements UserDAO {
 			String errorMessage = "The user" + user + " already exists or some its fields are wrong!";
 			LOGGER.error(errorMessage, e);
 			throw new IllegalArgumentException(errorMessage, e);
-		} catch (IllegalArgumentException e) {
-			throw e;
 		} catch (Exception e) {
 			try {
 				if (transaction != null && transaction.isActive()) {

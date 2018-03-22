@@ -84,10 +84,11 @@ class UserServiceTest {
 		User userWithNotexistingDivision = createExampleUser("User_Division_not_exist", Role.USER);
 		userWithNotexistingDivision.addDivision(oneDivision);
 		exception = assertThrows(IllegalArgumentException.class, ()->userService.add(userWithNotexistingDivision));
-		assertEquals("The division " + oneDivision + " doesn't exist in the repository", 
+		assertEquals("The user" + userWithNotexistingDivision + " already exists or some its fields are wrong!", 
 				exception.getMessage());
 		
 		//Testing adding the user that doesn't exist in the repository and all fields is correct
+		oneDivision = DivisionServiceTest.createExampleDivision(divisionPrefix + 1);
 		assumeTrue(divisionService.add(oneDivision));
 		User oneUser = createExampleUser(userPefix + 1, Role.ADMIN);
 		oneUser.addDivision(oneDivision);
