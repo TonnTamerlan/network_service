@@ -60,15 +60,18 @@ public class DivisionService implements DivisionDAO {
 			transaction = session.beginTransaction();
 			session.save(div);
 			for (User user : div.getUsers()) {
-				if(user.getId() != 0) {
+				if (user.getId() != 0) {
 					session.update(user);
+				} else {
+					String errorMessage = "The user " + user + " doesn't exist in the repository";
+					LOGGER.debug(errorMessage);
+					throw new IllegalArgumentException(errorMessage);
 				}
-				//TODO add checking is existing user
 			}
 			transaction.commit();
 			LOGGER.info("The division {} has added", div);
 			result = true;
-		} catch (PersistenceException e) {
+		} catch (PersistenceException | IllegalArgumentException e) {
 			try {
 				if (transaction != null && transaction.isActive()) {
 					transaction.rollback();

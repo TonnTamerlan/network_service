@@ -83,8 +83,22 @@ public class DivisionServiceTest {
 		exception = assertThrows(IllegalArgumentException.class, ()->divisionService.add(divisionWithWrongEquipment));
 		assertEquals("The division " + divisionWithWrongEquipment + " already exists or some its fields are wrong", exception.getMessage());
 		
+		//Testing adding the division with user that doesn't exist
+		Division divisionWitUserNotExist = createExampleDivision("Division_with_user_not_exist");
 		
-		//TODO testing adding the division with user that doesn't exist
+		User userNotExist = UserServiceTest.createExampleUser("User_not_exist", Role.ADMIN);
+		divisionWitUserNotExist.addUser(userNotExist);
+		exception = assertThrows(IllegalArgumentException.class, () -> divisionService.add(divisionWitUserNotExist));
+		assertEquals("The division " + divisionWitUserNotExist + " already exists or some its fields are wrong", 
+				exception.getMessage());
+		User userWhichWasdeleted = UserServiceTest.createExampleUser("User_that_was_deleted", Role.USER);
+		assumeTrue(userService.add(userWhichWasdeleted));
+		assumeTrue(userService.delete(userWhichWasdeleted));
+		divisionWitUserNotExist.addUser(userWhichWasdeleted);
+		assertNull(userService.getById(userWhichWasdeleted.getId()));
+		exception = assertThrows(IllegalArgumentException.class, () -> divisionService.add(divisionWitUserNotExist));
+		assertEquals("The division " + divisionWitUserNotExist + " already exists or some its fields are wrong", 
+				exception.getMessage());
 		
 		// Testing adding the devision when it doesn't exist in the repository
 		Division oneDivision = createExampleDivision(divisionPrefix + 1);
@@ -104,7 +118,6 @@ public class DivisionServiceTest {
 		assertTrue(userService.getById(oneUser.getId()).getDivisions().contains(oneDivision));
 		assertTrue(userService.getById(twoUser.getId()).getDivisions().contains(oneDivision));
 
-		
 		// Testing adding the division when it already exists in the repository. The method
 		// must throw IllegalArgumentException
 		exception = assertThrows(IllegalArgumentException.class, () -> divisionService.add(oneDivision));
@@ -159,12 +172,12 @@ public class DivisionServiceTest {
 		Equipment twoEquip = EquipmentServiceTest.createExampleEquipment(equipmentPrefix + 2, oneDivision);
 		Equipment threeEquip = EquipmentServiceTest.createExampleEquipment(equipmentPrefix + 3, oneDivision);
 		User oneUser = UserServiceTest.createExampleUser(userPrefix + 1, Role.ADMIN);
+		assumeTrue(userService.add(oneUser));
 		oneUser.addDivision(oneDivision);
 		User twoUser = UserServiceTest.createExampleUser(userPrefix + 2, Role.USER);
+		assumeTrue(userService.add(twoUser));
 		twoUser.addDivision(oneDivision);
 		assumeTrue(divisionService.add(oneDivision));
-		assumeTrue(userService.add(oneUser));
-		assumeTrue(userService.add(twoUser));
 		assertTrue(divisionService.delete(oneDivision));
 		assertNull(divisionService.getById(oneDivision.getId()));
 		assertNull(equipmentService.getById(oneEquip.getId()));
@@ -191,12 +204,12 @@ public class DivisionServiceTest {
 		Equipment twoEquip = EquipmentServiceTest.createExampleEquipment(equipmentPrefix + 2, oneDivision);
 		Equipment threeEquip = EquipmentServiceTest.createExampleEquipment(equipmentPrefix + 3, oneDivision);
 		User oneUser = UserServiceTest.createExampleUser(userPrefix + 1, Role.ADMIN);
+		assumeTrue(userService.add(oneUser));
 		oneUser.addDivision(oneDivision);
 		User twoUser = UserServiceTest.createExampleUser(userPrefix + 2, Role.USER);
+		assumeTrue(userService.add(twoUser));
 		twoUser.addDivision(oneDivision);
 		assumeTrue(divisionService.add(oneDivision));
-		assumeTrue(userService.add(oneUser));
-		assumeTrue(userService.add(twoUser));
 		assertTrue(divisionService.deleteById(oneDivision.getId()));
 		assertNull(divisionService.getById(oneDivision.getId()));
 		assertNull(equipmentService.getById(oneEquip.getId()));
