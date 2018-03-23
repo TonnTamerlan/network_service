@@ -72,36 +72,17 @@ public class DivisionService implements DivisionDAO {
 			LOGGER.info("The division {} has added", div);
 			result = true;
 		} catch (PersistenceException | IllegalArgumentException e) {
-			try {
-				if (transaction != null && transaction.isActive()) {
-					transaction.rollback();
-					LOGGER.trace("The transaction rollbacked");
-				}
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot rollback transaction", ignored);
-			}
+			rollbackTransaction(transaction);
 			String errorMessage = "The division " + div + " already exists or some its fields are wrong";
 			LOGGER.error(errorMessage, e);
 			throw new IllegalArgumentException(errorMessage, e);
 		} catch (Exception e) {
-			try {
-				if (transaction != null && transaction.isActive()) {
-					transaction.rollback();
-					LOGGER.trace("The transaction rollbacked");
-				}
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot rollback transaction in method add", ignored);
-			}
+			rollbackTransaction(transaction);
 			String errorMessage = "Cannot add the devision " + div;
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
 		} finally {
-			try {
-				session.close();
-				LOGGER.trace("Session is close");
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot close the session", ignored);
-			}
+			closeSession(session);
 		}
 		return result;
 	}
@@ -132,12 +113,7 @@ public class DivisionService implements DivisionDAO {
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
 		}  finally {
-			try {
-				session.close();
-				LOGGER.trace("Session is close");
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot close the session", ignored);
-			}
+			closeSession(session);
 		}
 		return division;
 	}
@@ -174,24 +150,12 @@ public class DivisionService implements DivisionDAO {
 				LOGGER.info("The division {} didn't find", div);
 			}
 		} catch (Exception e) {
-			try {
-				if (transaction != null && transaction.isActive()) {
-					transaction.rollback();
-					LOGGER.trace("The transaction rollbacked");
-				}
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot rollback transanction", ignored);
-			}
+			rollbackTransaction(transaction);
 			String errorMessage = "Cannot delete the division " + div;
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
 		} finally {
-			try {
-				session.close();
-				LOGGER.trace("Session is close");
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot close the session", ignored);
-			}
+			closeSession(session);
 		}
 		return result;
 	}
@@ -223,24 +187,12 @@ public class DivisionService implements DivisionDAO {
 				LOGGER.info("The division with id={} didn't find", id);
 			}
 		} catch (Exception e) {
-			try {
-				if (transaction != null && transaction.isActive()) {
-					transaction.rollback();
-					LOGGER.trace("The transaction rollbacked");
-				}
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot rollback transanction", ignored);
-			}
+			rollbackTransaction(transaction);
 			String errorMessage = "Cannot delete the division with id=" + id + " by ID";
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
 		} finally {
-			try {
-				session.close();
-				LOGGER.trace("Session is close");
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot close the session", ignored);
-			}
+			closeSession(session);
 		}
 		return result;
 	}
@@ -290,24 +242,12 @@ public class DivisionService implements DivisionDAO {
 			LOGGER.info("The division {} has updated", div);
 			result= true;
 		} catch (Exception e) {
-			try {
-				if (transaction != null && transaction.isActive()) {
-					transaction.rollback();
-					LOGGER.trace("The transaction rollbacked");
-				}
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot rollback transanction", ignored);
-			}
+			rollbackTransaction(transaction);
 			String errorMessage = "Cannot update the division " + div;
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
 		} finally {
-			try {
-				session.close();
-				LOGGER.trace("Session is close");
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot close the session", ignored);
-			}
+			closeSession(session);
 		}
 		return result;
 	}
@@ -333,12 +273,7 @@ public class DivisionService implements DivisionDAO {
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
 		} finally {
-			try {
-				session.close();
-				LOGGER.trace("Session is close");
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot close the session", ignored);
-			}
+			closeSession(session);
 		}
 		return divisionSet;
 	}
@@ -369,12 +304,7 @@ public class DivisionService implements DivisionDAO {
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
 		} finally {
-			try {
-				session.close();
-				LOGGER.trace("Session is close");
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot close the session", ignored);
-			}
+			closeSession(session);
 		}
 		return division;
 	}
@@ -409,24 +339,12 @@ public class DivisionService implements DivisionDAO {
 		} catch (NoResultException e) {
 			LOGGER.info("Cannot delete the division \"" + name + "\" by name, because it doesn't exist", e);
 		} catch (Exception e) {
-			try {
-				if (transaction != null && transaction.isActive()) {
-					transaction.rollback();
-					LOGGER.trace("The transaction rollbacked");
-				}
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot rollback transanction", ignored);
-			}
+			rollbackTransaction(transaction);
 			String errorMessage = "Cannot delete the devision \"" + name + "\" by name";
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
 		} finally {
-			try {
-				session.close();
-				LOGGER.trace("Session is close");
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot close the session", ignored);
-			}
+			closeSession(session);
 		}
 		return result;
 	}
@@ -438,6 +356,26 @@ public class DivisionService implements DivisionDAO {
 			return false;
 		}
 		return expectedList.size() == actualList.size() && expectedList.containsAll(actualList);
+	}
+	
+	private void closeSession(Session session) {
+		try {
+			session.close();
+			LOGGER.trace("Session is close");
+		} catch (Exception ignored) {
+			LOGGER.error("Cannot close the session", ignored);
+		}
+	}
+	
+	private void rollbackTransaction(Transaction transaction) {
+		try {
+			if (transaction != null && transaction.isActive()) {
+				transaction.rollback();
+				LOGGER.trace("The transaction rollbacked");
+			}
+		} catch (Exception ignored) {
+			LOGGER.error("Cannot rollback transanction", ignored);
+		}
 	}
 
 }

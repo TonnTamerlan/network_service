@@ -70,40 +70,22 @@ public class EquipmentService implements EquipmentDAO {
 			LOGGER.info("The equipment {} has added", equip);
 			result = true;
 		} catch (PersistenceException e) {
-			try {
-				if (transaction != null && transaction.isActive()) {
-					transaction.rollback();
-					LOGGER.trace("The transaction rollbacked");
-				}
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot rollback transaction", ignored);
-			}
+			rollbackTransaction(transaction);
 			String errorMessage = "The equipment " + equip + " already exists or some its fields are wrong";
 			LOGGER.debug(errorMessage, e);
 			throw new IllegalArgumentException(errorMessage, e);
 		}
 		catch (Exception e) {
-			try {
-				if (transaction != null && transaction.isActive()) {
-					transaction.rollback();
-					LOGGER.trace("The transaction rollbacked");
-				}
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot rollback transaction", ignored);
-			}
+			rollbackTransaction(transaction);
 			String errorMessage = "Cannot add the equipment " + equip;
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
 		} finally {
-			try {
-				session.close();
-				LOGGER.trace("Session is close");
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot close the session", ignored);
-			}
+			closeSession(session);
 		}
 		return result;
 	}
+
 
 	@Override
 	public Equipment getById(long id) throws DBException {
@@ -127,12 +109,7 @@ public class EquipmentService implements EquipmentDAO {
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
 		} finally {
-			try {
-				session.close();
-				LOGGER.trace("Session is close");
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot close the session", ignored);
-			}
+			closeSession(session);
 		}
 		return equip;
 	}
@@ -163,24 +140,12 @@ public class EquipmentService implements EquipmentDAO {
 				LOGGER.info("The equipment {} didn't find", equip);
 			}
 		} catch (Exception e) {
-			try {
-				if (transaction != null && transaction.isActive()) {
-					transaction.rollback();
-					LOGGER.trace("The transaction rollbacked");
-				}
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot rollback transaction", ignored);
-			}
+			rollbackTransaction(transaction);
 			String errorMessage = "Cannot delete the equipment " + equip;
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
 		} finally {
-			try {
-				session.close();
-				LOGGER.trace("Session is close");
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot close the session", ignored);
-			}
+			closeSession(session);
 		}
 		return result;
 	}
@@ -206,24 +171,12 @@ public class EquipmentService implements EquipmentDAO {
 				LOGGER.info("The equipment with id={} didn't find", id);
 			}
 		} catch (Exception e) {
-			try {
-				if (transaction != null && transaction.isActive()) {
-					transaction.rollback();
-					LOGGER.trace("The transaction rollbacked");
-				}
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot rollback transaction", ignored);
-			}
+			rollbackTransaction(transaction);
 			String errorMessage = "Cannot delete the equipment with id=" + id;
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
 		} finally {
-			try {
-				session.close();
-				LOGGER.trace("Session is close");
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot close the session", ignored);
-			}
+			closeSession(session);
 		}
 		return result;
 	}
@@ -243,24 +196,12 @@ public class EquipmentService implements EquipmentDAO {
 			LOGGER.info("The equipment {} has updated", equip);
 			result = true;
 		} catch (Exception e) {
-			try {
-				if (transaction != null && transaction.isActive()) {
-					transaction.rollback();
-					LOGGER.trace("The transaction rollbacked");
-				}
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot rollback transaction", ignored);
-			}
+			rollbackTransaction(transaction);
 			String errorMessage = "Cannot update the equipment " + equip;
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
 		} finally {
-			try {
-				session.close();
-				LOGGER.trace("Session is close");
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot close the session", ignored);
-			}
+			closeSession(session);
 		}
 		return result;
 	}
@@ -307,12 +248,7 @@ public class EquipmentService implements EquipmentDAO {
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
 		} finally {
-			try {
-				session.close();
-				LOGGER.trace("Session is close");
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot close the session", ignored);
-			}
+			closeSession(session);
 		}
 		return listEquip;
 	}
@@ -351,12 +287,7 @@ public class EquipmentService implements EquipmentDAO {
 			LOGGER.error(errorMeassage, e);
 			throw new DBException(errorMeassage, e);
 		} finally {
-			try {
-				session.close();
-				LOGGER.trace("Session is close");
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot close the session", ignored);
-			}
+			closeSession(session);
 		}
 		return listEquip;
 	}
@@ -395,13 +326,28 @@ public class EquipmentService implements EquipmentDAO {
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
 		} finally {
-			try {
-				session.close();
-				LOGGER.trace("Session is close");
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot close the session", ignored);
-			}
+			closeSession(session);
 		}
 		return listEquip;
+	}
+
+	private void closeSession(Session session) {
+		try {
+			session.close();
+			LOGGER.trace("Session is close");
+		} catch (Exception ignored) {
+			LOGGER.error("Cannot close the session", ignored);
+		}
+	}
+	
+	private void rollbackTransaction(Transaction transaction) {
+		try {
+			if (transaction != null && transaction.isActive()) {
+				transaction.rollback();
+				LOGGER.trace("The transaction rollbacked");
+			}
+		} catch (Exception ignored) {
+			LOGGER.error("Cannot rollback transaction", ignored);
+		}
 	}
 }
