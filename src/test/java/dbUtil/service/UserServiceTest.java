@@ -1,5 +1,6 @@
 package dbUtil.service;
 
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -111,13 +112,48 @@ class UserServiceTest {
 	}
 
 	@Test
-	void testGetById() {
-		fail("Not yet implemented");
+	@DisplayName("Getting a user by id")
+	void testGetById() throws DBException {
+		String userPrefix = "GetById_";
+		String divisionPrefix = "UserServiceGetById_";
+		
+		//Testing getting by id which doesn't exist
+		Long wrongId = 0L;
+		assertNull(userService.getById(wrongId));
+		
+		//Testing getting the user that exists in the repository 
+		User oneUser = createExampleUser(userPrefix + 1, Role.ADMIN);
+		assumeTrue(userService.add(oneUser));
+		Division oneDivision = DivisionServiceTest.createExampleDivision(divisionPrefix + 1);
+		oneDivision.addUser(oneUser);
+		assumeTrue(divisionService.add(oneDivision));
+		assertEquals(oneUser, userService.getById(oneUser.getId()));
+		assertTrue(oneUser.getDivisions().contains(oneDivision));
 	}
 
 	@Test
-	void testGetByLogin() {
-		fail("Not yet implemented");
+	@DisplayName("Getting the user by login")
+	void testGetByLogin() throws DBException {
+		String userPrefix = "GetByLogin_";
+		String divisionPrefix = "UserServiceGetByLogin_";
+		
+		//Testing getting the user by login null
+		String nullName = null;
+		assertNull(userService.getByLogin(nullName));
+		
+		//Testing getting the user by login that doesn't exist
+		String nameNotExist = "Not_exist";
+		assertNull(userService.getByLogin(nameNotExist));
+		
+		//Testing getting the user that exists in the repository
+		User oneUser = createExampleUser(userPrefix + 1, Role.ADMIN);
+		assumeTrue(userService.add(oneUser));
+		Division oneDivision = DivisionServiceTest.createExampleDivision(divisionPrefix + 1);
+		oneDivision.addUser(oneUser);
+		assumeTrue(divisionService.add(oneDivision));
+		assertEquals(oneUser, userService.getById(oneUser.getId()));
+		assertTrue(oneUser.getDivisions().contains(oneDivision));
+		
 	}
 
 	@Test
@@ -161,7 +197,6 @@ class UserServiceTest {
 	}
 	
 	
-	@SuppressWarnings("unchecked")
 	private static void clearRepository() {
 		try (Session session = sessionFactory.openSession()) {
 			session.beginTransaction();

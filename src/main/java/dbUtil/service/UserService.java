@@ -48,11 +48,11 @@ public class UserService implements UserDAO {
 
 	@Override
 	public boolean add(User user) throws DBException {
-		LOGGER.debug("Try to add the user {} in the repository", user);
+		LOGGER.info("Try to add the user {} in the repository", user);
 		boolean result = false;
 		if (user == null) {
 			String errorMessage = "The user is null";
-			LOGGER.debug(errorMessage);
+			LOGGER.info(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
 		}
 		Session session = null;
@@ -64,52 +64,34 @@ public class UserService implements UserDAO {
 			for (Division div : user.getDivisions()) {
 				if (session.get(Division.class, div.getId()) == null) {
 					String errorMessage = "The division " + div + " doesn't exist in the repository";
-					LOGGER.debug(errorMessage);
+					LOGGER.info(errorMessage);
 					throw new IllegalArgumentException(errorMessage);
 				}
 			}
 			session.save(user);
 			transaction.commit();
-			LOGGER.debug("The user {} has added", user);
+			LOGGER.info("The user {} has added", user);
 			result = true;
 		} catch (PersistenceException | IllegalArgumentException e) {
-			try {
-				if (transaction != null && transaction.isActive()) {
-					transaction.rollback();
-					LOGGER.trace("The transaction rollbacked");
-				}
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot rollback transaction", ignored);
-			}
+			rollbackTransaction(transaction);
 			String errorMessage = "The user" + user + " already exists or some its fields are wrong!";
 			LOGGER.error(errorMessage, e);
 			throw new IllegalArgumentException(errorMessage, e);
 		} catch (Exception e) {
-			try {
-				if (transaction != null && transaction.isActive()) {
-					transaction.rollback();
-					LOGGER.trace("The transaction rollbacked");
-				}
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot rollback transaction in method add", ignored);
-			}
+			rollbackTransaction(transaction);
 			String errorMessage = "Cannot add the user " + user;
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
 		} finally {
-			try {
-				session.close();
-				LOGGER.trace("Session is close");
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot close the session", ignored);
-			}
+			closeSession(session);
 		}
 		return result;
 	}
 
+
 	@Override
 	public User getById(long id) throws DBException {
-		LOGGER.debug("Try to get a user by id={}", id);
+		LOGGER.info("Try to get a user by id={}", id);
 		User user = null;
 		Session session = null;
 		try {
@@ -120,17 +102,18 @@ public class UserService implements UserDAO {
 			if (user != null) {
 				user.getDivisions().size(); // for attaching the set of divisions
 				session.getTransaction().commit();
-				LOGGER.debug("The user \"{}\" with login \"{}\" and id={} has got", user.getLastName(), user.getLogin(),
-						user.getId());
+				LOGGER.info("The user {} has got", user);
 			} else {
 				session.getTransaction().commit();
-				LOGGER.debug("The user with id={} didn't find", id);
+				LOGGER.info("The user with id={} didn't find", id);
 			}
 
 		} catch (Exception e) {
 			String errorMessage = "Cannot read the user with id=" + id;
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
+		} finally {
+			closeSession(session);
 		}
 		return user;
 	}
@@ -162,6 +145,8 @@ public class UserService implements UserDAO {
 			String errorMessage = "Cannot get the user with login \"" + login + "\" by login";
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
+		} finally {
+			closeSession(session);
 		}
 		return user;
 	}
@@ -186,6 +171,8 @@ public class UserService implements UserDAO {
 			String errorMessage = "Cannot read logins of all users";
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
+		} finally {
+			closeSession(session);
 		}
 		return userSet;
 	}
@@ -212,6 +199,8 @@ public class UserService implements UserDAO {
 			String errorMessage = "Cannot get user logins by role: " + role.name();
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
+		} finally {
+			closeSession(session);
 		}
 		return userSet;
 	}
@@ -243,6 +232,8 @@ public class UserService implements UserDAO {
 			String errorMessage = "Cannot get user logins by division: " + divisionName;
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
+		} finally {
+			closeSession(session);
 		}
 		return userSet;
 	}
@@ -269,24 +260,12 @@ public class UserService implements UserDAO {
 				LOGGER.debug("The user with id={} does not exist", id);
 			}
 		} catch (Exception e) {
-			try {
-				if (transaction != null && transaction.isActive()) {
-					transaction.rollback();
-					LOGGER.trace("The transaction rollbacked");
-				}
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot rollback transaction in method add", ignored);
-			}
+			rollbackTransaction(transaction);
 			String errorMessage = "Cannot delete the user with id=" + id;
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
 		} finally {
-			try {
-				session.close();
-				LOGGER.trace("Session is close");
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot close the session", ignored);
-			}
+			closeSession(session);
 		}
 		return result;
 	}
@@ -314,24 +293,12 @@ public class UserService implements UserDAO {
 				LOGGER.debug("The user with login \"{}\" doesn't exist", login);
 			}
 		} catch (Exception e) {
-			try {
-				if (transaction != null && transaction.isActive()) {
-					transaction.rollback();
-					LOGGER.trace("The transaction rollbacked");
-				}
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot rollback transaction in method add", ignored);
-			}
+			rollbackTransaction(transaction);
 			String errorMessage = "Cannot delete user with login: " + login;
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
 		} finally {
-			try {
-				session.close();
-				LOGGER.trace("Session is close");
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot close the session", ignored);
-			}
+			closeSession(session);
 		}
 		return result;
 	}
@@ -357,24 +324,12 @@ public class UserService implements UserDAO {
 				LOGGER.debug("The user {} didn't find", user);
 			}
 		} catch (Exception e) {
-			try {
-				if (transaction != null && transaction.isActive()) {
-					transaction.rollback();
-					LOGGER.trace("The transaction rollbacked");
-				}
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot rollback transaction in method add", ignored);
-			}
+			rollbackTransaction(transaction);
 			String errorMessage = "Cannot delete the user " + user;
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
 		} finally {
-			try {
-				session.close();
-				LOGGER.trace("Session is close");
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot close the session", ignored);
-			}
+			closeSession(session);
 		}
 		return result;
 	}
@@ -396,25 +351,13 @@ public class UserService implements UserDAO {
 					user.getLastName(), user.getLogin(), user.getId());
 			result = true;
 		} catch (Exception e) {
-			try {
-				if (transaction != null && transaction.isActive()) {
-					transaction.rollback();
-					LOGGER.trace("The transaction rollbacked");
-				}
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot rollback transaction in method add", ignored);
-			}
+			rollbackTransaction(transaction);
 			String errorMessage = "Cannot update the user \"" + user.getLastName() +
 					"\" with login \"" + user.getLogin() + "\" and id=" + user.getId();
 			LOGGER.error(errorMessage , e);
 			throw new DBException(errorMessage , e);
 		} finally {
-			try {
-				session.close();
-				LOGGER.trace("Session is close");
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot close the session", ignored);
-			}
+			closeSession(session);
 		}
 		return result;
 	}
@@ -446,26 +389,34 @@ public class UserService implements UserDAO {
 			LOGGER.debug("The user with login=\"{}\" doesn't exist", login);
 			LOGGER.catching(Level.DEBUG, e);
 		} catch (Exception e) {
-			try {
-				if (transaction != null && transaction.isActive()) {
-					transaction.rollback();
-					LOGGER.trace("The transaction rollbacked");
-				}
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot rollback transaction in method add", ignored);
-			}
+			rollbackTransaction(transaction);
 			String errorMessage = "Cannot to add the division \"" + division.getName() + "\" with id=" + division.getId()
 					+ " to the user with login \"" + login + "\"";
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
 		} finally {
-			try {
-				session.close();
-				LOGGER.trace("Session is close");
-			} catch (Exception ignored) {
-				LOGGER.error("Cannot close the session", ignored);
-			}
+			closeSession(session);
 		}
 		return result;
+	}
+
+	private void closeSession(Session session) {
+		try {
+			session.close();
+			LOGGER.trace("Session is close");
+		} catch (Exception ignored) {
+			LOGGER.error("Cannot close the session", ignored);
+		}
+	}
+	
+	private void rollbackTransaction(Transaction transaction) {
+		try {
+			if (transaction != null && transaction.isActive()) {
+				transaction.rollback();
+				LOGGER.trace("The transaction rollbacked");
+			}
+		} catch (Exception ignored) {
+			LOGGER.error("Cannot rollback transaction", ignored);
+		}
 	}
 }
