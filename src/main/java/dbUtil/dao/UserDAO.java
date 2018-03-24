@@ -28,17 +28,21 @@ public interface UserDAO extends DAO<User>{
 	public User getByLogin(String login) throws DBException;
 	
 	/**
-	 * Return logins of all users from repository
+	 * Return all user logins from the repository
 	 * 
-	 * @return List of all of users
+	 * @return Set of all user logins or empty Set if the repository
+	 * don't contain any users
+	 * @throws DBException
+	 * 
 	 */
 	public Set<String> getAllLogins() throws DBException;
 	
 	/**
-	 * Find and get users by the specific role
+	 * Find and get the set of user logins by the specific role
 	 * 
 	 * @param role is the specific role
-	 * @return set of users which have the specific role
+	 * @return the set of user logins which have the specific role
+	 * or empty set if that users don't exist
 	 * @throws DBException 
 	 */
 	public Set<String> getByRole(Role role) throws DBException;
