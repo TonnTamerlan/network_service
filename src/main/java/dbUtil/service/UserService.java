@@ -180,7 +180,7 @@ public class UserService implements UserDAO {
 	@Override
 	public Set<String> getByRole(Role role) throws DBException {
 		LOGGER.debug("Try to get user names by role \"{}\"", role);
-		Set<String> userSet = null;
+		Set<String> userSet = Collections.emptySet();
 		Session session = null;
 		try {
 			session = SESSION_FACTORY.openSession();

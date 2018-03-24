@@ -2,10 +2,15 @@ package dbUtil.service;
 
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeNoException;
 import static org.junit.Assume.assumeTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -157,13 +162,69 @@ class UserServiceTest {
 	}
 
 	@Test
-	void testGetAllLogins() {
-		fail("Not yet implemented");
+	@DisplayName("Getting all user logins")
+	void testGetAllLogins() throws DBException {
+		String userPrefix = "GetAllLogins_";
+		int numberOfUsers = 20;
+		Set<String> setOfUserLogins = new HashSet<>();
+		
+		//Prepare the repository
+		clearRepository();
+		
+		//Testing getting the set of all user logins if the repository doesn't contain any users
+		Set<String> emptySet = Collections.emptySet();
+		assertEquals(emptySet, userService.getAllLogins());
+		
+		//Testing getting set of user logins
+		try {
+			for (int i = 0; i < numberOfUsers; i++) {
+				User user = createExampleUser(userPrefix + i, Role.ADMIN);
+				setOfUserLogins.add(user.getLogin());
+				assumeTrue(userService.add(user));
+			}
+		} catch (Exception e) {
+			assumeNoException(e);
+		}
+		assertTrue(setOfUserLogins.equals(userService.getAllLogins()));
 	}
 
 	@Test
-	void testGetByRole() {
-		fail("Not yet implemented");
+	@DisplayName("Getting set of oser logins by role")
+	void testGetByRole() throws DBException {
+		String userPrefix = "GetAllByRole_";
+		Role admin = Role.ADMIN;
+		Role user = Role.USER;
+		int numberOfUser = 20;
+		Set<String> setOfUserLoginsUser = new HashSet<>();
+		Set<String> setOfUserLoginsAdmin = new HashSet<>();
+		
+		//Prepare the repository
+		clearRepository();
+		
+		//Testing getting the set of user logins when users with this role don't exist
+		Set<String> emptySet = Collections.emptySet();
+		assertEquals(emptySet, userService.getByRole(user));
+		assertEquals(emptySet, userService.getByRole(admin));
+		
+		//Testing getting the set of user logins by role
+		try {
+			for (int i = 0; i < numberOfUser; i++) {
+				if (i % 2 == 0) {
+					User userAdmin = createExampleUser(userPrefix + i, admin);
+					setOfUserLoginsAdmin.add(userAdmin.getLogin());
+					assumeTrue(userService.add(userAdmin));
+				} else {
+					User userUser = createExampleUser(userPrefix + i, user);
+					setOfUserLoginsUser.add(userUser.getLogin());
+					assumeTrue(userService.add(userUser));
+				}
+			}
+		} catch (Exception e) {
+			assumeNoException(e);
+		}
+		assertTrue(setOfUserLoginsAdmin.equals(userService.getByRole(admin)));
+		assertTrue(setOfUserLoginsUser.equals(userService.getByRole(user)));
+		
 	}
 
 	@Test
