@@ -33,6 +33,7 @@ public interface DAO<T> {
 	 * Delete an entity by id from the repository
 	 * 
 	 * @param id is the primary key
+	 * @return true if operation is successful or false if such user doesn't exist
 	 */
 	boolean deleteById(long id) throws DBException;
 
