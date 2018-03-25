@@ -189,7 +189,7 @@ class UserServiceTest {
 	}
 
 	@Test
-	@DisplayName("Getting set of oser logins by role")
+	@DisplayName("Getting set of user logins by role")
 	void testGetByRole() throws DBException {
 		String userPrefix = "GetAllByRole_";
 		Role admin = Role.ADMIN;
@@ -228,8 +228,57 @@ class UserServiceTest {
 	}
 
 	@Test
-	void testGetByDivision() {
-		fail("Not yet implemented");
+	@DisplayName("Getting the set of user logins by division name")
+	void testGetByDivision() throws DBException {
+		String userPrefix = "GetByDivision_";
+		String divisionPrefix = "UserServiceGetByDivision_";
+		Set<String> emtySetOfUserLogins = Collections.emptySet();
+		
+		//prepare the repository
+		clearRepository();
+		
+		//Testing getting by null
+		String nameNull = null;
+		assertEquals(emtySetOfUserLogins, userService.getByDivision(nameNull));
+		
+		//Testing getting the set of user logins by division name, 
+		//that doesn't exist in the repository
+		String wrongDivisionName = "Wrong_division_name";
+		assertEquals(emtySetOfUserLogins, userService.getByDivision(wrongDivisionName));
+
+		//Testing getting the set of user logins
+		Set<String> oneSet = new HashSet<>();
+		Set<String> twoSet = new HashSet<>();
+		Set<String> threeSet = new HashSet<>();
+		Division oneDivision = DivisionServiceTest.createExampleDivision(divisionPrefix + 1);
+		assumeTrue(divisionService.add(oneDivision));
+		Division twoDivision = DivisionServiceTest.createExampleDivision(divisionPrefix + 2);
+		assumeTrue(divisionService.add(twoDivision));
+		Division threeDivision = DivisionServiceTest.createExampleDivision(divisionPrefix + 3);
+		assumeTrue(divisionService.add(threeDivision));
+		try {
+			for (int i = 0; i < 20; i++) {
+				User user = createExampleUser(userPrefix + i, Role.ADMIN);
+				if(i % 2 == 0) {
+					user.addDivision(oneDivision);
+					oneSet.add(user.getLogin());
+					assumeTrue(userService.add(user));
+				} else {
+					user.addDivision(twoDivision);
+					twoSet.add(user.getLogin());
+					assumeTrue(userService.add(user));
+				}
+				threeDivision.addUser(user);
+				threeSet.add(user.getLogin());
+				assumeTrue(divisionService.update(threeDivision));
+			}
+		} catch(Exception e) {
+			assumeNoException(e);
+		}
+		assertEquals(oneSet, userService.getByDivision(oneDivision.getName()));
+		assertEquals(twoSet, userService.getByDivision(twoDivision.getName()));
+		assertEquals(threeSet, userService.getByDivision(threeDivision.getName()));
+		
 	}
 
 	@Test

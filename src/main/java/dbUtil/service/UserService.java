@@ -120,7 +120,7 @@ public class UserService implements UserDAO {
 
 	@Override
 	public User getByLogin(String login) throws DBException {
-		LOGGER.debug("Try to get the user with login=\"{}\"", login);
+		LOGGER.debug("Try to get the user with login \"{}\"", login);
 		User user = null;
 		Session session = null;
 		try {
@@ -136,13 +136,11 @@ public class UserService implements UserDAO {
 			user = session.createQuery(criteriaQuery).getSingleResult();
 			user.getDivisions().size(); // for attaching the set of divisions
 			session.getTransaction().commit();
-			LOGGER.debug("The user \"{}\" with login \"{}\" and id={} has got", user.getLastName(), user.getLogin(),
-					user.getId());
+			LOGGER.info("The user {} has got", user);
 		} catch (NoResultException e) {
-			LOGGER.debug("Cannot get the user \"{}\" by login, because it does not exist", login);
-			LOGGER.catching(Level.DEBUG, e);
+			LOGGER.info("Cannot get the user with \"" + login + "\", because it does not exist", e);
 		} catch (Exception e) {
-			String errorMessage = "Cannot get the user with login \"" + login + "\" by login";
+			String errorMessage = "Cannot get the user with login \"" + login + "\"";
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
 		} finally {
@@ -153,7 +151,7 @@ public class UserService implements UserDAO {
 
 	@Override
 	public Set<String> getAllLogins() throws DBException {
-		LOGGER.debug("Try to get all the user logins");
+		LOGGER.info("Try to get all the user logins");
 		Set<String> userSet = Collections.emptySet();
 		Session session = null;
 		try {
@@ -166,7 +164,7 @@ public class UserService implements UserDAO {
 			criteriaQuery.select(userRoot.get(User_.login));
 			userSet = new HashSet<String>(session.createQuery(criteriaQuery).getResultList());
 			session.getTransaction().commit();
-			LOGGER.debug("Was got next user logins: {}", userSet.toString());
+			LOGGER.info("Was got next user logins: {}", userSet.toString());
 		} catch (Exception e) {
 			String errorMessage = "Cannot read logins of all users";
 			LOGGER.error(errorMessage, e);
@@ -179,7 +177,7 @@ public class UserService implements UserDAO {
 
 	@Override
 	public Set<String> getByRole(Role role) throws DBException {
-		LOGGER.debug("Try to get user names by role \"{}\"", role);
+		LOGGER.info("Try to get user names by role \"{}\"", role);
 		Set<String> userSet = Collections.emptySet();
 		Session session = null;
 		try {
@@ -194,7 +192,7 @@ public class UserService implements UserDAO {
 			criteriaQuery.where(predicate);
 			userSet = new HashSet<String>(session.createQuery(criteriaQuery).getResultList());
 			session.getTransaction().commit();
-			LOGGER.debug("Was got next users which have role \"{}\": {}", role, userSet.toString());
+			LOGGER.info("Was got next users which have role \"{}\": {}", role, userSet.toString());
 		} catch (Exception e) {
 			String errorMessage = "Cannot get user logins by role: " + role.name();
 			LOGGER.error(errorMessage, e);
@@ -207,7 +205,7 @@ public class UserService implements UserDAO {
 
 	@Override
 	public Set<String> getByDivision(String divisionName) throws DBException {
-		LOGGER.debug("Try to get user logins by the division name \"{}\"", divisionName);
+		LOGGER.info("Try to get user logins by the division name \"{}\"", divisionName);
 		Set<String> userSet = Collections.emptySet();
 		Session session = null;
 		try {
@@ -220,14 +218,12 @@ public class UserService implements UserDAO {
 			criteriaQuery.select(divisionRoot);
 			criteriaQuery.where(builder.equal(divisionRoot.get(Division_.name), divisionName));
 			Division division = session.createQuery(criteriaQuery).getSingleResult();
-			LOGGER.debug("Was got the division \"{}\" with id={}", division.getName(), division.getId());
+			LOGGER.info("Was got the division {}", division);
 			userSet = division.getUsers().stream().map(User::getLogin).collect(Collectors.toSet());
 			session.getTransaction().commit();
-			LOGGER.debug("Was got next users which belong the division \"{}\" with id={}: {}", division.getName(),
-					division.getId(), userSet.toString());
+			LOGGER.info("Was got next users which belong the division {}: {}", division, userSet.toString());
 		} catch (NoResultException e) {
-			LOGGER.debug("Cannot find the division \"{}\"", divisionName);
-			LOGGER.catching(Level.DEBUG, e);
+			LOGGER.info("Cannot find the division " + divisionName, e);
 		} catch (Exception e) {
 			String errorMessage = "Cannot get user logins by division: " + divisionName;
 			LOGGER.error(errorMessage, e);
@@ -240,7 +236,7 @@ public class UserService implements UserDAO {
 
 	@Override
 	public boolean deleteById(long id) throws DBException {
-		LOGGER.debug("Try to delete the user by id={}", id);
+		LOGGER.info("Try to delete the user by id={}", id);
 		boolean result = false;
 		Session session = null;
 		Transaction transaction = null;
@@ -252,12 +248,11 @@ public class UserService implements UserDAO {
 			if (user != null) {
 				session.remove(user);
 				transaction.commit();
-				LOGGER.debug("The user \"{}\" with login \"{}\" anf id={} was deleted", 
-						user.getLastName(), user.getLogin(), user.getId());
+				LOGGER.info("The user {} was deleted", user);
 				result = true;
 			} else {
 				transaction.commit();
-				LOGGER.debug("The user with id={} does not exist", id);
+				LOGGER.info("The user with id={} does not exist", id);
 			}
 		} catch (Exception e) {
 			rollbackTransaction(transaction);
