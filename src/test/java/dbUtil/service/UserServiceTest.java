@@ -1,5 +1,6 @@
 package dbUtil.service;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeNoException;
@@ -282,13 +283,90 @@ class UserServiceTest {
 	}
 
 	@Test
-	void testDeleteById() {
-		fail("Not yet implemented");
+	@DisplayName("Deleting by Id")
+	void testDeleteById() throws DBException {
+		String userPrefix = "DeleteById_";
+		String divisionPrefix = "UserServiceDeleteById_";
+		
+		//Preparing the repository
+		clearRepository();
+		
+		//Testing deleting by id which doesn't exist
+		int notExistId = 42;
+		assertFalse(userService.deleteById(notExistId));
+		
+		//Testing deleting by id
+		User oneUser = createExampleUser(userPrefix + 1, Role.ADMIN);
+		assumeTrue(userService.add(oneUser));
+		User twoUser = createExampleUser(userPrefix + 2, Role.USER);
+		assumeTrue(userService.add(twoUser));
+		User threeUser = createExampleUser(userPrefix + 3, Role.ADMIN);
+		assumeTrue(userService.add(threeUser));
+		
+		Division oneDivision = DivisionServiceTest.createExampleDivision(divisionPrefix + 1);
+		oneDivision.addUser(oneUser);
+		oneDivision.addUser(threeUser);
+		assumeTrue(divisionService.add(oneDivision));
+		Division twoDivision = DivisionServiceTest.createExampleDivision(divisionPrefix + 2);
+		twoDivision.addUser(twoUser);
+		twoDivision.addUser(threeUser);
+		assumeTrue(divisionService.add(twoDivision));
+		
+		assertTrue(userService.deleteById(oneUser.getId()));
+		assertNull(userService.getById(oneUser.getId()));
+		assertFalse(divisionService.getById(oneDivision.getId()).getUsers().contains(oneUser));
+		assertTrue(userService.deleteById(twoUser.getId()));
+		assertNull(userService.getById(twoUser.getId()));
+		assertFalse(divisionService.getById(twoDivision.getId()).getUsers().contains(twoUser));
+		assertTrue(userService.deleteById(threeUser.getId()));
+		assertNull(userService.getById(threeUser.getId()));
+		assertFalse(divisionService.getById(oneDivision.getId()).getUsers().contains(threeUser));
+		assertFalse(divisionService.getById(twoDivision.getId()).getUsers().contains(threeUser));
+		
 	}
 
 	@Test
-	void testDeleteByLogin() {
-		fail("Not yet implemented");
+	@DisplayName("Deleting by login")
+	void testDeleteByLogin() throws DBException {
+		String userPrefix = "DeleteByLogin_";
+		String divisionPrefix = "UserServiceDeleteByLogin_";
+	
+		//Preparing the repository
+		clearRepository();
+		
+		//Testing deleting the user by login that doesn't exist in the repository
+		String notExistLogin = "Not_exist";
+		assertFalse(userService.deleteByLogin(notExistLogin));
+		
+		//Testing deleting user by login
+		//Testing deleting by id
+		User oneUser = createExampleUser(userPrefix + 1, Role.ADMIN);
+		assumeTrue(userService.add(oneUser));
+		User twoUser = createExampleUser(userPrefix + 2, Role.USER);
+		assumeTrue(userService.add(twoUser));
+		User threeUser = createExampleUser(userPrefix + 3, Role.ADMIN);
+		assumeTrue(userService.add(threeUser));
+
+		Division oneDivision = DivisionServiceTest.createExampleDivision(divisionPrefix + 1);
+		oneDivision.addUser(oneUser);
+		oneDivision.addUser(threeUser);
+		assumeTrue(divisionService.add(oneDivision));
+		Division twoDivision = DivisionServiceTest.createExampleDivision(divisionPrefix + 2);
+		twoDivision.addUser(twoUser);
+		twoDivision.addUser(threeUser);
+		assumeTrue(divisionService.add(twoDivision));
+
+		assertTrue(userService.deleteByLogin(oneUser.getLogin()));
+		assertNull(userService.getById(oneUser.getId()));
+		assertFalse(divisionService.getById(oneDivision.getId()).getUsers().contains(oneUser));
+		assertTrue(userService.deleteByLogin(twoUser.getLogin()));
+		assertNull(userService.getById(twoUser.getId()));
+		assertFalse(divisionService.getById(twoDivision.getId()).getUsers().contains(twoUser));
+		assertTrue(userService.deleteByLogin(threeUser.getLogin()));
+		assertNull(userService.getById(threeUser.getId()));
+		assertFalse(divisionService.getById(oneDivision.getId()).getUsers().contains(threeUser));
+		assertFalse(divisionService.getById(twoDivision.getId()).getUsers().contains(threeUser));
+
 	}
 
 	@Test

@@ -267,7 +267,7 @@ public class UserService implements UserDAO {
 
 	@Override
 	public boolean deleteByLogin(String login) throws DBException {
-		LOGGER.debug("Try to delete a user by login=\"{}\"", login);
+		LOGGER.info("Try to delete a user by login=\"{}\"", login);
 		boolean result = false;
 		Session session = null;
 		Transaction transaction = null;
@@ -282,10 +282,10 @@ public class UserService implements UserDAO {
 			int numberDelettedRows = session.createQuery(deleteQuery).executeUpdate();
 			transaction.commit();
 			if (numberDelettedRows != 0) {
-				LOGGER.debug("The user with login \"{}\" was deleted", login);
+				LOGGER.info("The user with login \"{}\" was deleted", login);
 				result = true;
 			} else {
-				LOGGER.debug("The user with login \"{}\" doesn't exist", login);
+				LOGGER.info("The user with login \"{}\" doesn't exist", login);
 			}
 		} catch (Exception e) {
 			rollbackTransaction(transaction);
