@@ -300,8 +300,12 @@ public class UserService implements UserDAO {
 
 	@Override
 	public boolean delete(User user) throws DBException {
-		LOGGER.debug("Try to delete the user {}", user);
+		LOGGER.info("Try to delete the user {}", user);
 		boolean result = false;
+		if (user == null) {
+			LOGGER.debug("Cannot delete the user null");
+			return result;
+		}
 		Session session = null;
 		Transaction transaction = null;
 		try {
@@ -312,11 +316,11 @@ public class UserService implements UserDAO {
 				session.clear();
 				session.remove(user);
 				transaction.commit();
-				LOGGER.debug("The user {} was deleted", user);
+				LOGGER.info("The user {} has deleted", user);
 				result = true;
 			} else {
 				transaction.commit();
-				LOGGER.debug("The user {} didn't find", user);
+				LOGGER.info("The user {} didn't find", user);
 			}
 		} catch (Exception e) {
 			rollbackTransaction(transaction);
@@ -331,8 +335,7 @@ public class UserService implements UserDAO {
 
 	@Override
 	public boolean update(User user) throws DBException {
-		LOGGER.debug("Try to update the user \"{}\" with login \"{}\" and id={}",
-				user.getLastName(), user.getLogin(), user.getId());
+		LOGGER.info("Try to update the user {}", user);
 		boolean result = false;
 		Session session = null;
 		Transaction transaction = null;
@@ -342,8 +345,7 @@ public class UserService implements UserDAO {
 			transaction = session.beginTransaction();
 			session.update(user);
 			transaction.commit();
-			LOGGER.debug("The user \"{}\" with login \"{}\" and id={} has updated",
-					user.getLastName(), user.getLogin(), user.getId());
+			LOGGER.info("The user {} has updated", user);
 			result = true;
 		} catch (Exception e) {
 			rollbackTransaction(transaction);

@@ -370,8 +370,46 @@ class UserServiceTest {
 	}
 
 	@Test
-	void testDelete() {
-		fail("Not yet implemented");
+	@DisplayName("Deleting user")
+	void testDelete() throws DBException {
+		String userPrefix = "Delete_";
+		String divisionPrefix = "UserServiceDelete_";
+		
+		//Testing deleting the user which is null;
+		User userNull = null;
+		assertFalse(userService.delete(userNull));
+		
+		//Testing deleting the user that doesn't exist in the repository
+		User notExistUser = createExampleUser("Not_Exist_User", Role.ADMIN);
+		assertFalse(userService.delete(notExistUser));
+		
+		//Testing deleting the user which exists in the repository
+		User oneUser = createExampleUser(userPrefix + 1, Role.ADMIN);
+		assumeTrue(userService.add(oneUser));
+		User twoUser = createExampleUser(userPrefix + 2, Role.USER);
+		assumeTrue(userService.add(twoUser));
+		User threeUser = createExampleUser(userPrefix + 3, Role.ADMIN);
+		assumeTrue(userService.add(threeUser));
+
+		Division oneDivision = DivisionServiceTest.createExampleDivision(divisionPrefix + 1);
+		oneDivision.addUser(oneUser);
+		oneDivision.addUser(threeUser);
+		assumeTrue(divisionService.add(oneDivision));
+		Division twoDivision = DivisionServiceTest.createExampleDivision(divisionPrefix + 2);
+		twoDivision.addUser(twoUser);
+		twoDivision.addUser(threeUser);
+		assumeTrue(divisionService.add(twoDivision));
+
+		assertTrue(userService.delete(oneUser));
+		assertNull(userService.getById(oneUser.getId()));
+		assertFalse(divisionService.getById(oneDivision.getId()).getUsers().contains(oneUser));
+		assertTrue(userService.delete(twoUser));
+		assertNull(userService.getById(twoUser.getId()));
+		assertFalse(divisionService.getById(twoDivision.getId()).getUsers().contains(twoUser));
+		assertTrue(userService.delete(threeUser));
+		assertNull(userService.getById(threeUser.getId()));
+		assertFalse(divisionService.getById(oneDivision.getId()).getUsers().contains(threeUser));
+		assertFalse(divisionService.getById(twoDivision.getId()).getUsers().contains(threeUser));
 	}
 
 	@Test
