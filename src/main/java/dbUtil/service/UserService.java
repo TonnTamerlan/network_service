@@ -19,6 +19,7 @@ import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.query.criteria.internal.compile.CriteriaQueryTypeQueryAdapter;
 
 import dbUtil.DBException;
 import dbUtil.dao.UserDAO;
@@ -397,6 +398,39 @@ public class UserService implements UserDAO {
 		return result;
 	}
 
+	@Override
+	public boolean isLoginExist(String login) throws DBException {
+		LOGGER.info("Try to check is user existing");
+		if(login == null || login == "") {
+				LOGGER.debug("Cannot find the login null or empty");
+				return false;
+		}
+		Session session = null;
+		try {
+			session = SESSION_FACTORY.openSession();
+			LOGGER.trace("Session is open");
+			session.beginTransaction();
+			CriteriaBuilder builder = session.getCriteriaBuilder();
+			CriteriaQuery<String> criteriaQuery = builder.createQuery(String.class);
+			Root<User> userRoot = criteriaQuery.from(User.class);
+			criteriaQuery.select(userRoot.get(User_.login));
+			criteriaQuery.where(builder.equal(userRoot.get(User_.login), login));
+			String existLogin = session.createQuery(criteriaQuery).getSingleResult();
+			session.getTransaction().commit();
+			LOGGER.info("The user with login \"{}\" exists", login);
+		} catch (NoResultException e) {
+			LOGGER.info("The user with login \"{}\" doesn't exist", login);
+			return false;
+		} catch (Exception e) {
+			String errorMessage = "Cannot check the login \"" + login + "\"";
+			LOGGER.error(errorMessage, e);
+			throw new DBException(errorMessage, e);
+		} finally {
+			closeSession(session);
+		}
+		return true;
+	}
+	
 	private void closeSession(Session session) {
 		try {
 			session.close();
@@ -416,4 +450,5 @@ public class UserService implements UserDAO {
 			LOGGER.error("Cannot rollback transaction", ignored);
 		}
 	}
+
 }

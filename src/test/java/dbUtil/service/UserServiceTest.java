@@ -422,6 +422,24 @@ class UserServiceTest {
 		fail("Not yet implemented");
 	}
 	
+	@Test
+	@DisplayName("Checking user if exists")
+	void restIsLoginExist() throws DBException {
+		String userPrefix = "IsLoginExist_";
+		
+		//Testing with parameter null
+		String nullLogin = null;
+		assertFalse(userService.isLoginExist(nullLogin));
+		
+		//Testing with login which doesn't exist in the repository
+		String wrongLogin = "WrongLogin";
+		assertFalse(userService.isLoginExist(wrongLogin));
+		
+		//Testing if login exists
+		User oneUser = createExampleUser(userPrefix + 1, Role.ADMIN);
+		assumeTrue(userService.add(oneUser));
+		assertTrue(userService.isLoginExist(oneUser.getLogin()));
+	}
 	
 	private static void clearRepository() {
 		try (Session session = sessionFactory.openSession()) {

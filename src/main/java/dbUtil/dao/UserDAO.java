@@ -70,4 +70,13 @@ public interface UserDAO extends DAO<User>{
 	 */
 	public boolean addDivision(String login, Division division) throws DBException;
 	
+	/**
+	 * Check if user with specific login exists
+	 * 
+	 * @param login
+	 * @return true if user with specific login exists otherwise return false
+	 * @throws DBException
+	 */
+	public boolean isLoginExist(String login) throws DBException;
+	
 }
