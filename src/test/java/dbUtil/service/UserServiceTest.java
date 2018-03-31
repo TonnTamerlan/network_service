@@ -7,7 +7,6 @@ import static org.junit.Assume.assumeNoException;
 import static org.junit.Assume.assumeTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -413,13 +412,130 @@ class UserServiceTest {
 	}
 
 	@Test
-	void testUpdate() {
-		fail("Not yet implemented");
+	@DisplayName("Updating a user")
+	void testUpdate() throws DBException {
+		String userPrefix = "Update_";
+		String divisionPrefix = "UserServiceUpdate_";
+		
+		//Testing updating null. The method must throw DBException
+		User nullUser = null;
+		Throwable exception = assertThrows(DBException.class, ()->userService.update(nullUser));
+		assertEquals("Cannot update the user " + nullUser, exception.getMessage());
+		
+		//Preparing the repository
+		clearRepository();
+		
+		//Testing updating the user which doesn't exist.
+		//The method must throw DBException
+		User notExistUser = createExampleUser("Not_Exist_User", Role.ADMIN);
+		exception = assertThrows(DBException.class, ()->userService.update(notExistUser));
+		assertEquals("Cannot update the user " + notExistUser, exception.getMessage());
+		
+		//Testing changing the first name
+		User oneUser = createExampleUser(userPrefix + 1, Role.ADMIN);
+		assumeTrue(userService.add(oneUser));
+		String newFirstName = "NewFirstName";
+		oneUser.setFirstName(newFirstName);
+		assertTrue(userService.update(oneUser));
+		assertEquals(newFirstName, userService.getById(oneUser.getId()).getFirstName());
+		
+		//Testing updating the login
+		String newLogin = "newLogin";
+		oneUser.setLogin(newLogin);
+		assertTrue(userService.update(oneUser));
+		assertEquals(newLogin, userService.getById(oneUser.getId()).getLogin());
+		
+		//Testing updating the user login which already exists in the repository
+		User twoUser = createExampleUser(userPrefix + 2, Role.ADMIN);
+		assumeTrue(userService.add(twoUser));
+		twoUser.setLogin(newLogin);
+		exception = assertThrows(DBException.class, ()->userService.update(twoUser));
+		assertEquals("Cannot update the user " + twoUser, exception.getMessage());
+		
+		//Testing updating the user role
+		User threeUser = createExampleUser(userPrefix + 3, Role.ADMIN);
+		assumeTrue(userService.add(threeUser));
+		threeUser.setRole(Role.USER);
+		assertTrue(userService.update(threeUser));
+		assertEquals(Role.USER, userService.getById(threeUser.getId()).getRole());
+		
+		//Testing updating the user with wrong fields
+		User wrongFieldUserRole = createExampleUser("WrongFieldUSerRole", Role.ADMIN);
+		assumeTrue(userService.add(wrongFieldUserRole));
+		wrongFieldUserRole.setRole(null);
+		exception = assertThrows(DBException.class, ()->userService.update(wrongFieldUserRole));
+		assertEquals("Cannot update the user " + wrongFieldUserRole, exception.getMessage());
+		User wrongFieldUserLogin = createExampleUser("WrongFieldUserLogin", Role.ADMIN);
+		assumeTrue(userService.add(wrongFieldUserLogin));
+		wrongFieldUserLogin.setLogin(null);
+		exception = assertThrows(DBException.class, ()->userService.update(wrongFieldUserLogin));
+		assertEquals("Cannot update the user " + wrongFieldUserLogin, exception.getMessage());
+		User wrongFieldUserFirstName = createExampleUser("WrongFieldFirstName", Role.ADMIN);
+		assumeTrue(userService.add(wrongFieldUserFirstName));
+		wrongFieldUserFirstName.setLogin(null);
+		exception = assertThrows(DBException.class, ()->userService.update(wrongFieldUserFirstName));
+		assertEquals("Cannot update the user " + wrongFieldUserFirstName, exception.getMessage());
+		
+		// Testing adding the division
+		User fourUser = createExampleUser(userPrefix + 4, Role.ADMIN);
+		assumeTrue(userService.add(fourUser));
+		Division oneDivision = DivisionServiceTest.createExampleDivision(divisionPrefix + 1);
+		Division twoDivision = DivisionServiceTest.createExampleDivision(divisionPrefix + 2);
+		assumeTrue(divisionService.add(oneDivision));
+		assumeTrue(divisionService.add(twoDivision));
+		fourUser.addDivision(oneDivision);
+		fourUser.addDivision(twoDivision);
+		assertTrue(userService.update(fourUser));
+		assertTrue(divisionService.getById(oneDivision.getId()).getUsers().contains(fourUser));
+		assertTrue(userService.getById(fourUser.getId()).getDivisions().contains(oneDivision));
+		assertTrue(divisionService.getById(twoDivision.getId()).getUsers().contains(fourUser));
+		assertTrue(userService.getById(fourUser.getId()).getDivisions().contains(twoDivision));
+		
+		//Testing deleting the division
+		fourUser.deleteDivision(oneDivision);
+		assertTrue(userService.update(fourUser));
+		assertFalse(userService.getById(fourUser.getId()).getDivisions().contains(oneDivision));
+		assertFalse(divisionService.getById(oneDivision.getId()).getUsers().contains(fourUser));
+		fourUser.deleteDivision(twoDivision);
+		assertTrue(userService.update(fourUser));
+		assertFalse(userService.getById(fourUser.getId()).getDivisions().contains(twoDivision));
+		assertFalse(divisionService.getById(twoDivision.getId()).getUsers().contains(fourUser));
+		
 	}
 
 	@Test
-	void testAddDivision() {
-		fail("Not yet implemented");
+	@DisplayName("Adding a division")
+	void testAddDivision() throws DBException {
+		String userPrefix = "AddDivision_";
+		String divisionPrefix = "UserServiceAddDivision_";
+		
+		//Testing adding the null division in null user
+		//Method must throw DBException
+		String nullLogin = null;
+		Division nullDivision = null;
+		Throwable exception = assertThrows(DBException.class, ()->userService.addDivision(nullLogin, nullDivision));
+		assertEquals("Cannot to add the division " + nullDivision
+				+ " in the user with login \"" + nullLogin + "\"", exception.getMessage());
+		
+		//Testing adding the division in the user ehich dorsn't exist
+		String notExistLogin = "NotExistLogin";
+		Division oneDivision = DivisionServiceTest.createExampleDivision(divisionPrefix + 1);
+		assumeTrue(divisionService.add(oneDivision));
+		assertFalse(userService.addDivision(notExistLogin, oneDivision));
+		
+		//Testing adding the division which doesn't exist
+		User oneUser = createExampleUser(userPrefix + 1, Role.ADMIN);
+		assumeTrue(userService.add(oneUser));
+		Division notExistDivision = DivisionServiceTest.createExampleDivision(divisionPrefix + "NotExist");
+		exception = assertThrows(DBException.class, ()->userService.addDivision(oneUser.getLogin(), notExistDivision));
+		assertEquals("Cannot to add the division " + notExistDivision
+				+ " in the user with login \"" + oneUser.getLogin() + "\"", exception.getMessage());
+		
+		//Testing adding the division if everything is ok
+		assertTrue(userService.addDivision(oneUser.getLogin(), oneDivision));
+		assertTrue(userService.getById(oneUser.getId()).getDivisions().contains(oneDivision));
+		assertTrue(divisionService.getById(oneDivision.getId()).getUsers().contains(oneUser));
+		
 	}
 	
 	@Test

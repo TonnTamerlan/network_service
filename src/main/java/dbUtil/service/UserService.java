@@ -19,7 +19,6 @@ import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.query.criteria.internal.compile.CriteriaQueryTypeQueryAdapter;
 
 import dbUtil.DBException;
 import dbUtil.dao.UserDAO;
@@ -350,8 +349,7 @@ public class UserService implements UserDAO {
 			result = true;
 		} catch (Exception e) {
 			rollbackTransaction(transaction);
-			String errorMessage = "Cannot update the user \"" + user.getLastName() +
-					"\" with login \"" + user.getLogin() + "\" and id=" + user.getId();
+			String errorMessage = "Cannot update the user " + user;
 			LOGGER.error(errorMessage , e);
 			throw new DBException(errorMessage , e);
 		} finally {
@@ -362,12 +360,14 @@ public class UserService implements UserDAO {
 
 	@Override
 	public boolean addDivision(String login, Division division) throws DBException {
-		LOGGER.debug("Try to add the division \"{}\" with id={} in the user with login \"{}\"", division.getName(),
-				division.getId(), login);
+		LOGGER.info("Try to add the division {} in the user with login \"{}\"", division, login);
 		boolean result = false;
 		Session session = null;
 		Transaction transaction = null;
 		try {
+			if(login == null) {
+				throw new NullPointerException();
+			}
 			session = SESSION_FACTORY.openSession();
 			LOGGER.trace("Session is open");
 			transaction = session.beginTransaction();
@@ -381,15 +381,14 @@ public class UserService implements UserDAO {
 			user.addDivision(division);
 			transaction.commit();
 			result = true;
-			LOGGER.debug("The division \"{}\" with id={} was added in the user \"{}\" with login \"{}\" and id={}",
-					division.getName(), division.getId(), user.getLastName(), user.getLogin(), user.getId());
+			LOGGER.info("The division {} was added in the user {}", division, user);
 		} catch (NoResultException e) {
 			LOGGER.debug("The user with login=\"{}\" doesn't exist", login);
 			LOGGER.catching(Level.DEBUG, e);
 		} catch (Exception e) {
 			rollbackTransaction(transaction);
-			String errorMessage = "Cannot to add the division \"" + division.getName() + "\" with id=" + division.getId()
-					+ " to the user with login \"" + login + "\"";
+			String errorMessage = "Cannot to add the division " + division
+					+ " in the user with login \"" + login + "\"";
 			LOGGER.error(errorMessage, e);
 			throw new DBException(errorMessage, e);
 		} finally {
